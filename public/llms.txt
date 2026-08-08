@@ -1,0 +1,21 @@
+# Noland
+
+> Noland is a desktop client that turns Vast.ai marketplace hardware into a personal Linux gaming PC for direct game streaming.
+
+Noland has no monthly platform subscription. Users bring their own Vast.ai account and API key, choose available hardware, and pay marketplace compute charges while the rented instance runs.
+
+## Product
+
+- Marketplace hardware spans NVIDIA RTX 20-series through RTX 50-series, subject to live availability.
+- Typical marketplace machines may cost approximately $0.10–$0.40 per hour depending on configuration.
+- Average provisioning takes approximately 10–15 minutes.
+- Measured Noland networking overhead is approximately 8 ms above natural route latency, not total latency.
+- Desktop clients target Windows, macOS, and Linux.
+- Game and launcher compatibility varies within the supported PC/Linux ecosystem.
+
+## Links
+
+- [Source repository](https://github.com/FelipeBarrosCode/no_land)
+- [Current rolling release](https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest)
+- [Vast.ai](https://cloud.vast.ai/)
+- [Vast.ai API keys](https://cloud.vast.ai/manage-keys/?tab=api-keys)
