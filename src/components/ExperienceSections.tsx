@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
+import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
-
-const RELEASE_URL = "https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest";
 
 const stores = ["COMPATIBLE STORES", "LINUX LAUNCHERS", "PC LIBRARIES", "SUPPORTED SOFTWARE"];
 
@@ -153,7 +152,7 @@ export function FinalCtaAndFooter() {
             <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
             <p>Bring your Vast account. Pick current marketplace hardware. Let Noland build the direct path to your remote gaming PC.</p>
             <div className="final-cta__actions">
-              <a className="button button--primary button--large" href={RELEASE_URL} target="_blank" rel="noreferrer">Get Noland <span aria-hidden="true">↓</span></a>
+              <a className="button button--primary button--large" href={`#${DOWNLOADS_SECTION_ID}`}>Get Noland <span aria-hidden="true">↓</span></a>
               <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>
             </div>
           </div>
@@ -165,8 +164,9 @@ export function FinalCtaAndFooter() {
           <a className="brand-lockup" href="#top" aria-label="Back to Noland home"><img src="./brand/noland-icon.png" alt="" width="44" height="44" /><span>NOLAND</span></a>
           <p>P2P PC game streaming through hardware you rent and control.</p>
           <nav aria-label="Footer navigation">
-            <a href="https://github.com/FelipeBarrosCode/no_land" target="_blank" rel="noreferrer">Repository ↗</a>
-            <a href={RELEASE_URL} target="_blank" rel="noreferrer">Latest release ↗</a>
+            <a href={`#${DOWNLOADS_SECTION_ID}`}>Downloads ↓</a>
+            <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
+            <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer">Latest release ↗</a>
             <a href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Vast.ai account ↗</a>
             <a href="https://cloud.vast.ai/manage-keys/?tab=api-keys" target="_blank" rel="noreferrer">API keys ↗</a>
           </nav>

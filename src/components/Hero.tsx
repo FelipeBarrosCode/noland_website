@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
-
-const RELEASE_URL = "https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest";
+import { DOWNLOADS_SECTION_ID } from "../lib/siteLinks";
 
 const architectureNodes = [
   { label: "YOU", detail: "Noland client", tone: "cyan" },
@@ -22,7 +21,7 @@ export function Hero() {
             Connect your Vast.ai API key, choose a marketplace GPU, and Noland provisions the machine, configures the Linux gaming environment, and connects you directly.
           </p>
           <div className="hero-actions">
-            <a className="button button--primary button--large" href={RELEASE_URL} target="_blank" rel="noreferrer">
+            <a className="button button--primary button--large" href={`#${DOWNLOADS_SECTION_ID}`}>
               Get Noland <span aria-hidden="true">↓</span>
             </a>
             <a className="text-link" href="#how-it-works">See how the link works <span aria-hidden="true">→</span></a>

@@ -1,7 +1,5 @@
 import { useState } from "react";
-
-const RELEASE_URL = "https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest";
-const REPOSITORY_URL = "https://github.com/FelipeBarrosCode/no_land";
+import { DOWNLOADS_SECTION_ID, REPOSITORY_URL } from "../lib/siteLinks";
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,13 +31,14 @@ export function Navigation() {
             <a href="#how-it-works" onClick={closeMenu}>How it works</a>
             <a href="#hardware" onClick={closeMenu}>Hardware</a>
             <a href="#performance" onClick={closeMenu}>Performance</a>
+            <a href={`#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>Downloads</a>
             <a href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
           <div className="nav-actions">
             <a className="button button--ghost button--small" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
               GitHub <span aria-hidden="true">↗</span>
             </a>
-            <a className="button button--primary button--small" href={RELEASE_URL} target="_blank" rel="noreferrer">
+            <a className="button button--primary button--small" href={`#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>
               Get Noland <span aria-hidden="true">↓</span>
             </a>
           </div>

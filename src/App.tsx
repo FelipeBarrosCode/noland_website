@@ -1,3 +1,4 @@
+import { DownloadSection } from "./components/DownloadSection";
 import { ArchitectureAndPhilosophy, ControlSection, FinalCtaAndFooter, GameFreedom, MetricStrip } from "./components/ExperienceSections";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
@@ -24,6 +25,7 @@ export function App() {
         <ProvisioningDemo />
         <ArchitectureAndPhilosophy />
         <ControlSection />
+        <DownloadSection />
         <FaqSection />
         <FinalCtaAndFooter />
       </main>
