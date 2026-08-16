@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, WINDOWS_STORE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
@@ -52,11 +52,36 @@ const windowsStoreOption: PlatformButton = {
 };
 
 export function DownloadSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [clientPlatform, setClientPlatform] = useState<ClientPlatform>(() => detectClientPlatform());
+  const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null });
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !("IntersectionObserver" in window)) {
+      setShouldLoadDownloads(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadDownloads(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoadDownloads) return;
+
     let active = true;
 
     fetchLatestReleaseDownloads()
@@ -77,7 +102,7 @@ export function DownloadSection() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [shouldLoadDownloads]);
 
   useEffect(() => {
     let active = true;
@@ -105,7 +130,7 @@ export function DownloadSection() {
   const directDownloadPending = state.status === "loading" && (clientPlatform.os === "macOS" || clientPlatform.os === "Linux");
 
   return (
-    <section className="section downloads-section" id={DOWNLOADS_SECTION_ID} aria-labelledby="downloads-title">
+    <section ref={sectionRef} className="section downloads-section" id={DOWNLOADS_SECTION_ID} aria-labelledby="downloads-title">
       <div className="shell">
         <SectionHeading
           eyebrow="DOWNLOAD"

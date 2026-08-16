@@ -132,17 +132,10 @@ export async function fetchLatestReleaseDownloads(): Promise<ReleaseDownloads> {
     throw new Error(`GitHub release lookup failed with status ${response.status}`);
   }
 
-  const releases = (await response.json()) as GithubRelease[];
-  const latest = releases
-    .filter((release) => !release.draft)
-    .sort((left, right) => {
-      const leftTime = Date.parse(left.updated_at || left.published_at || "") || 0;
-      const rightTime = Date.parse(right.updated_at || right.published_at || "") || 0;
-      return rightTime - leftTime;
-    })[0];
+  const latest = (await response.json()) as GithubRelease;
 
-  if (!latest) {
-    throw new Error("No published GitHub releases were returned.");
+  if (latest.draft) {
+    throw new Error("The rolling GitHub release is not currently published.");
   }
 
   return {

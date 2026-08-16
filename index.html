@@ -4,25 +4,91 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#05050c" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="Noland" />
+    <meta name="author" content="Noland" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
     <meta
       name="description"
-      content="Noland turns Vast.ai marketplace hardware into a personal cloud gaming PC. Choose the GPU, let Noland provision it, then connect and play."
+      content="Noland turns Vast.ai marketplace GPUs into a personal Linux cloud gaming PC. Choose RTX hardware, automate setup, and stream your compatible games."
     />
-    <meta property="og:title" content="Noland — Marketplace hardware. Personal gaming PC." />
+
+    <!-- seo:origin -->
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Noland" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Noland — Rent a Cloud Gaming PC by the Hour" />
     <meta
       property="og:description"
-      content="Connect your Vast.ai account, choose a GPU, and let Noland build the gaming environment. No monthly Noland subscription."
+      content="Choose a marketplace GPU and let Noland provision your personal Linux gaming PC for direct game streaming—without a monthly Noland subscription."
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="./brand/noland-hero.png" />
-    <link rel="icon" type="image/png" href="./favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/FelipeBarrosCode/noland_website/main/public/brand/noland-social.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="Noland pixel-art arcade cabinet sailing across a digital ocean" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Noland — Rent a Cloud Gaming PC by the Hour" />
+    <meta
+      name="twitter:description"
+      content="Choose a marketplace GPU, automate the Linux gaming setup, and stream your compatible games directly."
+    />
+    <meta
+      name="twitter:image"
+      content="https://raw.githubusercontent.com/FelipeBarrosCode/noland_website/main/public/brand/noland-social.jpg"
+    />
+    <meta name="twitter:image:alt" content="Noland pixel-art arcade cabinet sailing across a digital ocean" />
+
+    <link rel="icon" type="image/png" sizes="50x50" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./brand/noland-icon.png" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href="./fonts/press-start-2p-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
-    <title>Noland — Rent the PC. Play your games.</title>
+    <link
+      rel="preload"
+      href="./fonts/vt323-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Noland",
+        "description": "A desktop client that provisions Vast.ai marketplace hardware as a personal Linux cloud gaming PC for direct game streaming.",
+        "applicationCategory": "GameApplication",
+        "applicationSubCategory": "Cloud gaming client",
+        "operatingSystem": "Windows, macOS, Linux",
+        "isAccessibleForFree": true,
+        "image": "https://raw.githubusercontent.com/FelipeBarrosCode/noland_website/main/public/brand/noland-social.jpg",
+        "codeRepository": "https://github.com/FelipeBarrosCode/no_land",
+        "downloadUrl": "https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "No monthly Noland subscription. Vast.ai marketplace compute charges apply while a rented instance runs."
+        },
+        "featureList": [
+          "Automated Linux gaming PC provisioning",
+          "Direct peer-to-peer game streaming",
+          "Vast.ai marketplace GPU selection",
+          "Windows, macOS, and Linux desktop clients"
+        ]
+      }
+    </script>
+    <title>Noland — Rent a Cloud Gaming PC by the Hour</title>
   </head>
   <body>
     <div id="root"></div>

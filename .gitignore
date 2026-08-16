@@ -1,5 +1,8 @@
 node_modules/
 dist/
+lighthouse-reports/
+.lighthouseci/
+dist-ssr/
 .DS_Store
 *.local
 *.tsbuildinfo

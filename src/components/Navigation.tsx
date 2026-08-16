@@ -10,7 +10,7 @@ export function Navigation() {
     <header className="site-header">
       <nav className="site-nav shell" aria-label="Primary navigation">
         <a className="brand-lockup" href="#top" onClick={closeMenu}>
-          <img src="./brand/noland-icon.png" alt="" width="40" height="40" />
+          <img src="./brand/noland-icon.webp" alt="" width="40" height="40" />
           <span>NOLAND</span>
           <span className="brand-status">P2P</span>
         </a>

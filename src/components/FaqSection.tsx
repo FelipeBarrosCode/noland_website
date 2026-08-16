@@ -16,9 +16,23 @@ const faqs = [
   ["How much configuration is required?", "Minimal server configuration is the goal: select an offer and Noland automates the gaming and networking environment. You still choose hardware and location, provide your API key, sign into compatible stores, and stop the instance when finished."],
 ];
 
+const faqSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map(([question, answer]) => ({
+    "@type": "Question",
+    name: question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: answer,
+    },
+  })),
+});
+
 export function FaqSection() {
   return (
     <section className="section faq-section" id="faq" aria-labelledby="faq-title">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
       <div className="shell faq-layout">
         <div className="faq-intro">
           <SectionHeading

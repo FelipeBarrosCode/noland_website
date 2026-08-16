@@ -146,7 +146,16 @@ export function FinalCtaAndFooter() {
       <section className="final-cta" aria-labelledby="final-cta-title">
         <div className="final-cta__grid" aria-hidden="true" />
         <div className="shell final-cta__inner">
-          <img src="./brand/noland-hero.png" alt="Noland pixel arcade cabinet sailing on the ocean" width="360" height="288" />
+          <img
+                      src="./brand/noland-hero-360.webp"
+                      srcSet="./brand/noland-hero-360.webp 360w, ./brand/noland-hero-720.webp 720w"
+                      sizes="(max-width: 640px) calc(100vw - 28px), (max-width: 860px) 240px, (max-width: 1100px) 310px, 360px"
+                      alt="Noland pixel arcade cabinet sailing on the ocean"
+                      width="360"
+                      height="288"
+                      loading="lazy"
+                      decoding="async"
+                    />
           <div>
             <p className="eyebrow"><span aria-hidden="true">//</span> READY TO PROVISION?</p>
             <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
@@ -161,7 +170,7 @@ export function FinalCtaAndFooter() {
 
       <footer className="site-footer">
         <div className="shell footer-main">
-          <a className="brand-lockup" href="#top" aria-label="Back to Noland home"><img src="./brand/noland-icon.png" alt="" width="44" height="44" /><span>NOLAND</span></a>
+          <a className="brand-lockup" href="#top" aria-label="Back to Noland home"><img src="./brand/noland-icon.webp" alt="" width="44" height="44" loading="lazy" decoding="async" /><span>NOLAND</span></a>
           <p>P2P PC game streaming through hardware you rent and control.</p>
           <nav aria-label="Footer navigation">
             <a href={`#${DOWNLOADS_SECTION_ID}`}>Downloads ↓</a>

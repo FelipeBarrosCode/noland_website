@@ -84,7 +84,7 @@ export function Hero() {
             </div>
           </div>
           <div className="hero-art-stamp">
-            <img src="./brand/noland-icon.png" alt="" width="74" height="74" />
+            <img src="./brand/noland-icon.webp" alt="" width="74" height="74" decoding="async" />
           </div>
         </div>
       </div>
