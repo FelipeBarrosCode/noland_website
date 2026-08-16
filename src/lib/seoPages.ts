@@ -645,6 +645,274 @@ export const seoPages: SeoPage[] = [
       },
     ],
   },
+  {
+    path: "/cloud-gaming-windows/",
+    title: "Cloud Gaming on Windows PCs with a Remote GPU | Noland",
+    description:
+      "Use Noland on Windows to choose a Vast.ai marketplace GPU, provision a remote Linux gaming host, and stream supported games to a Windows PC.",
+    eyebrow: "Cloud gaming for Windows",
+    heading: "Cloud gaming on Windows with the rendering moved to a remote GPU",
+    lede:
+      "Run the Noland desktop client on a Windows PC, choose live GPU hardware through your Vast.ai account, and stream from a provisioned Linux gaming environment instead of asking the local PC to render the game.",
+    quickAnswer:
+      "Noland supports Windows as a desktop client, including lower-spec Windows PCs that can reliably decode the stream and handle input. The remote Vast.ai host is always Linux—not Windows—so using Noland on Windows does not guarantee that Windows-only games, anti-cheat systems, launchers, or features will work.",
+    highlights: [
+      { value: "Windows", label: "supported Noland desktop client" },
+      { value: "Remote Linux", label: "marketplace GPU gaming host" },
+      { value: "$0/mo", label: "Noland subscription" },
+    ],
+    sections: [
+      {
+        eyebrow: "How it works",
+        heading: "Your Windows PC is the client, not the cloud operating system",
+        paragraphs: [
+          "Noland runs as a desktop client on Windows and uses the Vast.ai account and API key you provide to show currently available marketplace hardware. After you choose a suitable listing, Noland provisions that remote machine as a Linux gaming environment and configures the NVIDIA stack, Sunshine streaming host, and WireGuard connection. Average provisioning takes about 10–15 minutes, with game downloads and title-specific setup potentially adding more time before play.",
+          "The operating systems on the two ends have different jobs. Windows runs locally on your PC, where it displays the stream and sends keyboard, mouse, or controller input. Linux runs remotely on the selected GPU host, where the game is installed, rendered, and encoded. A Windows client does not turn that host into Windows, does not create a Windows VM, and does not remove the remote environment's Linux compatibility constraints.",
+        ],
+        bullets: [
+          "Use the Windows desktop client to manage the cloud gaming workflow",
+          "Choose from GPU listings currently available through your Vast.ai account",
+          "Allow an average of 10–15 minutes for the base environment to provision",
+          "Connect to a Linux host prepared with NVIDIA software, Sunshine, and WireGuard",
+        ],
+        links: [
+          { href: "/cloud-gaming-pc/", label: "See the complete cloud gaming PC workflow" },
+          { href: "/vast-ai-cloud-gaming/", label: "Learn how Vast.ai hardware selection works" },
+        ],
+      },
+      {
+        eyebrow: "Lower-spec Windows PCs",
+        heading: "Move demanding rendering away from the local Windows hardware",
+        paragraphs: [
+          "A lower-spec Windows PC may be able to stream a supported game that it could not render well locally because the marketplace GPU handles the demanding graphics workload. The local machine receives compressed video and audio while returning player input. That can reduce the need for a powerful local gaming GPU, but it does not make local hardware irrelevant or guarantee that every old or entry-level Windows computer will provide a good experience.",
+          "The Windows PC still has to run the client smoothly, decode the selected video format and settings, display the stream, process audio and input, and maintain a stable network connection. Older processors, weak or unsupported video decoding, driver issues, high display targets, or unreliable Wi-Fi can become the limiting factor. Start with conservative resolution, frame-rate, and bitrate settings, then adjust them according to what the actual device and network can sustain rather than assuming a fixed FPS target.",
+        ],
+        bullets: [
+          "Check that the PC can decode the intended stream settings smoothly",
+          "Use a stable wired or high-quality wireless connection where practical",
+          "Test controllers, keyboard, mouse, audio, and display behavior early",
+          "Increase stream quality only after confirming a stable baseline",
+        ],
+        links: [
+          {
+            href: "/cloud-gaming-low-end-pc/",
+            label: "Read the broader low-end PC cloud gaming guide",
+          },
+          { href: "/cloud-gaming-linux/", label: "Compare cloud gaming from a Linux desktop" },
+        ],
+      },
+      {
+        eyebrow: "Games and software",
+        heading: "Windows on the client does not guarantee Windows game compatibility",
+        paragraphs: [
+          "Game compatibility is determined primarily by the remote Linux environment, not by the operating system displaying the stream. A game may depend on an anti-cheat system that does not support Linux, a launcher with incomplete Linux behavior, DRM that blocks the environment, or Windows-only services and features. Some titles can work while others cannot, and even a powerful marketplace GPU cannot solve a software-level incompatibility.",
+          "Check the specific games, launchers, anti-cheat requirements, account flows, peripheral needs, and online features that matter to you before committing to a long session. Do not treat a successful stream connection as proof that a title will launch or remain supported. Noland configures the gaming and streaming foundation, but it cannot promise universal game support, and compatibility can change when a game or its supporting software is updated.",
+        ],
+        bullets: [
+          "The remote host is Linux rather than Windows",
+          "Anti-cheat, launchers, DRM, and Windows-only features can block a title",
+          "Streaming compatibility and game compatibility are separate questions",
+          "Verify important games individually instead of assuming a complete catalog",
+        ],
+      },
+      {
+        eyebrow: "Streaming performance",
+        heading: "Choose a sensible route as well as a capable GPU",
+        paragraphs: [
+          "Noland prepares Sunshine on the remote host and WireGuard for the connection, enabling a direct streaming path between the provisioned environment and your Windows PC. In measurements, Noland adds about 8 ms of overhead above the natural network-route latency. That figure is not total latency and should not be read as an 8 ms input-to-display promise for every location, ISP, PC, or host.",
+          "Actual responsiveness includes distance and internet routing, local network conditions, congestion, game processing, host encoding, client decoding, input devices, and display behavior. The chosen GPU influences rendering capability, but a more expensive GPU cannot repair a poor route or unstable local connection. Compare host location and configuration alongside price, then tune game and stream settings for the session you actually observe; no particular FPS or latency is guaranteed.",
+        ],
+        links: [
+          {
+            href: "/sunshine-moonlight-cloud-gaming/",
+            label: "Understand the Sunshine, Moonlight, and WireGuard streaming path",
+          },
+        ],
+      },
+      {
+        eyebrow: "Cost and instance lifecycle",
+        heading: "Pay for running marketplace compute and stop it when finished",
+        paragraphs: [
+          "Noland has a $0 monthly subscription. Compute is billed through Vast.ai while the selected marketplace instance runs, including time spent provisioning, downloading games, configuring software, or sitting idle. Typical overall marketplace compute is around $0.10–$0.40 per hour for many practical configurations, but live supply, GPU model, host, and configuration determine the actual rate. Neither a particular price nor a particular Windows cloud gaming setup is guaranteed to be available.",
+          "Treat each marketplace instance as replaceable infrastructure. Use game-supported cloud saves or another appropriate backup approach where available instead of assuming files will survive beyond the instance lifecycle. When a session ends, close the game cleanly, allow supported save synchronization to finish, stop the instance, and verify its status in the service responsible for billing. Closing the Windows client or disconnecting the stream should not be treated as confirmation that compute has stopped.",
+        ],
+        links: [
+          {
+            href: "/pay-as-you-go-cloud-gaming/",
+            label: "Plan pay-as-you-go cloud gaming costs",
+          },
+          { href: "/cloud-gaming-mac/", label: "See the same remote GPU model from a Mac" },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can I use Noland for cloud gaming on a Windows PC?",
+        answer:
+          "Yes. Noland provides a Windows desktop client that lets you use your Vast.ai account and API key to choose live marketplace GPU hardware, provision the remote environment, and connect for streaming. Windows is the local client platform; the selected remote gaming host is Linux.",
+      },
+      {
+        question: "Does the Windows client create a Windows cloud gaming PC?",
+        answer:
+          "No. Noland always provisions a Linux gaming environment on the remote Vast.ai host. Running the Noland client on Windows does not create a Windows VM or make the remote operating system Windows, so Windows-only requirements can still prevent a game or feature from working.",
+      },
+      {
+        question: "Can Noland work on a lower-spec Windows PC?",
+        answer:
+          "It can when the PC can run the client, decode the video stream, handle audio and input, and maintain a stable network connection. The remote GPU performs the game rendering, but local decoding capability, drivers, display targets, and network quality still affect the experience. No result is guaranteed for every low-end device.",
+      },
+      {
+        question: "Will every Windows game work through Noland?",
+        answer:
+          "No. The remote host is Linux, and compatibility varies by title, launcher, anti-cheat system, DRM, peripherals, and Windows-only features. Confirm the games that matter to you individually rather than assuming that access from Windows provides universal Windows game compatibility.",
+      },
+      {
+        question: "How much does cloud gaming on Windows cost with Noland?",
+        answer:
+          "Noland's monthly subscription is $0. Vast.ai bills compute while the marketplace instance runs. Typical overall compute is around $0.10–$0.40 per hour, but the actual rate depends on live supply and the selected host and configuration, so prices and availability are not guaranteed.",
+      },
+      {
+        question: "What latency or FPS should I expect on Windows?",
+        answer:
+          "There is no guaranteed latency or FPS. Noland's measured overhead is about 8 ms above natural route latency, not total latency. Internet routing, host distance, local networking, GPU and game settings, encoding, Windows-side decoding, input devices, and the display all contribute to the final result.",
+      },
+    ],
+  },
+  {
+    path: "/cloud-gaming-linux/",
+    title: "Cloud Gaming on Linux Desktops with Vast.ai GPUs | Noland",
+    description:
+      "Use Noland on a Linux desktop to choose Vast.ai GPU hardware, provision a separate Linux gaming host, and stream supported games over Sunshine and WireGuard.",
+    eyebrow: "Cloud gaming for Linux",
+    heading: "Cloud gaming on Linux with a remote Linux GPU host",
+    lede:
+      "Noland supports a Linux desktop client that can provision a separate Linux gaming environment on GPU hardware chosen through your Vast.ai account, then connect the two systems for direct streaming.",
+    quickAnswer:
+      "Noland offers a Linux-to-Linux cloud gaming workflow: your local Linux desktop runs the client, while a remote Vast.ai Linux environment handles game rendering and Sunshine streaming. Sharing the Linux platform does not guarantee native game support, matching distributions, or compatibility with anti-cheat, launchers, DRM, and Windows-only features.",
+    highlights: [
+      { value: "Linux client", label: "supported Noland desktop platform" },
+      { value: "Linux host", label: "separate remote gaming environment" },
+      { value: "10–15 min", label: "average base provisioning time" },
+    ],
+    sections: [
+      {
+        eyebrow: "Linux-to-Linux workflow",
+        heading: "Use a Linux desktop to control a separately provisioned Linux host",
+        paragraphs: [
+          "The Noland desktop client supports Linux alongside Windows and macOS. On Linux, you provide access to your Vast.ai account with your API key, review live marketplace options, and select the GPU hardware and configuration you want to run. Noland then provisions a separate remote Linux gaming environment with the NVIDIA stack, Sunshine streaming host, and WireGuard networking. Average base provisioning takes about 10–15 minutes before any additional game downloads or title-specific setup.",
+          "Both ends use Linux, but they serve different roles and should not be treated as one machine. Your local desktop runs Noland, decodes the stream, displays video and audio, and sends input. The remote host runs the game, renders frames on the selected NVIDIA GPU, and encodes the Sunshine stream. The remote environment may not match your local distribution, packages, desktop session, drivers, filesystem, or peripherals, so local success does not automatically transfer to the cloud host.",
+        ],
+        bullets: [
+          "Run the supported Noland desktop client on Linux",
+          "Choose from GPU hardware currently available in your Vast.ai account",
+          "Provision a distinct remote Linux gaming environment",
+          "Connect through the configured Sunshine and WireGuard stack",
+        ],
+        links: [
+          { href: "/vast-ai-cloud-gaming/", label: "Learn how Vast.ai cloud gaming is provisioned" },
+          { href: "/cloud-gaming-windows/", label: "Compare the workflow from a Windows PC" },
+        ],
+      },
+      {
+        eyebrow: "Compatibility",
+        heading: "Linux on both ends is not a universal compatibility promise",
+        paragraphs: [
+          "A Linux-to-Linux workflow can feel conceptually direct, but game support still depends on the software inside the remote environment. A title may require an unsupported anti-cheat system, a launcher or DRM flow that behaves differently on Linux, or Windows-only services and features. Some games may work through Linux-compatible paths while others will not launch, connect, or behave correctly, regardless of the available GPU performance.",
+          "Do not assume that a game running locally on your particular Linux installation proves it will run on a newly provisioned host. Local package versions, drivers, compatibility-layer configuration, desktop services, account state, and device access can differ. Check important titles and online requirements individually, and remember that game or anti-cheat updates can change compatibility later. Noland prepares the remote gaming foundation; it does not provide a guaranteed game catalog or promise native compatibility.",
+        ],
+        bullets: [
+          "Verify anti-cheat support before relying on an online title",
+          "Check launcher, DRM, account, and Windows-only feature requirements",
+          "Treat local Linux compatibility as useful context, not proof for the host",
+          "Expect some games and peripheral workflows not to work",
+        ],
+        links: [
+          { href: "/cloud-gaming-pc/", label: "Review the general cloud gaming PC limitations" },
+        ],
+      },
+      {
+        eyebrow: "Client requirements",
+        heading: "Remote rendering still needs a capable local streaming client",
+        paragraphs: [
+          "The marketplace GPU handles the game's demanding rendering and host-side encoding, which can make cloud gaming useful on a Linux desktop without a suitable local gaming GPU. The local system still needs enough resources to run its desktop and the client, decode the selected video stream, process audio and controls, and present frames consistently. Driver state, codec support, display server behavior, and video decoding capability can all affect the local result.",
+          "Begin with conservative stream settings that fit the Linux device and increase quality only after observing stable decoding and input. Test the keyboard, mouse, controller, audio devices, multi-monitor behavior, and any other workflow you depend on before a long paid session. Noland supports Linux as a client platform, but that support cannot guarantee equivalent behavior across every distribution, desktop environment, driver combination, peripheral, or older piece of hardware.",
+        ],
+        bullets: [
+          "Confirm smooth video decoding at the intended stream settings",
+          "Test input and audio on the actual Linux desktop environment",
+          "Use a stable network connection and limit competing traffic",
+          "Tune the stream to observed capability rather than a promised FPS",
+        ],
+        links: [
+          {
+            href: "/cloud-gaming-low-end-pc/",
+            label: "Prepare a lower-spec computer for remote game streaming",
+          },
+        ],
+      },
+      {
+        eyebrow: "Network and latency",
+        heading: "Direct streaming cannot bypass physical distance or internet routing",
+        paragraphs: [
+          "Noland configures Sunshine on the remote Linux host and WireGuard for the connection, enabling the client to stream directly from the provisioned environment. Measured Noland overhead is about 8 ms above natural route latency. It is not an 8 ms total-latency claim, and it does not describe every host, route, Linux desktop, network, game, encoder, decoder, input device, or display.",
+          "Total responsiveness also includes the path between your ISP and the host, geographic distance, congestion, local Ethernet or Wi-Fi conditions, game processing, GPU rendering, encoding, client decoding, compositor and display behavior, and input. Choose a host with a sensible expected route as well as sufficient GPU capability. A faster or more expensive GPU cannot guarantee low latency when the route is poor, and Noland does not guarantee a particular FPS or end-to-end latency.",
+        ],
+        links: [
+          {
+            href: "/sunshine-moonlight-cloud-gaming/",
+            label: "Understand Sunshine, Moonlight, WireGuard, and the latency path",
+          },
+        ],
+      },
+      {
+        eyebrow: "Marketplace cost and lifecycle",
+        heading: "Control when the replaceable Linux host is running",
+        paragraphs: [
+          "Noland has a $0 monthly subscription. Vast.ai marketplace compute is billed while your selected instance runs, including provisioning, game installation, downloads, troubleshooting, and idle time. Typical overall compute is around $0.10–$0.40 per hour depending on current supply and configuration, but the actual rate can fall outside that range. Marketplace listings, GPU models, host locations, prices, and availability change, so none of them should be treated as guaranteed.",
+          "Plan for each remote Linux instance to be replaceable rather than assuming its local files will remain available beyond the infrastructure lifecycle. Use game-supported cloud saves or another appropriate backup method where available, allow supported synchronization to complete, and avoid keeping the only copy of important data on the host. At the end of play, stop the instance and verify its state through the service responsible for billing; closing a local Linux window or disconnecting Sunshine is not enough evidence that compute charges have ended.",
+        ],
+        links: [
+          {
+            href: "/pay-as-you-go-cloud-gaming/",
+            label: "Understand pay-as-you-go instance billing",
+          },
+          { href: "/cloud-gaming-mac/", label: "Compare the remote GPU workflow on macOS" },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does Noland have a Linux desktop client?",
+        answer:
+          "Yes. Noland supports desktop clients on Linux, Windows, and macOS. From Linux, you can use your Vast.ai account and API key to choose currently available marketplace hardware, provision the separate remote gaming environment, and connect to its stream.",
+      },
+      {
+        question: "Is the remote Noland gaming host also Linux?",
+        answer:
+          "Yes. Noland always provisions a Linux gaming environment on the selected Vast.ai host. It is a separate system from your local Linux desktop and may have different packages, configuration, drivers, services, and device access, even though both sides use Linux.",
+      },
+      {
+        question: "Does Linux-to-Linux cloud gaming guarantee native game support?",
+        answer:
+          "No. Compatibility still varies by game, anti-cheat, launcher, DRM, account flow, Windows-only features, and the remote environment's configuration. A title working on one Linux setup does not prove it will work on the provisioned host, and not every game is supported.",
+      },
+      {
+        question: "Can I use Noland from a Linux desktop without a gaming GPU?",
+        answer:
+          "The remote marketplace GPU performs game rendering, so a powerful local gaming GPU is not the central requirement. The Linux desktop still must run the client, decode the stream reliably, handle input and audio, and maintain a stable connection. Results vary by hardware, drivers, codecs, desktop environment, and stream settings.",
+      },
+      {
+        question: "How much does Linux cloud gaming with Noland cost?",
+        answer:
+          "Noland charges $0 per month. Vast.ai bills marketplace compute while the chosen instance runs, with typical overall compute around $0.10–$0.40 per hour. Live supply and configuration determine the real rate, so a specific GPU, location, price, or level of performance is not guaranteed.",
+      },
+      {
+        question: "What latency should I expect when streaming to Linux?",
+        answer:
+          "There is no guaranteed total-latency figure. Noland's measured overhead is about 8 ms above natural route latency, while routing, distance, congestion, local networking, game processing, encoding, Linux-side decoding and display behavior, input, and the monitor all contribute to the complete experience.",
+      },
+    ],
+  },
 ];
 
 export const getSeoPage = (pathname: string): SeoPage | undefined => {

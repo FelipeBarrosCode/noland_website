@@ -34,7 +34,7 @@ export function App({ pathname = "/" }: AppProps) {
             <div className="section-heading">
               <p className="eyebrow"><span aria-hidden="true">//</span> CLOUD GAMING GUIDES</p>
               <h2 id="home-pillars-title">Find the cloud gaming setup that fits you</h2>
-              <p className="section-heading__description">Explore usage-based pricing, Mac and low-end-PC use cases, Vast.ai provisioning, and the Sunshine streaming stack.</p>
+              <p className="section-heading__description">Explore usage-based pricing, Windows, Mac, Linux and low-end-PC use cases, Vast.ai provisioning, and the Sunshine streaming stack.</p>
             </div>
             <SeoPillarLinks />
           </div>

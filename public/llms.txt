@@ -17,7 +17,9 @@ Noland has no monthly platform subscription. Users bring their own Vast.ai accou
 
 - [Cloud gaming PC rental](https://no-land.net/cloud-gaming-pc/)
 - [Pay-as-you-go cloud gaming](https://no-land.net/pay-as-you-go-cloud-gaming/)
+- [Cloud gaming on Windows](https://no-land.net/cloud-gaming-windows/)
 - [Cloud gaming on Mac](https://no-land.net/cloud-gaming-mac/)
+- [Cloud gaming on Linux](https://no-land.net/cloud-gaming-linux/)
 - [Cloud gaming on a low-end PC](https://no-land.net/cloud-gaming-low-end-pc/)
 - [Vast.ai cloud gaming](https://no-land.net/vast-ai-cloud-gaming/)
 - [Sunshine and Moonlight cloud gaming](https://no-land.net/sunshine-moonlight-cloud-gaming/)

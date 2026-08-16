@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, WINDOWS_STORE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
@@ -356,7 +357,7 @@ function detectClientPlatform(): ClientPlatform {
   const userAgent = browserNavigator.userAgent ?? "";
 
   return {
-    os: normalizeOS(platform, userAgent),
+    os: detectDesktopOperatingSystem(platform, userAgent),
     architecture: normalizeArchitecture("", "", `${platform} ${userAgent}`),
   };
 }
@@ -376,7 +377,7 @@ async function refineClientPlatform(): Promise<ClientPlatform> {
   try {
     const details = await userAgentData.getHighEntropyValues(["architecture", "bitness", "platform"]);
     return {
-      os: normalizeOS(details.platform ?? userAgentData.platform ?? browserNavigator.platform ?? "", browserNavigator.userAgent ?? ""),
+      os: detectDesktopOperatingSystem(details.platform ?? userAgentData.platform ?? browserNavigator.platform ?? "", browserNavigator.userAgent ?? ""),
       architecture: normalizeArchitecture(details.architecture ?? "", details.bitness ?? "", browserNavigator.userAgent ?? "")
         ?? fallback.architecture,
     };
@@ -385,22 +386,6 @@ async function refineClientPlatform(): Promise<ClientPlatform> {
   }
 }
 
-function normalizeOS(platform: string, userAgent: string): ClientOS {
-  const fingerprint = `${platform} ${userAgent}`.toLowerCase();
-  if (/android|iphone|ipad|ipod/u.test(fingerprint)) {
-    return "Unknown";
-  }
-  if (/windows|win32|win64/u.test(fingerprint)) {
-    return "Windows";
-  }
-  if (/macintosh|mac os|macintel|macarm/u.test(fingerprint)) {
-    return "macOS";
-  }
-  if (/linux|x11/u.test(fingerprint)) {
-    return "Linux";
-  }
-  return "Unknown";
-}
 
 function normalizeArchitecture(architecture: string, bitness: string, fallbackFingerprint: string): ClientArchitecture {
   const normalizedArchitecture = architecture.toLowerCase();

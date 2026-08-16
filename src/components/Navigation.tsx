@@ -1,8 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { detectNavigatorOperatingSystem, type DesktopOperatingSystem } from "../lib/clientPlatform";
 import { DOWNLOADS_SECTION_ID, REPOSITORY_URL } from "../lib/siteLinks";
+
+const platformGuides: Record<DesktopOperatingSystem, { href: string; label: string }> = {
+  Windows: { href: "/cloud-gaming-windows/", label: "For Windows" },
+  macOS: { href: "/cloud-gaming-mac/", label: "For Mac" },
+  Linux: { href: "/cloud-gaming-linux/", label: "For Linux" },
+  Unknown: { href: "/cloud-gaming-pc/", label: "For your device" },
+};
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [platformGuide, setPlatformGuide] = useState(platformGuides.Unknown);
+
+  useEffect(() => {
+    setPlatformGuide(platformGuides[detectNavigatorOperatingSystem()]);
+  }, []);
 
   const closeMenu = () => setIsOpen(false);
 
@@ -30,7 +43,7 @@ export function Navigation() {
           <div className="nav-links">
             <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud gaming PC</a>
             <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Pay as you go</a>
-            <a href="/cloud-gaming-mac/" onClick={closeMenu}>For Mac</a>
+            <a href={platformGuide.href} onClick={closeMenu}>{platformGuide.label}</a>
             <a href="/#how-it-works" onClick={closeMenu}>How it works</a>
             <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>Downloads</a>
           </div>
