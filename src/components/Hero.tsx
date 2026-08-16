@@ -15,16 +15,16 @@ export function Hero() {
     <section className="hero" id="top" aria-labelledby="hero-title">
       <div className="hero-grid shell">
         <div className="hero-copy">
-          <p className="eyebrow"><span aria-hidden="true">//</span> P2P PC GAME STREAMING</p>
-          <h1 id="hero-title">Rent the PC.<br /><span>Play your games.</span></h1>
+          <p className="eyebrow"><span aria-hidden="true">//</span> PAY-AS-YOU-GO CLOUD GAMING</p>
+          <h1 id="hero-title">Rent a cloud gaming PC.<br /><span>Pay by the hour.</span></h1>
           <p className="hero-lede">
-            Connect your Vast.ai API key, choose a marketplace GPU, and Noland provisions the machine, configures the Linux gaming environment, and connects you directly.
+            Choose a marketplace GPU, launch your own Linux cloud gaming PC, and pay only for the compute you use. Noland automates setup and enables direct P2P streaming—without a monthly Noland subscription.
           </p>
           <div className="hero-actions">
-            <a className="button button--primary button--large" href={`#${DOWNLOADS_SECTION_ID}`}>
+            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`}>
               Get Noland <span aria-hidden="true">↓</span>
             </a>
-            <a className="text-link" href="#how-it-works">See how the link works <span aria-hidden="true">→</span></a>
+            <a className="text-link" href="/#how-it-works">See how the link works <span aria-hidden="true">→</span></a>
           </div>
           <ul className="hero-facts" aria-label="Product highlights">
             <li><strong>$0</strong><span>monthly Noland subscription</span></li>
@@ -84,7 +84,7 @@ export function Hero() {
             </div>
           </div>
           <div className="hero-art-stamp">
-            <img src="./brand/noland-icon.webp" alt="" width="74" height="74" decoding="async" />
+            <img src="/brand/noland-icon.webp" alt="" width="74" height="74" decoding="async" />
           </div>
         </div>
       </div>

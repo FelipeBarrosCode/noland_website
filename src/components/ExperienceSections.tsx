@@ -30,7 +30,7 @@ export function GameFreedom() {
         <div className="freedom-copy">
           <SectionHeading
             eyebrow="YOUR LIBRARY / YOUR LOGIN"
-            title={<span id="freedom-title">It’s a PC. <em>Not a catalog.</em></span>}
+            title={<span id="freedom-title">Play your own compatible PC games. <em>Not a fixed catalog.</em></span>}
             description="Use the compatible stores, launchers, and software that fit your game setup instead of waiting for a streaming service to add a title."
           />
           <div className="store-ticker" aria-label="Examples of compatible stores and launchers">
@@ -140,48 +140,54 @@ export function ControlSection() {
   );
 }
 
-export function FinalCtaAndFooter() {
+export function FinalCta() {
   return (
-    <>
-      <section className="final-cta" aria-labelledby="final-cta-title">
-        <div className="final-cta__grid" aria-hidden="true" />
-        <div className="shell final-cta__inner">
-          <img
-                      src="./brand/noland-hero-360.webp"
-                      srcSet="./brand/noland-hero-360.webp 360w, ./brand/noland-hero-720.webp 720w"
-                      sizes="(max-width: 640px) calc(100vw - 28px), (max-width: 860px) 240px, (max-width: 1100px) 310px, 360px"
-                      alt="Noland pixel arcade cabinet sailing on the ocean"
-                      width="360"
-                      height="288"
-                      loading="lazy"
-                      decoding="async"
-                    />
-          <div>
-            <p className="eyebrow"><span aria-hidden="true">//</span> READY TO PROVISION?</p>
-            <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
-            <p>Bring your Vast account. Pick current marketplace hardware. Let Noland build the direct path to your remote gaming PC.</p>
-            <div className="final-cta__actions">
-              <a className="button button--primary button--large" href={`#${DOWNLOADS_SECTION_ID}`}>Get Noland <span aria-hidden="true">↓</span></a>
-              <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>
-            </div>
+    <section className="final-cta" aria-labelledby="final-cta-title">
+      <div className="final-cta__grid" aria-hidden="true" />
+      <div className="shell final-cta__inner">
+        <img
+          src="/brand/noland-hero-360.webp"
+          srcSet="/brand/noland-hero-360.webp 360w, /brand/noland-hero-720.webp 720w"
+          sizes="(max-width: 640px) calc(100vw - 28px), (max-width: 860px) 240px, (max-width: 1100px) 310px, 360px"
+          alt="Noland pixel arcade cabinet sailing on the ocean"
+          width="360"
+          height="288"
+          loading="lazy"
+          decoding="async"
+        />
+        <div>
+          <p className="eyebrow"><span aria-hidden="true">//</span> READY TO PROVISION?</p>
+          <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
+          <p>Bring your Vast account. Pick current marketplace hardware. Let Noland build the direct path to your remote gaming PC.</p>
+          <div className="final-cta__actions">
+            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`}>Get Noland <span aria-hidden="true">↓</span></a>
+            <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      <footer className="site-footer">
-        <div className="shell footer-main">
-          <a className="brand-lockup" href="#top" aria-label="Back to Noland home"><img src="./brand/noland-icon.webp" alt="" width="44" height="44" loading="lazy" decoding="async" /><span>NOLAND</span></a>
-          <p>P2P PC game streaming through hardware you rent and control.</p>
-          <nav aria-label="Footer navigation">
-            <a href={`#${DOWNLOADS_SECTION_ID}`}>Downloads ↓</a>
-            <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
-            <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer">Latest release ↗</a>
-            <a href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Vast.ai account ↗</a>
-            <a href="https://cloud.vast.ai/manage-keys/?tab=api-keys" target="_blank" rel="noreferrer">API keys ↗</a>
-          </nav>
-        </div>
-        <div className="shell footer-bottom"><span>NOLAND // P2P PC STREAMING</span><span>WINDOWS · macOS · LINUX</span><span>BUILT FOR DIRECT PLAY</span></div>
-      </footer>
-    </>
+export function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="shell footer-main">
+        <a className="brand-lockup" href="/#top" aria-label="Back to Noland Cloud Gaming home"><img src="/brand/noland-icon.webp" alt="" width="44" height="44" loading="lazy" decoding="async" /><span>NOLAND</span></a>
+        <p>Pay-as-you-go cloud gaming PCs through GPU hardware you rent and control.</p>
+        <nav aria-label="Footer navigation">
+          <a href="/cloud-gaming-pc/">Cloud gaming PC</a>
+          <a href="/pay-as-you-go-cloud-gaming/">Pay as you go</a>
+          <a href="/cloud-gaming-mac/">For Mac</a>
+          <a href="/cloud-gaming-low-end-pc/">Low-end PC</a>
+          <a href="/vast-ai-cloud-gaming/">Vast.ai guide</a>
+          <a href="/sunshine-moonlight-cloud-gaming/">Sunshine + Moonlight</a>
+          <a href={`/#${DOWNLOADS_SECTION_ID}`}>Downloads ↓</a>
+          <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
+          <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer">Latest release ↗</a>
+        </nav>
+      </div>
+      <div className="shell footer-bottom"><span>NOLAND CLOUD GAMING</span><span>WINDOWS · macOS · LINUX</span><span>BUILT FOR DIRECT PLAY</span></div>
+    </footer>
   );
 }

@@ -27,7 +27,7 @@ export function MarketplaceBrowser() {
       <div className="shell">
         <SectionHeading
           eyebrow="HARDWARE MARKETPLACE"
-          title={<span id="hardware-title">Choose the GPU. <em>Choose the route.</em></span>}
+          title={<span id="hardware-title">Choose the cloud gaming GPU. <em>Choose the route.</em></span>}
           description="Noland opens access to independent Vast providers across RTX generations. Inventory, location, and configuration change continuously."
         />
 

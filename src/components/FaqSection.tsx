@@ -37,7 +37,7 @@ export function FaqSection() {
         <div className="faq-intro">
           <SectionHeading
             eyebrow="OPERATOR MANUAL"
-            title={<span id="faq-title">Questions before <em>you connect.</em></span>}
+            title={<span id="faq-title">Noland cloud gaming <em>questions and answers.</em></span>}
             description="Straight answers about cost, compatibility, provisioning, data flow, and the rented hardware model."
           />
           <div className="faq-side-note">

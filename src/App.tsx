@@ -1,5 +1,5 @@
 import { DownloadSection } from "./components/DownloadSection";
-import { ArchitectureAndPhilosophy, ControlSection, FinalCtaAndFooter, GameFreedom, MetricStrip } from "./components/ExperienceSections";
+import { ArchitectureAndPhilosophy, ControlSection, FinalCta, GameFreedom, MetricStrip, SiteFooter } from "./components/ExperienceSections";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
 import { Hero } from "./components/Hero";
@@ -8,8 +8,19 @@ import { LatencyLab } from "./components/LatencyLab";
 import { MarketplaceBrowser } from "./components/MarketplaceBrowser";
 import { Navigation } from "./components/Navigation";
 import { ProvisioningDemo } from "./components/ProvisioningDemo";
+import { SeoLandingPage } from "./components/SeoLandingPage";
+import { SeoPillarLinks } from "./components/SeoPillarLinks";
+import { getSeoPage } from "./lib/seoPages";
+import { normalizePathname } from "./lib/site";
 
-export function App() {
+interface AppProps {
+  pathname?: string;
+}
+
+export function App({ pathname = "/" }: AppProps) {
+  const seoPage = getSeoPage(normalizePathname(pathname));
+  if (seoPage) return <SeoLandingPage page={seoPage} />;
+
   return (
     <>
       <a className="skip-link" href="#main-content">Skip to content</a>
@@ -18,6 +29,16 @@ export function App() {
         <Hero />
         <MetricStrip />
         <HowItWorks />
+        <section className="section home-pillars" aria-labelledby="home-pillars-title">
+          <div className="shell">
+            <div className="section-heading">
+              <p className="eyebrow"><span aria-hidden="true">//</span> CLOUD GAMING GUIDES</p>
+              <h2 id="home-pillars-title">Find the cloud gaming setup that fits you</h2>
+              <p className="section-heading__description">Explore usage-based pricing, Mac and low-end-PC use cases, Vast.ai provisioning, and the Sunshine streaming stack.</p>
+            </div>
+            <SeoPillarLinks />
+          </div>
+        </section>
         <MarketplaceBrowser />
         <EconomicsCalculator />
         <GameFreedom />
@@ -27,8 +48,9 @@ export function App() {
         <ControlSection />
         <DownloadSection />
         <FaqSection />
-        <FinalCtaAndFooter />
+        <FinalCta />
       </main>
+      <SiteFooter />
     </>
   );
 }

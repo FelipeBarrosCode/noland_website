@@ -1,77 +1,125 @@
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const siteUrl = normalizeSiteUrl(process.env.SITE_URL);
 const clientHtmlPath = new URL("../dist/index.html", import.meta.url);
 const serverBundlePath = new URL("../dist-ssr/entry-server.js", import.meta.url);
 const serverOutputPath = new URL("../dist-ssr", import.meta.url);
 const robotsPath = new URL("../dist/robots.txt", import.meta.url);
 const sitemapPath = new URL("../dist/sitemap.xml", import.meta.url);
-const fallbackSocialImage = "https://raw.githubusercontent.com/FelipeBarrosCode/noland_website/main/public/brand/noland-social.jpg";
 
 try {
-  const [{ render }, template] = await Promise.all([
+  const [serverEntry, template] = await Promise.all([
     import(pathToFileURL(serverBundlePath.pathname).href),
     readFile(clientHtmlPath, "utf8"),
   ]);
 
-  const appHtml = render();
-  let html = template.replace(
-    '<div id="root"></div>',
-    `<div id="root">${appHtml}</div>`,
-  );
+  const siteUrl = serverEntry.siteUrl;
+  const pages = serverEntry.staticPaths.map((pathname) => {
+    const metadata = serverEntry.getPageMetadata(pathname);
+    if (!metadata) throw new Error(`Missing metadata for static path: ${pathname}`);
+    return metadata;
+  });
 
-  if (siteUrl) {
-    const pageUrl = `${siteUrl}/`;
-    const socialImageUrl = `${siteUrl}/brand/noland-social.jpg`;
-    html = html
-      .replace(
-        "<!-- seo:origin -->",
-        `<link rel="canonical" href="${escapeAttribute(pageUrl)}" />\n    <meta property="og:url" content="${escapeAttribute(pageUrl)}" />`,
-      )
-      .replaceAll(fallbackSocialImage, socialImageUrl);
-
-    const today = new Date().toISOString().slice(0, 10);
-    await writeFile(
-      sitemapPath,
-      `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${escapeXml(pageUrl)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`,
+  for (const metadata of pages) {
+    const appHtml = serverEntry.render(metadata.path);
+    const pageUrl = new URL(metadata.path, `${siteUrl}/`).toString();
+    const socialImageUrl = new URL("/brand/noland-social.jpg", `${siteUrl}/`).toString();
+    const html = applyPageMetadata(
+      template.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`),
+      metadata,
+      pageUrl,
+      socialImageUrl,
+      siteUrl,
     );
+    const outputUrl = metadata.path === "/"
+      ? clientHtmlPath
+      : new URL(`../dist${metadata.path}index.html`, import.meta.url);
 
-    const robots = await readFile(robotsPath, "utf8");
-    await writeFile(robotsPath, `${robots.trim()}\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
-  } else {
-    html = html.replace("<!-- seo:origin -->", "");
-    console.warn("SITE_URL is not set; canonical URL and sitemap generation were skipped.");
+    await mkdir(dirname(outputUrl.pathname), { recursive: true });
+    await writeFile(outputUrl, html);
   }
 
-  await writeFile(clientHtmlPath, html);
+  const today = new Date().toISOString().slice(0, 10);
+  const sitemapEntries = pages.map((page) => {
+    const pageUrl = new URL(page.path, `${siteUrl}/`).toString();
+    return [
+      "  <url>",
+      `    <loc>${escapeXml(pageUrl)}</loc>`,
+      `    <lastmod>${today}</lastmod>`,
+      `    <changefreq>${page.changeFrequency}</changefreq>`,
+      `    <priority>${page.priority.toFixed(1)}</priority>`,
+      "  </url>",
+    ].join("\n");
+  }).join("\n");
+
+  await writeFile(
+    sitemapPath,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries}\n</urlset>\n`,
+  );
+
+  await writeFile(
+    robotsPath,
+    [
+      "User-agent: *",
+      "Allow: /",
+      "",
+      "User-agent: Googlebot",
+      "Allow: /",
+      "",
+      "User-agent: Bingbot",
+      "Allow: /",
+      "",
+      "User-agent: OAI-SearchBot",
+      "Allow: /",
+      "",
+      "User-agent: PerplexityBot",
+      "Allow: /",
+      "",
+      `Sitemap: ${siteUrl}/sitemap.xml`,
+      "",
+    ].join("\n"),
+  );
+
+  console.log(`Prerendered ${pages.length} routes for ${siteUrl}.`);
 } finally {
   await rm(serverOutputPath, { recursive: true, force: true });
 }
 
-function normalizeSiteUrl(value) {
-  if (!value) return null;
+function applyPageMetadata(html, metadata, pageUrl, socialImageUrl, siteUrl) {
+  let updatedHtml = html
+    .replace(/<title>[^<]*<\/title>/u, `<title>${escapeHtml(metadata.title)}</title>`)
+    .replace("<!-- seo:origin -->", `<link rel="canonical" href="${escapeAttribute(pageUrl)}" />\n    <meta property="og:url" content="${escapeAttribute(pageUrl)}" />`)
+    .replaceAll("https://no-land.net", siteUrl)
+    .replaceAll("https://raw.githubusercontent.com/FelipeBarrosCode/noland_website/main/public/brand/noland-social.jpg", socialImageUrl);
 
-  const url = new URL(value);
-  if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error("SITE_URL must use http or https.");
-  }
-
-  url.hash = "";
-  url.search = "";
-  url.pathname = url.pathname.replace(/\/+$/u, "");
-  return url.toString().replace(/\/$/u, "");
+  updatedHtml = replaceMeta(updatedHtml, "name", "description", metadata.description);
+  updatedHtml = replaceMeta(updatedHtml, "property", "og:title", metadata.title);
+  updatedHtml = replaceMeta(updatedHtml, "property", "og:description", metadata.description);
+  updatedHtml = replaceMeta(updatedHtml, "property", "og:image", socialImageUrl);
+  updatedHtml = replaceMeta(updatedHtml, "name", "twitter:title", metadata.title);
+  updatedHtml = replaceMeta(updatedHtml, "name", "twitter:description", metadata.description);
+  return replaceMeta(updatedHtml, "name", "twitter:image", socialImageUrl);
 }
 
+function replaceMeta(html, attribute, key, content) {
+  const pattern = new RegExp(`<meta(?=[^>]*\\b${attribute}="${escapeRegExp(key)}")[^>]*>`, "u");
+  return html.replace(pattern, `<meta ${attribute}="${key}" content="${escapeAttribute(content)}" />`);
+}
+
+
 function escapeAttribute(value) {
-  return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+  return escapeHtml(value).replaceAll('"', "&quot;");
+}
+
+function escapeHtml(value) {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 function escapeXml(value) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
+  return escapeHtml(value).replaceAll('"', "&quot;").replaceAll("'", "&apos;");
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }

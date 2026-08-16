@@ -20,7 +20,7 @@ export function HowItWorks() {
       <div className="shell">
         <SectionHeading
           eyebrow="FROM MARKETPLACE TO GAME"
-          title={<span id="process-title">Four steps. <em>Your machine at the other end.</em></span>}
+          title={<span id="process-title">How Noland Cloud Gaming Works. <em>Four steps to your machine.</em></span>}
           description="Noland handles orchestration between your desktop and a rented marketplace PC—without adding an artificial play-session timer."
         />
 
