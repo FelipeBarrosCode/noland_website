@@ -2,6 +2,7 @@ import { DownloadSection } from "./components/DownloadSection";
 import { ArchitectureAndPhilosophy, ControlSection, FinalCta, GameFreedom, MetricStrip, SiteFooter } from "./components/ExperienceSections";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
+import { HashScroll } from "./components/HashScroll";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LatencyLab } from "./components/LatencyLab";
@@ -19,10 +20,18 @@ interface AppProps {
 
 export function App({ pathname = "/" }: AppProps) {
   const seoPage = getSeoPage(normalizePathname(pathname));
-  if (seoPage) return <SeoLandingPage page={seoPage} />;
+  if (seoPage) {
+    return (
+      <>
+        <HashScroll />
+        <SeoLandingPage page={seoPage} />
+      </>
+    );
+  }
 
   return (
     <>
+      <HashScroll />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <Navigation />
       <main id="main-content">
