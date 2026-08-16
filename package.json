@@ -8,10 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run typecheck && npm run build:client && npm run build:ssr && npm run prerender",
-    "build:client": "vite build",
-    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
-    "prerender": "node scripts/prerender.mjs",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "audit": "npm run build && node scripts/lighthouse.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.app.json --pretty false && tsc --noEmit -p tsconfig.node.json --pretty false"
