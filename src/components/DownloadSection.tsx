@@ -10,7 +10,7 @@ type LoadState =
   | { status: "ready"; payload: ReleaseDownloads }
   | { status: "error"; message: string };
 
-type ClientOS = DownloadPlatform | "Windows" | "Unknown";
+type ClientOS = DownloadPlatform | "Unknown";
 type ClientArchitecture = DownloadOption["architecture"] | null;
 type ClientPlatform = {
   os: ClientOS;
@@ -51,6 +51,7 @@ function capture(event: string, properties: Record<string, string | number | nul
 const platformDescriptions: Record<DownloadPlatform, string> = {
   macOS: "Direct DMG installers for Apple Silicon and Intel Macs.",
   Linux: "AppImage, Debian, and RPM packages for x64 and ARM64 desktops.",
+  Windows: "Native NSIS installers for Windows x64 and ARM64, plus the Microsoft Store.",
 };
 
 const windowsStoreOption: PlatformButton = {
@@ -132,6 +133,7 @@ export function DownloadSection() {
 
   const macOptions = useMemo(() => getOptionsForPlatform(state, "macOS"), [state]);
   const linuxOptions = useMemo(() => getOptionsForPlatform(state, "Linux"), [state]);
+  const windowsOptions = useMemo(() => getOptionsForPlatform(state, "Windows"), [state]);
   const recommendedDownload = useMemo(
     () => getRecommendedDownload(clientPlatform, state),
     [clientPlatform, state],
@@ -224,8 +226,8 @@ export function DownloadSection() {
             <div className="download-grid">
               <PlatformCard
                 title="Windows"
-                description="Windows installation is available only through the Microsoft Store."
-                buttons={[windowsStoreOption]}
+                description={platformDescriptions.Windows}
+                buttons={[...windowsOptions, windowsStoreOption]}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
               />
@@ -274,7 +276,7 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
         {buttons.length > 0 ? buttons.map((button) => (
           <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName, architecture: button.architecture ?? null, format: button.format ?? null })}>
             <span>{button.label}</span>
-            <span aria-hidden="true">{title === "Windows" ? "↗" : "↓"}</span>
+            <span aria-hidden="true">{button.id === "windows-store" ? "↗" : "↓"}</span>
           </a>
         )) : (
           <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: "release_fallback" })}>
@@ -308,6 +310,15 @@ function getOptionsForPlatform(state: LoadState, platform: DownloadPlatform): Do
 
 function getRecommendedDownload(client: ClientPlatform, state: LoadState): PlatformButton | null {
   if (client.os === "Windows") {
+    if (state.status === "ready" && client.architecture !== null) {
+      const match = state.payload.options.find(
+        (option) => option.platform === "Windows" && option.architecture === client.architecture,
+      );
+      if (match) {
+        return match;
+      }
+    }
+
     return windowsStoreOption;
   }
 
@@ -351,7 +362,7 @@ function formatDetectedPlatform(client: ClientPlatform): string {
     return "Choose your platform";
   }
 
-  if (client.architecture === null || client.os === "Windows") {
+  if (client.architecture === null) {
     return client.os;
   }
 

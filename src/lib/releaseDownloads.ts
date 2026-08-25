@@ -1,6 +1,6 @@
 import { RELEASES_API_URL, RELEASES_PAGE_URL } from "./siteLinks";
 
-export type DownloadPlatform = "macOS" | "Linux";
+export type DownloadPlatform = "macOS" | "Linux" | "Windows";
 
 export type DownloadOption = {
   id: string;
@@ -64,6 +64,24 @@ const downloadDefinitions: DownloadDefinition[] = [
     architecture: "x64",
     format: "dmg",
     matches: (assetName) => hasExtension(assetName, ".dmg") && hasArch(assetName, "x64"),
+  },
+  {
+    id: "windows-x64-exe",
+    platform: "Windows",
+    label: "Windows x64 — installer",
+    description: "Native NSIS installer for 64-bit Windows.",
+    architecture: "x64",
+    format: "exe",
+    matches: (assetName) => /_x64-setup\.exe$/iu.test(assetName),
+  },
+  {
+    id: "windows-arm64-exe",
+    platform: "Windows",
+    label: "Windows ARM64 — installer",
+    description: "Native NSIS installer for Windows on ARM.",
+    architecture: "arm64",
+    format: "exe",
+    matches: (assetName) => /_arm64-setup\.exe$/iu.test(assetName),
   },
   {
     id: "linux-x64-appimage",
