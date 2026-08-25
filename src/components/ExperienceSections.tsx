@@ -1,6 +1,13 @@
 import type { CSSProperties } from "react";
+import posthog from "posthog-js";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const stores = ["COMPATIBLE STORES", "LINUX LAUNCHERS", "PC LIBRARIES", "SUPPORTED SOFTWARE"];
 
@@ -160,7 +167,7 @@ export function FinalCta() {
           <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
           <p>Bring your Vast account. Pick current marketplace hardware. Let Noland build the direct path to your remote gaming PC.</p>
           <div className="final-cta__actions">
-            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`}>Get Noland <span aria-hidden="true">↓</span></a>
+            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_cta_clicked", { source: "final_cta" })}>Get Noland <span aria-hidden="true">↓</span></a>
             <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>
           </div>
         </div>
@@ -184,9 +191,9 @@ export function SiteFooter() {
           <a href="/cloud-gaming-low-end-pc/">Low-end PC</a>
           <a href="/vast-ai-cloud-gaming/">Vast.ai guide</a>
           <a href="/sunshine-moonlight-cloud-gaming/">Sunshine + Moonlight</a>
-          <a href={`/#${DOWNLOADS_SECTION_ID}`}>Downloads ↓</a>
+          <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_section_nav_clicked", { source: "footer" })}>Downloads ↓</a>
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
-          <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer">Latest release ↗</a>
+          <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer" onClick={() => capture("download_release_page_clicked", { source: "footer" })}>Latest release ↗</a>
         </nav>
       </div>
       <div className="shell footer-bottom"><span>NOLAND CLOUD GAMING</span><span>WINDOWS · macOS · LINUX</span><span>BUILT FOR DIRECT PLAY</span></div>

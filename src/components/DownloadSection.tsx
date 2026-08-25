@@ -23,6 +23,8 @@ type PlatformButton = {
   url: string;
   assetName: string;
   description?: string;
+  architecture?: "arm64" | "x64";
+  format?: string;
 };
 
 type UserAgentDataDetails = {
@@ -100,9 +102,11 @@ export function DownloadSection() {
       })
       .catch((error: unknown) => {
         if (active) {
+          const message = error instanceof Error ? error.message : "Unable to resolve the latest release right now.";
+          capture("download_lookup_failed", { error: message });
           setState({
             status: "error",
-            message: error instanceof Error ? error.message : "Unable to resolve the latest release right now.",
+            message,
           });
         }
       });
@@ -136,9 +140,9 @@ export function DownloadSection() {
   const resolvedReleaseLabel = state.status === "ready" ? state.payload.releaseLabel : "latest GitHub release";
   const releaseFlavor = state.status === "ready" ? (state.payload.isPrerelease ? "rolling prerelease" : "stable release") : null;
   const directDownloadPending = state.status === "loading" && (clientPlatform.os === "macOS" || clientPlatform.os === "Linux");
-  const openDownloadOptions = () => {
+  const openDownloadOptions = (source: "download_recommendation" | "download_other_platforms") => {
     if (!optionsOpen) {
-      capture("download_options_opened", { source: "download_recommendation" });
+      capture("download_options_opened", { source });
     }
     setOptionsOpen(true);
   };
@@ -163,7 +167,7 @@ export function DownloadSection() {
               {releaseFlavor ? <em>{releaseFlavor}</em> : null}
             </span>
           )}
-          <a className="text-link" href={resolvedReleaseUrl} target="_blank" rel="noreferrer">Open release notes <span aria-hidden="true">↗</span></a>
+          <a className="text-link" href={resolvedReleaseUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_release_notes_clicked", { release_label: resolvedReleaseLabel })}>Open release notes <span aria-hidden="true">↗</span></a>
         </div>
 
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
@@ -178,7 +182,7 @@ export function DownloadSection() {
 
           <div className="download-recommendation__action">
             {recommendedDownload ? (
-              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => capture("download_recommended_clicked", { platform: clientPlatform.os, architecture: clientPlatform.architecture, download_id: recommendedDownload.id })}>
+              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => capture("download_recommended_clicked", { platform: clientPlatform.os, architecture: clientPlatform.architecture, download_id: recommendedDownload.id, asset_name: recommendedDownload.assetName, release_label: resolvedReleaseLabel })}>
                 <span>{recommendedDownload.label}</span>
                 <span aria-hidden="true">{clientPlatform.os === "Windows" ? "↗" : "↓"}</span>
               </a>
@@ -187,11 +191,11 @@ export function DownloadSection() {
                 Resolving compatible build…
               </button>
             ) : (
-              <button className="button button--primary button--large" type="button" onClick={openDownloadOptions}>
+              <button className="button button--primary button--large" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
                 Choose an installer <span aria-hidden="true">↓</span>
               </button>
             )}
-            <button className="download-recommendation__other" type="button" onClick={openDownloadOptions}>
+            <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_other_platforms")}>
               Other platforms and architectures
             </button>
           </div>
@@ -268,7 +272,7 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
 
       <div className="download-card__buttons">
         {buttons.length > 0 ? buttons.map((button) => (
-          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName })}>
+          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName, architecture: button.architecture ?? null, format: button.format ?? null })}>
             <span>{button.label}</span>
             <span aria-hidden="true">{title === "Windows" ? "↗" : "↓"}</span>
           </a>
