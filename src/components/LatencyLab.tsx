@@ -1,5 +1,12 @@
 import { useState } from "react";
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const PLATFORM_OVERHEAD_MS = 8;
 const FIBER_KM_PER_SECOND = 200_000;
@@ -68,7 +75,10 @@ export function LatencyLab() {
                   type="button"
                   className={distanceKm === distance ? "is-selected" : ""}
                   aria-pressed={distanceKm === distance}
-                  onClick={() => setDistanceKm(distance)}
+                  onClick={() => {
+                    setDistanceKm(distance);
+                    capture("latency_distance_selected", { distance_km: distance, selection_method: "preset" });
+                  }}
                 >
                   {distance.toLocaleString()} km
                 </button>

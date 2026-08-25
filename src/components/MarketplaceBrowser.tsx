@@ -1,4 +1,5 @@
 import { useState } from "react";
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
 
 type HardwareOption = {
@@ -10,6 +11,12 @@ type HardwareOption = {
   availability: string;
   supply: "OPEN" | "VARIABLE" | "LIMITED";
 };
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const hardware: HardwareOption[] = [
   { generation: "RTX 20", model: "RTX 2080 Ti", vram: "11 GB", location: "Choose a live offer", route: "Estimate per listing", availability: "Check marketplace", supply: "VARIABLE" },
@@ -46,7 +53,10 @@ export function MarketplaceBrowser() {
                   key={item.generation}
                   className={index === selectedIndex ? "is-selected" : ""}
                   aria-pressed={index === selectedIndex}
-                  onClick={() => setSelectedIndex(index)}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    capture("marketplace_gpu_selected", { gpu_generation: item.generation, gpu_model: item.model });
+                  }}
                 >
                   <span>{item.generation}</span>
                   <small>{index === 0 ? "TURING" : index === 1 ? "AMPERE" : index === 2 ? "ADA" : "BLACKWELL"}</small>

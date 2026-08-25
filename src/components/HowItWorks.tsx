@@ -1,4 +1,11 @@
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const steps = [
   { number: "01", title: "Connect", body: "Add your Vast.ai API key. Your marketplace account stays yours." },
@@ -54,8 +61,8 @@ export function HowItWorks() {
               <p><strong>Your marketplace account remains yours.</strong> Vast handles marketplace access and billing; Noland does not replace that relationship.</p>
             </div>
             <div className="inline-links">
-              <a href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Create Vast account ↗</a>
-              <a href="https://cloud.vast.ai/manage-keys/?tab=api-keys" target="_blank" rel="noreferrer">Manage API keys ↗</a>
+              <a href="https://cloud.vast.ai/" target="_blank" rel="noreferrer" onClick={() => capture("vast_account_link_clicked", { destination: "account_creation" })}>Create Vast account ↗</a>
+              <a href="https://cloud.vast.ai/manage-keys/?tab=api-keys" target="_blank" rel="noreferrer" onClick={() => capture("vast_account_link_clicked", { destination: "api_key_management" })}>Manage API keys ↗</a>
             </div>
           </div>
           <div className="api-permissions" aria-label="API key uses">

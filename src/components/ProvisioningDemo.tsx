@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const stages = [
   { name: "Marketplace", code: "OFFER", detail: "Selected provider offer" },
@@ -35,6 +42,13 @@ export function ProvisioningDemo() {
   const restart = () => {
     setActiveStage(0);
     setIsPlaying(true);
+    capture("provisioning_demo_controlled", { action: "restart" });
+  };
+
+  const togglePlayback = () => {
+    const action = isPlaying ? "pause" : "play";
+    setIsPlaying((current) => !current);
+    capture("provisioning_demo_controlled", { action });
   };
 
   return (
@@ -50,7 +64,7 @@ export function ProvisioningDemo() {
           <div className="console-header">
             <div><i /><i /><i /><span>PROVISIONER // SESSION_01</span></div>
             <div className="console-controls">
-              <button type="button" onClick={() => setIsPlaying((current) => !current)} aria-label={isPlaying ? "Pause provisioning demo" : "Play provisioning demo"}>
+              <button type="button" onClick={togglePlayback} aria-label={isPlaying ? "Pause provisioning demo" : "Play provisioning demo"}>
                 {isPlaying ? "Ⅱ PAUSE" : "▶ PLAY"}
               </button>
               <button type="button" onClick={restart}>↻ RESTART</button>
@@ -71,7 +85,11 @@ export function ProvisioningDemo() {
                 const state = index < activeStage ? "is-complete" : index === activeStage ? "is-active" : "";
                 return (
                   <li className={state} key={stage.name}>
-                    <button type="button" onClick={() => { setActiveStage(index); setIsPlaying(false); }}>
+                    <button type="button" onClick={() => {
+                      setActiveStage(index);
+                      setIsPlaying(false);
+                      capture("provisioning_stage_selected", { stage_code: stage.code, stage_position: index + 1 });
+                    }}>
                       <span className="stage-marker">{index < activeStage ? "✓" : String(index + 1).padStart(2, "0")}</span>
                       <span className="stage-code">{stage.code}</span>
                       <strong>{stage.name}</strong>

@@ -1,5 +1,12 @@
 import { useState } from "react";
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 export function EconomicsCalculator() {
   const [hours, setHours] = useState(20);
@@ -44,10 +51,10 @@ export function EconomicsCalculator() {
             <p>Set your own generic hourly value. This is not a quote or a price for any specific GPU.</p>
 
             <label htmlFor="hours-range"><span>HOURS / MONTH</span><output htmlFor="hours-range">{hours} h</output></label>
-            <input id="hours-range" type="range" min="1" max="100" step="1" value={hours} onChange={(event) => setHours(Number(event.target.value))} />
+            <input id="hours-range" type="range" min="1" max="100" step="1" value={hours} onChange={(event) => setHours(Number(event.target.value))} onPointerUp={() => capture("cost_estimate_adjusted", { input: "monthly_hours", monthly_hours: hours, hourly_rate: hourly })} />
 
             <label htmlFor="rate-range"><span>ASSUMED HOURLY VALUE</span><output htmlFor="rate-range">${hourly.toFixed(2)}</output></label>
-            <input id="rate-range" type="range" min="0.1" max="0.4" step="0.01" value={hourly} onChange={(event) => setHourly(Number(event.target.value))} />
+            <input id="rate-range" type="range" min="0.1" max="0.4" step="0.01" value={hourly} onChange={(event) => setHourly(Number(event.target.value))} onPointerUp={() => capture("cost_estimate_adjusted", { input: "hourly_rate", monthly_hours: hours, hourly_rate: hourly })} />
 
             <div className="estimate-readout">
               <span>ESTIMATED COMPUTE</span>

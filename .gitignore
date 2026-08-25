@@ -9,3 +9,21 @@ dist-ssr/
 vite.config.js
 vite.config.d.ts
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Secrets (commit .env.example instead)
+.env
+.env.*
+!.env.example
+
+# Claude Code wizard output
+.claude/
+
+# Editors
+.idea/
+.vscode/
+
+# Test coverage
+coverage/

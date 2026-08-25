@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import posthog from "posthog-js";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, WINDOWS_STORE_URL } from "../lib/siteLinks";
@@ -38,6 +39,12 @@ type UserAgentData = {
 type NavigatorWithUserAgentData = Navigator & {
   userAgentData?: UserAgentData;
 };
+
+function capture(event: string, properties: Record<string, string | number | null>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const platformDescriptions: Record<DownloadPlatform, string> = {
   macOS: "Direct DMG installers for Apple Silicon and Intel Macs.",
@@ -129,6 +136,12 @@ export function DownloadSection() {
   const resolvedReleaseLabel = state.status === "ready" ? state.payload.releaseLabel : "latest GitHub release";
   const releaseFlavor = state.status === "ready" ? (state.payload.isPrerelease ? "rolling prerelease" : "stable release") : null;
   const directDownloadPending = state.status === "loading" && (clientPlatform.os === "macOS" || clientPlatform.os === "Linux");
+  const openDownloadOptions = () => {
+    if (!optionsOpen) {
+      capture("download_options_opened", { source: "download_recommendation" });
+    }
+    setOptionsOpen(true);
+  };
 
   return (
     <section ref={sectionRef} className="section downloads-section" id={DOWNLOADS_SECTION_ID} aria-labelledby="downloads-title">
@@ -165,7 +178,7 @@ export function DownloadSection() {
 
           <div className="download-recommendation__action">
             {recommendedDownload ? (
-              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer">
+              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => capture("download_recommended_clicked", { platform: clientPlatform.os, architecture: clientPlatform.architecture, download_id: recommendedDownload.id })}>
                 <span>{recommendedDownload.label}</span>
                 <span aria-hidden="true">{clientPlatform.os === "Windows" ? "↗" : "↓"}</span>
               </a>
@@ -174,11 +187,11 @@ export function DownloadSection() {
                 Resolving compatible build…
               </button>
             ) : (
-              <button className="button button--primary button--large" type="button" onClick={() => setOptionsOpen(true)}>
+              <button className="button button--primary button--large" type="button" onClick={openDownloadOptions}>
                 Choose an installer <span aria-hidden="true">↓</span>
               </button>
             )}
-            <button className="download-recommendation__other" type="button" onClick={() => setOptionsOpen(true)}>
+            <button className="download-recommendation__other" type="button" onClick={openDownloadOptions}>
               Other platforms and architectures
             </button>
           </div>
@@ -187,7 +200,13 @@ export function DownloadSection() {
         <details
           className="download-options"
           open={optionsOpen}
-          onToggle={(event) => setOptionsOpen(event.currentTarget.open)}
+          onToggle={(event) => {
+            const isOpen = event.currentTarget.open;
+            if (isOpen && !optionsOpen) {
+              capture("download_options_opened", { source: "download_options_summary" });
+            }
+            setOptionsOpen(isOpen);
+          }}
         >
           <summary>
             <span>
@@ -249,12 +268,12 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
 
       <div className="download-card__buttons">
         {buttons.length > 0 ? buttons.map((button) => (
-          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer">
+          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName })}>
             <span>{button.label}</span>
             <span aria-hidden="true">{title === "Windows" ? "↗" : "↓"}</span>
           </a>
         )) : (
-          <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer">
+          <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: "release_fallback" })}>
             <span>{fallbackLabel}</span>
             <span aria-hidden="true">↗</span>
           </a>

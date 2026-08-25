@@ -1,4 +1,11 @@
+import posthog from "posthog-js";
 import { SectionHeading } from "./SectionHeading";
+
+function capture(event: string, properties: Record<string, string | number>) {
+  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
+    posthog.capture(event, properties);
+  }
+}
 
 const faqs = [
   ["Does Noland centrally store my gameplay or session data?", "Noland is designed so gameplay and session data does not need to be stored on centralized Noland servers. The client uses marketplace and provisioning services, then interacts directly with the rented machine. This describes the architecture; it is not a blanket security guarantee."],
@@ -48,7 +55,11 @@ export function FaqSection() {
         </div>
         <div className="faq-list">
           {faqs.map(([question, answer], index) => (
-            <details key={question} open={index === 0}>
+            <details key={question} open={index === 0} onToggle={(event) => {
+              if (event.currentTarget.open) {
+                capture("faq_opened", { faq_position: index + 1 });
+              }
+            }}>
               <summary><span>{String(index + 1).padStart(2, "0")}</span><strong>{question}</strong><i aria-hidden="true" /></summary>
               <div><p>{answer}</p></div>
             </details>
