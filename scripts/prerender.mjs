@@ -1,18 +1,18 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const clientHtmlPath = new URL("../dist/index.html", import.meta.url);
-const serverBundlePath = new URL("../dist-ssr/entry-server.js", import.meta.url);
 const serverOutputPath = new URL("../dist-ssr", import.meta.url);
 const robotsPath = new URL("../dist/robots.txt", import.meta.url);
 const sitemapPath = new URL("../dist/sitemap.xml", import.meta.url);
 
 try {
-  const [serverEntry, template] = await Promise.all([
-    import(pathToFileURL(serverBundlePath.pathname).href),
+  const [serverBundlePath, template] = await Promise.all([
+    resolveServerBundlePath(),
     readFile(clientHtmlPath, "utf8"),
   ]);
+  const serverEntry = await import(pathToFileURL(serverBundlePath).href);
 
   const siteUrl = serverEntry.siteUrl;
   const pages = serverEntry.staticPaths.map((pathname) => {
@@ -90,6 +90,30 @@ try {
   console.log(`Prerendered ${pages.length} routes for ${siteUrl}.`);
 } finally {
   await rm(serverOutputPath, { recursive: true, force: true });
+}
+
+async function resolveServerBundlePath() {
+  const serverOutputDirectory = serverOutputPath.pathname;
+  const entryCandidates = [
+    join(serverOutputDirectory, "entry-server.js"),
+    ...(await findMatchingFiles(join(serverOutputDirectory, "assets"), /^entry-server-.*\.js$/u)),
+  ];
+
+  const serverBundlePath = entryCandidates.find(Boolean);
+  if (!serverBundlePath) {
+    throw new Error(`Could not find SSR entry bundle in ${serverOutputDirectory}`);
+  }
+
+  return serverBundlePath;
+}
+
+async function findMatchingFiles(directoryPath, pattern) {
+  try {
+    const fileNames = await readdir(directoryPath);
+    return fileNames.filter((fileName) => pattern.test(fileName)).map((fileName) => join(directoryPath, fileName));
+  } catch {
+    return [];
+  }
 }
 
 function applyPageMetadata(html, metadata, pageUrl, socialImageUrl, siteUrl) {
