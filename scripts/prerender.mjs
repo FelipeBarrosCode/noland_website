@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -99,12 +99,13 @@ async function resolveServerBundlePath() {
     ...(await findMatchingFiles(join(serverOutputDirectory, "assets"), /^entry-server-.*\.js$/u)),
   ];
 
-  const serverBundlePath = entryCandidates.find(Boolean);
-  if (!serverBundlePath) {
-    throw new Error(`Could not find SSR entry bundle in ${serverOutputDirectory}`);
+  for (const candidatePath of entryCandidates) {
+    if (await pathExists(candidatePath)) {
+      return candidatePath;
+    }
   }
 
-  return serverBundlePath;
+  throw new Error(`Could not find SSR entry bundle in ${serverOutputDirectory}`);
 }
 
 async function findMatchingFiles(directoryPath, pattern) {
@@ -113,6 +114,15 @@ async function findMatchingFiles(directoryPath, pattern) {
     return fileNames.filter((fileName) => pattern.test(fileName)).map((fileName) => join(directoryPath, fileName));
   } catch {
     return [];
+  }
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
   }
 }
 
