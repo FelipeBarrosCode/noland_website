@@ -43,5 +43,5 @@ scripts/         Static prerender and SEO artifact generation
 ## Product destinations
 
 - Repository: https://github.com/FelipeBarrosCode/no_land
-- Rolling release: https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest
+- Latest release: https://github.com/FelipeBarrosCode/no_land/releases/latest
 - Vast.ai: https://cloud.vast.ai/

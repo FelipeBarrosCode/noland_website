@@ -28,6 +28,6 @@ Noland has no monthly platform subscription. Users bring their own Vast.ai accou
 
 - [Official website](https://no-land.net/)
 - [Source repository](https://github.com/FelipeBarrosCode/no_land)
-- [Current rolling release](https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest)
+- [Latest release](https://github.com/FelipeBarrosCode/no_land/releases/latest)
 - [Vast.ai](https://cloud.vast.ai/)
 - [Vast.ai API keys](https://cloud.vast.ai/manage-keys/?tab=api-keys)
