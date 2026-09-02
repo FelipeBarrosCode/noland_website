@@ -1,3 +1,4 @@
+import { featurePages, getFeaturePage } from "./featurePages";
 import { getSeoPage, seoPages } from "./seoPages";
 
 export const SITE_URL = "https://no-land.net";
@@ -21,7 +22,11 @@ export const HOME_METADATA: PageMetadata = {
   changeFrequency: "weekly",
 };
 
-export const STATIC_PATHS = [HOME_METADATA.path, ...seoPages.map((page) => page.path)];
+export const STATIC_PATHS = [
+  HOME_METADATA.path,
+  ...seoPages.map((page) => page.path),
+  ...featurePages.map((page) => page.path),
+];
 
 export function normalizePathname(pathname: string): string {
   const withoutDocument = pathname.replace(/\/index\.html$/u, "/");
@@ -33,7 +38,7 @@ export function getPageMetadata(pathname: string): PageMetadata | undefined {
   const normalizedPath = normalizePathname(pathname);
   if (normalizedPath === "/") return HOME_METADATA;
 
-  const page = getSeoPage(normalizedPath);
+  const page = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
   if (!page) return undefined;
 
   return {

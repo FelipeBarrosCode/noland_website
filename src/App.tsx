@@ -11,6 +11,7 @@ import { Navigation } from "./components/Navigation";
 import { ProvisioningDemo } from "./components/ProvisioningDemo";
 import { SeoLandingPage } from "./components/SeoLandingPage";
 import { SeoPillarLinks } from "./components/SeoPillarLinks";
+import { getFeaturePage } from "./lib/featurePages";
 import { getSeoPage } from "./lib/seoPages";
 import { normalizePathname } from "./lib/site";
 
@@ -19,12 +20,13 @@ interface AppProps {
 }
 
 export function App({ pathname = "/" }: AppProps) {
-  const seoPage = getSeoPage(normalizePathname(pathname));
-  if (seoPage) {
+  const normalizedPath = normalizePathname(pathname);
+  const contentPage = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
+  if (contentPage) {
     return (
       <>
         <HashScroll />
-        <SeoLandingPage page={seoPage} />
+        <SeoLandingPage page={contentPage} />
       </>
     );
   }

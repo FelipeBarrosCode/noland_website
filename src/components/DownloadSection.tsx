@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import posthog from "posthog-js";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
-import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, WINDOWS_STORE_URL } from "../lib/siteLinks";
+import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 type LoadState =
@@ -51,15 +51,7 @@ function capture(event: string, properties: Record<string, string | number | nul
 const platformDescriptions: Record<DownloadPlatform, string> = {
   macOS: "Direct DMG installers for Apple Silicon and Intel Macs.",
   Linux: "AppImage, Debian, and RPM packages for x64 and ARM64 desktops.",
-  Windows: "Native NSIS installers for Windows x64 and ARM64, plus the Microsoft Store.",
-};
-
-const windowsStoreOption: PlatformButton = {
-  id: "windows-store",
-  label: "Windows — Microsoft Store",
-  url: WINDOWS_STORE_URL,
-  assetName: "Microsoft Store listing",
-  description: "The Microsoft Store selects the compatible Windows package for your device.",
+  Windows: "Native NSIS installers for Windows x64 and ARM64 desktops.",
 };
 
 export function DownloadSection() {
@@ -141,7 +133,7 @@ export function DownloadSection() {
   const resolvedReleaseUrl = state.status === "ready" ? state.payload.releaseUrl : RELEASES_PAGE_URL;
   const resolvedReleaseLabel = state.status === "ready" ? state.payload.releaseLabel : "latest GitHub release";
   const releaseFlavor = state.status === "ready" ? (state.payload.isPrerelease ? "rolling prerelease" : "stable release") : null;
-  const directDownloadPending = state.status === "loading" && (clientPlatform.os === "macOS" || clientPlatform.os === "Linux");
+  const directDownloadPending = state.status === "loading" && clientPlatform.os !== "Unknown";
   const openDownloadOptions = (source: "download_recommendation" | "download_other_platforms") => {
     if (!optionsOpen) {
       capture("download_options_opened", { source });
@@ -186,7 +178,7 @@ export function DownloadSection() {
             {recommendedDownload ? (
               <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => capture("download_recommended_clicked", { platform: clientPlatform.os, architecture: clientPlatform.architecture, download_id: recommendedDownload.id, asset_name: recommendedDownload.assetName, release_label: resolvedReleaseLabel })}>
                 <span>{recommendedDownload.label}</span>
-                <span aria-hidden="true">{clientPlatform.os === "Windows" ? "↗" : "↓"}</span>
+                <span aria-hidden="true">↓</span>
               </a>
             ) : directDownloadPending ? (
               <button className="button button--primary button--large" type="button" disabled>
@@ -227,7 +219,7 @@ export function DownloadSection() {
               <PlatformCard
                 title="Windows"
                 description={platformDescriptions.Windows}
-                buttons={[...windowsOptions, windowsStoreOption]}
+                buttons={windowsOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
               />
@@ -276,7 +268,7 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
         {buttons.length > 0 ? buttons.map((button) => (
           <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName, architecture: button.architecture ?? null, format: button.format ?? null })}>
             <span>{button.label}</span>
-            <span aria-hidden="true">{button.id === "windows-store" ? "↗" : "↓"}</span>
+            <span aria-hidden="true">↓</span>
           </a>
         )) : (
           <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: "release_fallback" })}>
@@ -309,19 +301,6 @@ function getOptionsForPlatform(state: LoadState, platform: DownloadPlatform): Do
 }
 
 function getRecommendedDownload(client: ClientPlatform, state: LoadState): PlatformButton | null {
-  if (client.os === "Windows") {
-    if (state.status === "ready" && client.architecture !== null) {
-      const match = state.payload.options.find(
-        (option) => option.platform === "Windows" && option.architecture === client.architecture,
-      );
-      if (match) {
-        return match;
-      }
-    }
-
-    return windowsStoreOption;
-  }
-
   if (state.status !== "ready" || client.architecture === null || client.os === "Unknown") {
     return null;
   }

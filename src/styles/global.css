@@ -386,6 +386,87 @@ h3 {
   transform: none;
 }
 
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 19px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-dropdown summary > span {
+  color: var(--cyan);
+  font-family: var(--display);
+  font-size: 10px;
+  transition: transform 150ms ease;
+}
+
+.nav-dropdown[open] summary,
+.nav-dropdown summary:hover {
+  color: var(--text);
+}
+
+.nav-dropdown[open] summary > span {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 22px);
+  left: 50%;
+  z-index: 10;
+  display: grid;
+  width: 390px;
+  padding: 8px;
+  border: 1px solid var(--line-bright);
+  background: #070a16;
+  box-shadow: 9px 9px 0 rgba(0, 0, 0, .45);
+  transform: translateX(-50%);
+}
+
+.nav-dropdown__menu a {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-dropdown__menu a:last-child {
+  border-bottom: 0;
+}
+
+.nav-dropdown__menu a::before,
+.nav-dropdown__menu a::after {
+  display: none;
+}
+
+.nav-dropdown__menu a:hover {
+  background: #0b1530;
+}
+
+.nav-dropdown__menu strong {
+  color: var(--cyan);
+  font-family: var(--display);
+  font-size: 9px;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.nav-dropdown__menu small {
+  color: var(--dim);
+  font-size: 15px;
+}
+
 .menu-toggle {
   display: none;
   width: 45px;
@@ -1852,7 +1933,11 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   .nav-menu { position: absolute; top: 64px; right: 0; left: 0; display: none; padding: 18px; border-bottom: 1px solid var(--line-bright); background: #060814; box-shadow: 0 18px 25px rgba(0, 0, 0, .4); }
   .nav-menu.is-open { display: block; }
   .nav-links { display: grid; }
-  .nav-links a { padding: 12px; border-bottom: 1px solid var(--line); }
+  .nav-links > a { padding: 12px; border-bottom: 1px solid var(--line); }
+  .nav-dropdown { border-bottom: 1px solid var(--line); }
+  .nav-dropdown summary { justify-content: space-between; padding: 12px; }
+  .nav-dropdown__menu { position: static; width: auto; padding: 0 0 8px 14px; border: 0; border-top: 1px solid var(--line); box-shadow: none; transform: none; }
+  .nav-dropdown__menu a { padding: 12px; }
   .nav-actions { margin-top: 17px; }
   .hero { padding-top: 70px; }
   .downloads-status { align-items: flex-start; flex-direction: column; }

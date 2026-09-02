@@ -1,6 +1,8 @@
 import { FinalCta, SiteFooter } from "./ExperienceSections";
+import { FeatureLinks } from "./FeatureLinks";
 import { Navigation } from "./Navigation";
 import { SeoPillarLinks } from "./SeoPillarLinks";
+import { isFeaturePage } from "../lib/featurePages";
 import type { SeoPage } from "../lib/seoPages";
 import { getAbsoluteUrl, SITE_NAME, SITE_URL } from "../lib/site";
 
@@ -10,6 +12,7 @@ interface SeoLandingPageProps {
 
 export function SeoLandingPage({ page }: SeoLandingPageProps) {
   const pageUrl = getAbsoluteUrl(page.path);
+  const featurePage = isFeaturePage(page);
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@graph": [
@@ -125,10 +128,14 @@ export function SeoLandingPage({ page }: SeoLandingPageProps) {
             <div className="shell">
               <div className="section-heading">
                 <p className="eyebrow"><span aria-hidden="true">//</span> EXPLORE NOLAND</p>
-                <h2 id="related-guides-title">Related cloud gaming guides</h2>
-                <p className="section-heading__description">Continue with a use case, pricing model, or technical workflow related to this page.</p>
+                <h2 id="related-guides-title">{featurePage ? "Explore more Noland features" : "Related cloud gaming guides"}</h2>
+                <p className="section-heading__description">
+                  {featurePage
+                    ? "See how Noland manages application state, audio, displays, and the native streaming client as one connected system."
+                    : "Continue with a use case, pricing model, or technical workflow related to this page."}
+                </p>
               </div>
-              <SeoPillarLinks currentPath={page.path} />
+              {featurePage ? <FeatureLinks currentPath={page.path} /> : <SeoPillarLinks currentPath={page.path} />}
             </div>
           </section>
 

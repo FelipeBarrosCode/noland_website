@@ -86,7 +86,7 @@ The audit builds the site, reads routes from the generated sitemap, runs Lightho
 ## Product links
 
 - [No Land desktop application](https://github.com/FelipeBarrosCode/no_land)
-- [Latest rolling release](https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest)
+- [Latest release](https://github.com/FelipeBarrosCode/no_land/releases/latest)
 - [No Land website](https://no-land.net)
 
 ---

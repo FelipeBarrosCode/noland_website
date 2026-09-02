@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { detectNavigatorOperatingSystem, type DesktopOperatingSystem } from "../lib/clientPlatform";
+import { featurePages } from "../lib/featurePages";
 import { DOWNLOADS_SECTION_ID, REPOSITORY_URL } from "../lib/siteLinks";
 
 const platformGuides: Record<DesktopOperatingSystem, { href: string; label: string }> = {
@@ -9,15 +10,28 @@ const platformGuides: Record<DesktopOperatingSystem, { href: string; label: stri
   Unknown: { href: "/cloud-gaming-pc/", label: "For your device" },
 };
 
+const featureDescriptions: Record<string, string> = {
+  "/features/shared-storage/": "Carry application state between machines",
+  "/features/microphone/": "Forward a local mic to the cloud host",
+  "/features/display-manager/": "Manage headless resolutions and EDID",
+  "/features/moonlight-client-optimizations/": "Native streaming controls and telemetry",
+};
+
+const featureNavDescription = (path: string) => featureDescriptions[path] ?? "Explore this Noland feature";
+
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [platformGuide, setPlatformGuide] = useState(platformGuides.Unknown);
+  const featuresMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     setPlatformGuide(platformGuides[detectNavigatorOperatingSystem()]);
   }, []);
 
-  const closeMenu = () => setIsOpen(false);
+  const closeMenu = () => {
+    setIsOpen(false);
+    featuresMenuRef.current?.removeAttribute("open");
+  };
 
   return (
     <header className="site-header">
@@ -44,6 +58,17 @@ export function Navigation() {
             <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud gaming PC</a>
             <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Pay as you go</a>
             <a href={platformGuide.href} onClick={closeMenu}>{platformGuide.label}</a>
+            <details className="nav-dropdown" ref={featuresMenuRef}>
+              <summary>Features <span aria-hidden="true">⌄</span></summary>
+              <div className="nav-dropdown__menu">
+                {featurePages.map((page) => (
+                  <a href={page.path} onClick={closeMenu} key={page.path}>
+                    <strong>{page.eyebrow}</strong>
+                    <small>{featureNavDescription(page.path)}</small>
+                  </a>
+                ))}
+              </div>
+            </details>
             <a href="/#how-it-works" onClick={closeMenu}>How it works</a>
             <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>Downloads</a>
           </div>
