@@ -1,6 +1,63 @@
-# Noland Website
+<div align="center">
 
-Standalone marketing website for [Noland](https://github.com/FelipeBarrosCode/no_land), a desktop client that provisions Vast.ai marketplace hardware as a personal Linux gaming PC.
+# No Land Website
+
+### Marketing site for No Land — on-demand GPU cloud gaming with the freedom of a real PC.
+
+[![Website](https://img.shields.io/badge/Live-no--land.net-111111)](https://no-land.net)
+[![React](https://img.shields.io/badge/React-TypeScript-20232a?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-Static%20Build-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-Audited-F44B21?logo=lighthouse&logoColor=white)](https://developer.chrome.com/docs/lighthouse/)
+
+[Main product](https://github.com/FelipeBarrosCode/no_land) · [Live site](https://no-land.net)
+
+</div>
+
+---
+
+## Overview
+
+This repository contains the public marketing and SEO site for **No Land**, a desktop application that provisions on-demand Vast.ai GPU hardware into a personal Linux gaming PC.
+
+The site is built as a fast, crawlable static experience rather than a client-only SPA. Production builds prerender the homepage and SEO landing pages into HTML, generate canonical metadata and a sitemap, and can be audited automatically with Lighthouse.
+
+## Engineering goals
+
+- **Fast first load** — static HTML output for public marketing routes.
+- **Search-engine visibility** — prerendered SEO pillar pages, canonical metadata, structured copy, FAQs, and sitemap generation.
+- **No-JavaScript readability** — important content remains accessible to crawlers and visitors without client-side execution.
+- **Performance enforcement** — automated Lighthouse audits can fail when quality drops below the configured thresholds.
+- **Consistent product identity** — shared site metadata, design tokens, brand assets, and reusable landing-page components.
+
+## Quality targets
+
+The project includes a Lighthouse audit workflow that checks every URL in the generated sitemap using a mobile-oriented profile.
+
+Configured targets include:
+
+- **Performance:** 95+
+- **Accessibility:** 100
+- **Best Practices:** 100
+- **SEO:** 100
+
+Reports are written to `lighthouse-reports/` for local review.
+
+## Project structure
+
+```text
+src/
+├── components/       # Homepage, navigation, reusable SEO page UI
+├── lib/
+│   ├── seoPages.ts   # Structured landing-page content and FAQs
+│   └── site.ts       # Canonical metadata and route definitions
+└── styles/           # Design tokens and responsive styles
+
+public/
+├── brand/            # Optimized brand/social assets
+└── fonts/            # Self-hosted licensed fonts
+
+scripts/              # Prerendering, sitemap, SEO and audit tooling
+```
 
 ## Development
 
@@ -16,7 +73,7 @@ npm run build
 npm run preview
 ```
 
-The build prerenders the homepage and every SEO pillar route into static HTML for crawlers and no-JavaScript visitors. The static production output is written to `dist/`, with canonical metadata and a complete sitemap generated for the production origin at `https://no-land.net`.
+The production output is generated in `dist/`.
 
 ## SEO and performance audit
 
@@ -24,24 +81,18 @@ The build prerenders the homepage and every SEO pillar route into static HTML fo
 npm run audit
 ```
 
-The Lighthouse audit builds the site, reads every URL from the generated sitemap, audits each route with Google's mobile-first profile, and enforces a minimum performance score of 95 plus perfect accessibility, best-practices, and SEO scores. HTML and JSON reports are written to the ignored `lighthouse-reports/` directory.
+The audit builds the site, reads routes from the generated sitemap, runs Lighthouse against each page, and saves HTML/JSON reports locally.
 
-## Project structure
+## Product links
 
-```text
-src/
-  components/    Homepage, shared navigation, and SEO landing-page UI
-  lib/seoPages.ts  Structured copy and FAQs for the six pillar routes
-  lib/site.ts      Canonical site identity, metadata, and static routes
-  styles/          Noland design tokens and responsive styles
-public/
-  brand/         Optimized brand and social-sharing assets
-  fonts/         Self-hosted OFL-licensed display fonts
-scripts/         Static prerender and SEO artifact generation
-```
+- [No Land desktop application](https://github.com/FelipeBarrosCode/no_land)
+- [Latest rolling release](https://github.com/FelipeBarrosCode/no_land/releases/tag/main-latest)
+- [No Land website](https://no-land.net)
 
-## Product destinations
+---
 
-- Repository: https://github.com/FelipeBarrosCode/no_land
-- Latest release: https://github.com/FelipeBarrosCode/no_land/releases/latest
-- Vast.ai: https://cloud.vast.ai/
+<div align="center">
+
+**The product site should be as engineered as the product behind it.**
+
+</div>
