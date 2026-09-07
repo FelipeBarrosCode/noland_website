@@ -1,5 +1,6 @@
 import { DownloadSection } from "./components/DownloadSection";
 import { ArchitectureAndPhilosophy, ControlSection, FinalCta, GameFreedom, MetricStrip, SiteFooter } from "./components/ExperienceSections";
+import { CookieConsent } from "./components/CookieConsent";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
 import { HashScroll } from "./components/HashScroll";
@@ -27,6 +28,7 @@ export function App({ pathname = "/" }: AppProps) {
       <>
         <HashScroll />
         <SeoLandingPage page={contentPage} />
+        <CookieConsent />
       </>
     );
   }
@@ -62,6 +64,7 @@ export function App({ pathname = "/" }: AppProps) {
         <FinalCta />
       </main>
       <SiteFooter />
+      <CookieConsent />
     </>
   );
 }

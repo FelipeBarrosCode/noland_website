@@ -6,8 +6,15 @@ import "./styles/global.css";
 
 const posthogKey = import.meta.env.VITE_POSTHOG_KEY;
 const posthogHost = import.meta.env.VITE_POSTHOG_HOST;
+const consentKey = "noland-cookie-consent";
+const consentEvent = "noland-cookie-consent";
+let posthogInitialized = false;
 
-if (posthogKey && posthogHost) {
+function initializePosthog() {
+  if (posthogInitialized || !posthogKey || !posthogHost) {
+    return;
+  }
+
   posthog.init(posthogKey, {
     api_host: posthogHost,
     defaults: "2026-05-30",
@@ -17,18 +24,36 @@ if (posthogKey && posthogHost) {
       capture_console_errors: false,
     },
   });
-} else if (import.meta.env.DEV) {
-  if (!posthogKey) {
-    console.error(
-      "VITE_POSTHOG_KEY variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_POSTHOG_KEY is configured",
-    );
-  }
+  posthogInitialized = true;
+}
 
-  if (!posthogHost) {
-    console.error(
-      "VITE_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_POSTHOG_HOST is configured",
-    );
-  }
+let hasCookieConsent = false;
+try {
+  hasCookieConsent = window.localStorage.getItem(consentKey) === "accepted";
+} catch {
+  // Without storage, wait for an explicit choice during this page view.
+}
+
+if (hasCookieConsent) {
+  initializePosthog();
+} else {
+  window.addEventListener(consentEvent, (event) => {
+    if ((event as CustomEvent<string>).detail === "accepted") {
+      initializePosthog();
+    }
+  });
+}
+
+if (import.meta.env.DEV && !posthogKey) {
+  console.error(
+    "VITE_POSTHOG_KEY variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_POSTHOG_KEY is configured",
+  );
+}
+
+if (import.meta.env.DEV && !posthogHost) {
+  console.error(
+    "VITE_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_POSTHOG_HOST is configured",
+  );
 }
 
 const root = document.getElementById("root")!;
