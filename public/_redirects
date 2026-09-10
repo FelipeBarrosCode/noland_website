@@ -1,0 +1,3 @@
+http://no-land.net/* https://no-land.net/:splat 301!
+http://www.no-land.net/* https://no-land.net/:splat 301!
+https://www.no-land.net/* https://no-land.net/:splat 301!

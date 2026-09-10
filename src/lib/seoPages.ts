@@ -32,9 +32,9 @@ export interface SeoPage {
 export const seoPages: SeoPage[] = [
   {
     path: "/cloud-gaming-pc/",
-    title: "Cloud Gaming PC Rental — Pay by the Hour | Noland",
+    title: "Remote Gaming PC Rental — Cloud PC by the Hour | Noland",
     description:
-      "Build a pay-as-you-go cloud gaming PC on Vast.ai GPU hardware with Noland. Provision a Linux gaming host and stream directly from your desktop.",
+      "Rent a remote gaming PC by the hour with Noland. Choose Vast.ai GPU hardware, provision a Linux cloud gaming host, and stream directly from your desktop.",
     eyebrow: "Cloud gaming PC",
     heading: "Rent a cloud gaming PC by the hour",
     lede:
@@ -112,6 +112,11 @@ export const seoPages: SeoPage[] = [
         question: "What is a Noland cloud gaming PC?",
         answer:
           "It is a Linux gaming environment provisioned on GPU hardware selected from the Vast.ai marketplace. Noland configures the host software and networking used for direct streaming, while the user controls the Vast.ai account and marketplace instance.",
+      },
+      {
+        question: "Can I use Noland as a remote gaming PC rental?",
+        answer:
+          "Yes. Noland creates a remote gaming PC workflow where you rent marketplace GPU compute by the hour through your Vast.ai account instead of paying for a fixed monthly cloud PC plan.",
       },
       {
         question: "Does Noland charge a monthly cloud gaming fee?",
@@ -433,9 +438,9 @@ export const seoPages: SeoPage[] = [
   },
   {
     path: "/vast-ai-cloud-gaming/",
-    title: "Vast.ai Cloud Gaming Setup with Noland",
+    title: "Vast.ai Cloud Gaming — GPU Host Setup with Noland",
     description:
-      "Use your Vast.ai account and API key with Noland to choose marketplace GPUs, provision a Linux gaming environment, and stream through Sunshine and WireGuard.",
+      "Use Vast.ai for cloud gaming with Noland. Choose marketplace GPU hosts, provision a Linux gaming environment, and stream through Sunshine and WireGuard.",
     eyebrow: "Vast.ai cloud gaming",
     heading: "Turn Vast.ai GPU listings into a cloud gaming setup",
     lede:
@@ -542,9 +547,9 @@ export const seoPages: SeoPage[] = [
   },
   {
     path: "/sunshine-moonlight-cloud-gaming/",
-    title: "Sunshine and Moonlight Cloud Gaming Setup | Noland",
+    title: "Moonlight Cloud Gaming Host with Sunshine | Noland",
     description:
-      "Noland provisions Sunshine and WireGuard on a Vast.ai Linux GPU host for direct cloud game streaming to a Moonlight-compatible client workflow.",
+      "Set up Moonlight cloud gaming with Noland. Provision Sunshine and WireGuard on a Vast.ai Linux GPU host for direct remote game streaming.",
     eyebrow: "Direct game streaming",
     heading: "Sunshine and Moonlight cloud gaming on a provisioned GPU host",
     lede:
@@ -619,6 +624,11 @@ export const seoPages: SeoPage[] = [
           "Sunshine is the streaming host running with the remote game environment. A Moonlight-compatible client receives the encoded video and audio and sends player input back to that host.",
       },
       {
+        question: "Can Noland create a Moonlight cloud gaming host?",
+        answer:
+          "Yes. Noland provisions the remote Linux GPU machine with Sunshine as the host and WireGuard for the connection, so a Moonlight-compatible client workflow can stream from that cloud machine.",
+      },
+      {
         question: "What does Noland configure for the stream?",
         answer:
           "Noland provisions the Linux gaming environment with the NVIDIA stack, Sunshine, and WireGuard on the selected Vast.ai GPU hardware, enabling the client to connect to the prepared host.",
@@ -647,9 +657,9 @@ export const seoPages: SeoPage[] = [
   },
   {
     path: "/cloud-gaming-windows/",
-    title: "Cloud Gaming on Windows PCs with a Remote GPU | Noland",
+    title: "Remote Cloud Gaming on Windows PCs | Noland",
     description:
-      "Use Noland on Windows to choose a Vast.ai marketplace GPU, provision a remote Linux gaming host, and stream supported games to a Windows PC.",
+      "Use Noland for remote cloud gaming on Windows. Choose a Vast.ai GPU, provision a Linux gaming host, and stream supported games to your PC.",
     eyebrow: "Cloud gaming for Windows",
     heading: "Cloud gaming on Windows with the rendering moved to a remote GPU",
     lede:
@@ -780,9 +790,9 @@ export const seoPages: SeoPage[] = [
   },
   {
     path: "/cloud-gaming-linux/",
-    title: "Cloud Gaming on Linux Desktops with Vast.ai GPUs | Noland",
+    title: "Linux Cloud Gaming with Vast.ai Remote GPUs | Noland",
     description:
-      "Use Noland on a Linux desktop to choose Vast.ai GPU hardware, provision a separate Linux gaming host, and stream supported games over Sunshine and WireGuard.",
+      "Use Noland for Linux cloud gaming. Choose Vast.ai GPU hardware, provision a separate Linux gaming host, and stream through Sunshine and WireGuard.",
     eyebrow: "Cloud gaming for Linux",
     heading: "Cloud gaming on Linux with a remote Linux GPU host",
     lede:
@@ -885,6 +895,11 @@ export const seoPages: SeoPage[] = [
         question: "Does Noland have a Linux desktop client?",
         answer:
           "Yes. Noland supports desktop clients on Linux, Windows, and macOS. From Linux, you can use your Vast.ai account and API key to choose currently available marketplace hardware, provision the separate remote gaming environment, and connect to its stream.",
+      },
+      {
+        question: "Is this cloud gaming on Linux or cloud gaming from Linux?",
+        answer:
+          "Both. The local Noland client can run on Linux, and the remote gaming host Noland provisions is also Linux. The two machines still have separate drivers, packages, network paths, and compatibility limits.",
       },
       {
         question: "Is the remote Noland gaming host also Linux?",

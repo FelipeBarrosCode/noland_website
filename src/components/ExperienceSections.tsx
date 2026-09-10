@@ -1,12 +1,10 @@
 import type { CSSProperties } from "react";
-import posthog from "posthog-js";
+import { captureAnalyticsEvent } from "../lib/analytics";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 function capture(event: string, properties: Record<string, string>) {
-  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
-    posthog.capture(event, properties);
-  }
+  captureAnalyticsEvent(event, properties);
 }
 
 const stores = ["COMPATIBLE STORES", "LINUX LAUNCHERS", "PC LIBRARIES", "SUPPORTED SOFTWARE"];

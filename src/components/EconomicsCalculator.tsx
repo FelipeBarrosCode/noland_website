@@ -1,11 +1,9 @@
 import { useState } from "react";
-import posthog from "posthog-js";
+import { captureAnalyticsEvent } from "../lib/analytics";
 import { SectionHeading } from "./SectionHeading";
 
 function capture(event: string, properties: Record<string, string | number>) {
-  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
-    posthog.capture(event, properties);
-  }
+  captureAnalyticsEvent(event, properties);
 }
 
 export function EconomicsCalculator() {

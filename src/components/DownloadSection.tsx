@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import posthog from "posthog-js";
+import { captureAnalyticsEvent } from "../lib/analytics";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
 import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL } from "../lib/siteLinks";
@@ -43,9 +43,7 @@ type NavigatorWithUserAgentData = Navigator & {
 };
 
 function capture(event: string, properties: Record<string, string | number | null>) {
-  if (import.meta.env.VITE_POSTHOG_KEY && import.meta.env.VITE_POSTHOG_HOST) {
-    posthog.capture(event, properties);
-  }
+  captureAnalyticsEvent(event, properties);
 }
 
 const platformDescriptions: Record<DownloadPlatform, string> = {

@@ -15,9 +15,9 @@ export interface PageMetadata {
 
 export const HOME_METADATA: PageMetadata = {
   path: "/",
-  title: "Noland Cloud Gaming PC — Pay by the Hour, No Subscription",
+  title: "Noland Remote Gaming PC — Cloud Gaming by the Hour",
   description:
-    "Rent a cloud gaming PC by the hour with Noland. Choose a marketplace GPU, automate the Linux gaming setup, and pay only for the compute you use.",
+    "Rent a remote cloud gaming PC by the hour with Noland. Choose marketplace GPU hardware, automate the Linux gaming setup, and pay only for compute you use.",
   priority: 1,
   changeFrequency: "weekly",
 };

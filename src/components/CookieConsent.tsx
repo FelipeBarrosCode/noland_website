@@ -33,7 +33,7 @@ export function CookieConsent() {
   }
 
   return (
-    <aside className="cookie-consent" role="dialog" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-copy">
+    <section className="cookie-consent" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-copy">
       <div className="cookie-consent__copy">
         <p className="cookie-consent__kicker">SITE SETTINGS</p>
         <h2 id="cookie-consent-title">Okay to use cookies?</h2>
@@ -49,6 +49,6 @@ export function CookieConsent() {
           Accept cookies
         </button>
       </div>
-    </aside>
+    </section>
   );
 }
