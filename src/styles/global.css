@@ -1433,6 +1433,31 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   gap: 14px;
 }
 
+.download-recommendation__pointer {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-bottom: -3px;
+  color: var(--yellow);
+  font-family: var(--display);
+  line-height: 1;
+  text-align: center;
+}
+
+.download-recommendation__pointer span {
+  font-size: 8px;
+  letter-spacing: .12em;
+}
+
+.download-recommendation__pointer strong {
+  color: var(--cyan);
+  font-family: var(--body);
+  font-size: 64px;
+  font-weight: 400;
+  line-height: .72;
+  text-shadow: 4px 4px 0 #0a6f83;
+}
+
 .download-recommendation__action .button {
   width: 100%;
   justify-content: space-between;
@@ -1588,6 +1613,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   width: 100%;
   justify-content: space-between;
   text-align: left;
+  cursor: pointer;
 }
 
 .download-card__meta {
@@ -1619,6 +1645,90 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   color: var(--dim);
   font-size: 15px;
   overflow-wrap: anywhere;
+}
+
+.download-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 4, 10, .86);
+}
+
+.download-modal__panel {
+  position: relative;
+  width: min(100%, 620px);
+  padding: 42px;
+  border: 2px solid var(--cyan);
+  background: #080d20;
+  box-shadow: 10px 10px 0 #020309, inset 0 0 0 4px #0b1d37;
+}
+
+.download-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line-bright);
+  color: var(--cyan);
+  background: var(--navy);
+  font-family: var(--body);
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.download-modal__close:hover {
+  color: var(--canvas);
+  background: var(--cyan);
+}
+
+.download-modal__eyebrow {
+  margin-bottom: 17px;
+  color: var(--lime);
+  font-family: var(--display);
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+
+.download-modal h2 {
+  max-width: 480px;
+  margin-bottom: 16px;
+  color: var(--text);
+  font-size: clamp(25px, 4vw, 42px);
+}
+
+.download-modal__panel > p:not(.download-modal__eyebrow):not(.download-modal__message) {
+  margin-bottom: 27px;
+  color: var(--muted);
+  font-size: 23px;
+}
+
+.download-modal__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.download-modal__actions .button,
+.download-modal__continue {
+  width: 100%;
+}
+
+.download-modal__message {
+  margin: 16px 0 0;
+  color: var(--lime);
+  font-size: 18px;
+}
+
+.download-modal__continue {
+  margin-top: 27px;
+  justify-content: space-between;
 }
 
 /* CTA and footer */
@@ -2058,6 +2168,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   .seo-inline-links { align-items: flex-start; flex-direction: column; }
   .nav-actions .button { flex: 1; }
   .download-recommendation { padding: 25px 20px; box-shadow: inset 0 0 0 3px #0b1d37, 5px 5px 0 rgba(5, 98, 116, .45); }
+  .download-recommendation__pointer strong { font-size: 56px; }
   .download-options > summary { padding: 16px 18px; }
   .download-options__body { padding: 16px; }
   .hero { min-height: auto; padding: 62px 0 72px; }
@@ -2171,6 +2282,10 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   .downloads-status > span { font-size: 19px; }
   .download-card { padding: 20px; }
   .download-card__header > p:last-child { font-size: 18px; }
+  .download-modal { padding: 14px; }
+  .download-modal__panel { padding: 35px 22px 24px; }
+  .download-modal__actions { grid-template-columns: 1fr; }
+  .download-modal__panel > p:not(.download-modal__eyebrow):not(.download-modal__message) { font-size: 21px; }
   .faq-list summary { grid-template-columns: 27px 1fr 20px; gap: 9px; padding-inline: 10px; }
   .faq-list summary strong { font-size: 7px; }
   .faq-list details > div { padding: 0 20px 23px 46px; }

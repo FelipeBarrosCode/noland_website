@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
-import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL } from "../lib/siteLinks";
+import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 type LoadState =
@@ -40,6 +40,15 @@ type UserAgentData = {
 
 type NavigatorWithUserAgentData = Navigator & {
   userAgentData?: UserAgentData;
+  share?: (data: ShareData) => Promise<void>;
+};
+
+type PendingDownload = {
+  url: string;
+  label: string;
+  platform: string;
+  downloadId: string;
+  assetName?: string;
 };
 
 function capture(event: string, properties: Record<string, string | number | null>) {
@@ -58,6 +67,8 @@ export function DownloadSection() {
   const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null });
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
+  const [pendingDownload, setPendingDownload] = useState<PendingDownload | null>(null);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -139,6 +150,16 @@ export function DownloadSection() {
     setOptionsOpen(true);
   };
 
+  const requestDownload = (download: PendingDownload, source: "recommended" | "option" = "option") => {
+    capture(source === "recommended" ? "download_recommended_clicked" : "download_option_clicked", {
+      platform: download.platform,
+      download_id: download.downloadId,
+      asset_name: download.assetName ?? null,
+    });
+    setShareMessage(null);
+    setPendingDownload(download);
+  };
+
   return (
     <section ref={sectionRef} className="section downloads-section" id={DOWNLOADS_SECTION_ID} aria-labelledby="downloads-title">
       <div className="shell">
@@ -174,10 +195,16 @@ export function DownloadSection() {
 
           <div className="download-recommendation__action">
             {recommendedDownload ? (
-              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => capture("download_recommended_clicked", { platform: clientPlatform.os, architecture: clientPlatform.architecture, download_id: recommendedDownload.id, asset_name: recommendedDownload.assetName, release_label: resolvedReleaseLabel })}>
-                <span>{recommendedDownload.label}</span>
-                <span aria-hidden="true">↓</span>
-              </a>
+              <>
+                <div className="download-recommendation__pointer" aria-hidden="true">
+                  <span>START HERE</span>
+                  <strong>↓</strong>
+                </div>
+                <button className="button button--primary button--large" type="button" onClick={() => requestDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
+                  <span>{recommendedDownload.label}</span>
+                  <span aria-hidden="true">↓</span>
+                </button>
+              </>
             ) : directDownloadPending ? (
               <button className="button button--primary button--large" type="button" disabled>
                 Resolving compatible build…
@@ -220,6 +247,7 @@ export function DownloadSection() {
                 buttons={windowsOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
+                onDownload={requestDownload}
               />
 
               <PlatformCard
@@ -228,6 +256,7 @@ export function DownloadSection() {
                 buttons={macOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
+                onDownload={requestDownload}
               />
 
               <PlatformCard
@@ -236,11 +265,33 @@ export function DownloadSection() {
                 buttons={linuxOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
+                onDownload={requestDownload}
               />
             </div>
           </div>
         </details>
       </div>
+      {pendingDownload ? (
+        <DownloadSupportModal
+          download={pendingDownload}
+          shareMessage={shareMessage}
+          onShare={async () => {
+            const browserNavigator = navigator as NavigatorWithUserAgentData;
+            try {
+              if (browserNavigator.share) {
+                await browserNavigator.share({ title: "No Land", text: "Check out No Land, an open cloud gaming client.", url: window.location.href });
+                setShareMessage("Thanks for sharing No Land.");
+              } else {
+                await navigator.clipboard.writeText(window.location.href);
+                setShareMessage("Link copied. Share No Land with your friends.");
+              }
+            } catch {
+              setShareMessage("Sharing was cancelled. You can still support the project by starring the repo.");
+            }
+          }}
+          onClose={() => setPendingDownload(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -251,9 +302,10 @@ type PlatformCardProps = {
   buttons: PlatformButton[];
   fallbackUrl: string;
   fallbackLabel: string;
+  onDownload: (download: PendingDownload) => void;
 };
 
-function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel }: PlatformCardProps) {
+function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel, onDownload }: PlatformCardProps) {
   return (
     <article className="download-card">
       <div className="download-card__header">
@@ -263,16 +315,16 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
       </div>
 
       <div className="download-card__buttons">
-        {buttons.length > 0 ? buttons.map((button) => (
-          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: button.id, asset_name: button.assetName, architecture: button.architecture ?? null, format: button.format ?? null })}>
-            <span>{button.label}</span>
-            <span aria-hidden="true">↓</span>
-          </a>
-        )) : (
-          <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_option_clicked", { platform: title, download_id: "release_fallback" })}>
-            <span>{fallbackLabel}</span>
-            <span aria-hidden="true">↗</span>
-          </a>
+          {buttons.length > 0 ? buttons.map((button) => (
+           <button key={button.id} className="button button--ghost" type="button" onClick={() => onDownload({ url: button.url, label: button.label, platform: title, downloadId: button.id, assetName: button.assetName })}>
+             <span>{button.label}</span>
+             <span aria-hidden="true">↓</span>
+           </button>
+          )) : (
+           <button className="button button--ghost" type="button" onClick={() => onDownload({ url: fallbackUrl, label: fallbackLabel, platform: title, downloadId: "release_fallback" })}>
+             <span>{fallbackLabel}</span>
+             <span aria-hidden="true">↗</span>
+           </button>
         )}
       </div>
 
@@ -287,6 +339,46 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel 
         </ul>
       ) : null}
     </article>
+  );
+}
+
+type DownloadSupportModalProps = {
+  download: PendingDownload;
+  shareMessage: string | null;
+  onShare: () => Promise<void>;
+  onClose: () => void;
+};
+
+function DownloadSupportModal({ download, shareMessage, onShare, onClose }: DownloadSupportModalProps) {
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
+  const recordAndContinue = () => {
+    capture("download_support_completed", { platform: download.platform, download_id: download.downloadId, asset_name: download.assetName ?? null });
+  };
+
+  return (
+    <div className="download-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div className="download-modal__panel" role="dialog" aria-modal="true" aria-labelledby="download-modal-title" aria-describedby="download-modal-copy">
+        <button className="download-modal__close" type="button" aria-label="Close download support dialog" onClick={onClose}>×</button>
+        <p className="download-modal__eyebrow">ONE LAST THING</p>
+        <h2 id="download-modal-title">Help No Land grow.</h2>
+        <p id="download-modal-copy">No Land is free and independent. Before you download, share the project with someone who would love it and star the repository to support its future.</p>
+        <div className="download-modal__actions">
+          <button className="button button--ghost" type="button" onClick={onShare}>Share No Land <span aria-hidden="true">↗</span></button>
+          <a className="button button--ghost" href={REPOSITORY_URL} target="_blank" rel="noreferrer" onClick={() => capture("github_star_clicked", { platform: download.platform, download_id: download.downloadId })}>Star the GitHub repo <span aria-hidden="true">↗</span></a>
+        </div>
+        {shareMessage ? <p className="download-modal__message" role="status">{shareMessage}</p> : null}
+        <a className="button button--primary button--large download-modal__continue" href={download.url} target="_blank" rel="noreferrer" onClick={recordAndContinue}>
+          Continue to download <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+    </div>
   );
 }
 
