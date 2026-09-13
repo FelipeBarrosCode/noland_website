@@ -169,6 +169,13 @@ export function DownloadSection() {
           description="Noland detects your operating system and architecture when the browser makes that information available. Every alternative remains available below if the detected choice is not correct."
         />
 
+        <div className="download-scroll-cue" aria-hidden="true">
+          <div className="download-recommendation__pointer">
+            <span>SCROLL DOWN TO DOWNLOAD</span>
+            <strong>↓</strong>
+          </div>
+        </div>
+
         <div className="downloads-status" role="status" aria-live="polite">
           {state.status === "loading" ? (
             <span>Resolving the latest published release assets…</span>
@@ -181,13 +188,6 @@ export function DownloadSection() {
             </span>
           )}
           <a className="text-link" href={resolvedReleaseUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_release_notes_clicked", { release_label: resolvedReleaseLabel })}>Open release notes <span aria-hidden="true">↗</span></a>
-        </div>
-
-        <div className="download-scroll-cue" aria-hidden="true">
-          <div className="download-recommendation__pointer">
-            <span>DOWNLOAD BELOW</span>
-            <strong>↓</strong>
-          </div>
         </div>
 
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
