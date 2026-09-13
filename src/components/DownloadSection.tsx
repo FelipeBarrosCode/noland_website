@@ -183,6 +183,13 @@ export function DownloadSection() {
           <a className="text-link" href={resolvedReleaseUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_release_notes_clicked", { release_label: resolvedReleaseLabel })}>Open release notes <span aria-hidden="true">↗</span></a>
         </div>
 
+        <div className="download-scroll-cue" aria-hidden="true">
+          <div className="download-recommendation__pointer">
+            <span>DOWNLOAD BELOW</span>
+            <strong>↓</strong>
+          </div>
+        </div>
+
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
           <div className="download-recommendation__copy">
             <p className="download-recommendation__eyebrow">RECOMMENDED FOR THIS DEVICE</p>
@@ -195,16 +202,10 @@ export function DownloadSection() {
 
           <div className="download-recommendation__action">
             {recommendedDownload ? (
-              <>
-                <div className="download-recommendation__pointer" aria-hidden="true">
-                  <span>START HERE</span>
-                  <strong>↓</strong>
-                </div>
-                <button className="button button--primary button--large" type="button" onClick={() => requestDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
-                  <span>{recommendedDownload.label}</span>
-                  <span aria-hidden="true">↓</span>
-                </button>
-              </>
+              <button className="button button--primary button--large" type="button" onClick={() => requestDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
+                <span>{recommendedDownload.label}</span>
+                <span aria-hidden="true">↓</span>
+              </button>
             ) : directDownloadPending ? (
               <button className="button button--primary button--large" type="button" disabled>
                 Resolving compatible build…
