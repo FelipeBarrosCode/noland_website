@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
-import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
+import { DISCORD_URL, DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 type LoadState =
@@ -373,6 +373,8 @@ function DownloadSupportModal({ download, shareMessage, onShare, onClose }: Down
         <div className="download-modal__actions">
           <button className="button button--ghost" type="button" onClick={onShare}>Share No Land <span aria-hidden="true">↗</span></button>
           <a className="button button--ghost" href={REPOSITORY_URL} target="_blank" rel="noreferrer" onClick={() => capture("github_star_clicked", { platform: download.platform, download_id: download.downloadId })}>Star the GitHub repo <span aria-hidden="true">↗</span></a>
+          <a className="button button--ghost" href={X_URL} target="_blank" rel="noreferrer" aria-label="Open Felipe's profile on X">Follow on X <span aria-hidden="true">↗</span></a>
+          <a className="button button--ghost" href={DISCORD_URL} target="_blank" rel="noreferrer" aria-label="Join the Noland Discord server">Join Discord <span aria-hidden="true">↗</span></a>
         </div>
         {shareMessage ? <p className="download-modal__message" role="status">{shareMessage}</p> : null}
         <a className="button button--primary button--large download-modal__continue" href={download.url} target="_blank" rel="noreferrer" onClick={recordAndContinue}>

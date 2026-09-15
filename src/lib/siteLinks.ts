@@ -1,6 +1,8 @@
 export const DOWNLOADS_SECTION_ID = "downloads";
 
 export const REPOSITORY_URL = "https://github.com/FelipeBarrosCode/no_land";
+export const X_URL = "https://x.com/felipavav";
+export const DISCORD_URL = "https://discord.gg/Vqwxsfk3u4";
 export const RELEASES_PAGE_URL = `${REPOSITORY_URL}/releases/latest`;
 export const RELEASES_API_URL = `${REPOSITORY_URL}/releases/latest`.replace(
   "https://github.com/",

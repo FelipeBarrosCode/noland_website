@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { detectNavigatorOperatingSystem, type DesktopOperatingSystem } from "../lib/clientPlatform";
 import { featurePages } from "../lib/featurePages";
-import { DOWNLOADS_SECTION_ID, REPOSITORY_URL } from "../lib/siteLinks";
+import { DISCORD_URL, DOWNLOADS_SECTION_ID, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
 
 const platformGuides: Record<DesktopOperatingSystem, { href: string; label: string }> = {
   Windows: { href: "/cloud-gaming-windows/", label: "For Windows" },
@@ -73,6 +73,12 @@ export function Navigation() {
             <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>Downloads</a>
           </div>
           <div className="nav-actions">
+            <a className="button button--ghost button--small" href={X_URL} target="_blank" rel="noreferrer" aria-label="Open Felipe's profile on X">
+              X <span aria-hidden="true">↗</span>
+            </a>
+            <a className="button button--ghost button--small" href={DISCORD_URL} target="_blank" rel="noreferrer" aria-label="Join the Noland Discord server">
+              Discord <span aria-hidden="true">↗</span>
+            </a>
             <a className="button button--ghost button--small" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
               GitHub <span aria-hidden="true">↗</span>
             </a>
