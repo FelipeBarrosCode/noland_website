@@ -18,13 +18,13 @@ export function Hero() {
           <p className="eyebrow"><span aria-hidden="true">//</span> PAY-AS-YOU-GO CLOUD GAMING</p>
           <h1 id="hero-title">Rent a cloud gaming PC.<br /><span>Pay by the hour.</span></h1>
           <p className="hero-lede">
-            Choose a marketplace GPU, launch your own Linux cloud gaming PC, and pay only for the compute you use. Noland automates setup and enables direct P2P streaming—without a monthly Noland subscription.
+            Pick a GPU, launch your cloud PC, and pay only while you use it. Noland handles setup and connects you directly—without a monthly subscription.
           </p>
           <div className="hero-actions">
             <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`}>
               Get Noland <span aria-hidden="true">↓</span>
             </a>
-            <a className="text-link" href="/#how-it-works">See how the link works <span aria-hidden="true">→</span></a>
+            <a className="text-link" href="/#how-it-works">See how it works <span aria-hidden="true">→</span></a>
           </div>
           <ul className="hero-facts" aria-label="Product highlights">
             <li><strong>$0</strong><span>monthly Noland subscription</span></li>

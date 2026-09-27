@@ -4,10 +4,10 @@ import { featurePages } from "../lib/featurePages";
 import { DISCORD_URL, DOWNLOADS_SECTION_ID, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
 
 const platformGuides: Record<DesktopOperatingSystem, { href: string; label: string }> = {
-  Windows: { href: "/cloud-gaming-windows/", label: "For Windows" },
-  macOS: { href: "/cloud-gaming-mac/", label: "For Mac" },
-  Linux: { href: "/cloud-gaming-linux/", label: "For Linux" },
-  Unknown: { href: "/cloud-gaming-pc/", label: "For your device" },
+  Windows: { href: "/cloud-gaming-windows/", label: "Windows" },
+  macOS: { href: "/cloud-gaming-mac/", label: "Mac" },
+  Linux: { href: "/cloud-gaming-linux/", label: "Linux" },
+  Unknown: { href: "/cloud-gaming-pc/", label: "Your device" },
 };
 
 const featureDescriptions: Record<string, string> = {
@@ -55,8 +55,8 @@ export function Navigation() {
 
         <div className={`nav-menu${isOpen ? " is-open" : ""}`} id="primary-menu">
           <div className="nav-links">
-            <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud gaming PC</a>
-            <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Pay as you go</a>
+            <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud PC</a>
+            <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Price</a>
             <a href={platformGuide.href} onClick={closeMenu}>{platformGuide.label}</a>
             <details className="nav-dropdown" ref={featuresMenuRef}>
               <summary>Features <span aria-hidden="true">⌄</span></summary>
@@ -69,7 +69,7 @@ export function Navigation() {
                 ))}
               </div>
             </details>
-            <a href="/#how-it-works" onClick={closeMenu}>How it works</a>
+            <a href="/#how-it-works" onClick={closeMenu}>How to</a>
             <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>Downloads</a>
           </div>
           <div className="nav-actions">

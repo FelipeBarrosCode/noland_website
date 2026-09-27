@@ -17,7 +17,7 @@ export function EconomicsCalculator() {
         <SectionHeading
           eyebrow="NO SUBSCRIPTION ECONOMICS"
           title={<span id="economics-title">Pay as you go. <em>Not every month.</em></span>}
-          description="Noland has no monthly subscription. Your chosen marketplace instance is billed by the provider while it remains running."
+          description="There is no monthly Noland fee. You pay the provider while your chosen machine is running."
         />
 
         <div className="economics-grid">

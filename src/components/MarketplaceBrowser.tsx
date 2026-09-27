@@ -33,7 +33,7 @@ export function MarketplaceBrowser() {
         <SectionHeading
           eyebrow="HARDWARE MARKETPLACE"
           title={<span id="hardware-title">Choose the cloud gaming GPU. <em>Choose the route.</em></span>}
-          description="Noland opens access to independent Vast providers across RTX generations. Inventory, location, and configuration change continuously."
+          description="Choose from independent Vast providers and RTX GPUs. Prices and availability change often."
         />
 
         <div className="market-browser">

@@ -188,7 +188,7 @@ export const seoPages: SeoPage[] = [
       },
       {
         eyebrow: "Tradeoffs",
-        heading: "Usage pricing exchanges predictability for choice",
+        heading: "Usage pricing trades predictability for choice",
         paragraphs: [
           "A GPU marketplace can offer a broad range of hardware without putting everyone on the same fixed tier. That makes it possible to choose around your workload, but the exact GPU, location, and rate you want may not be available every time.",
           "The best value is not automatically the cheapest listing. Network route, host reliability, GPU capability, and the configuration required by your game all matter, so compare the complete fit rather than optimizing for hourly price alone.",

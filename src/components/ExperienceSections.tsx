@@ -36,7 +36,7 @@ export function GameFreedom() {
           <SectionHeading
             eyebrow="YOUR LIBRARY / YOUR LOGIN"
             title={<span id="freedom-title">Play your own compatible PC games. <em>Not a fixed catalog.</em></span>}
-            description="Use the compatible stores, launchers, and software that fit your game setup instead of waiting for a streaming service to add a title."
+            description="Use your own compatible stores, launchers, and games instead of a fixed catalog."
           />
           <div className="store-ticker" aria-label="Examples of compatible stores and launchers">
             {stores.map((store) => <span key={store}><i aria-hidden="true" />{store}</span>)}
@@ -69,7 +69,7 @@ export function ArchitectureAndPhilosophy() {
         <SectionHeading
           eyebrow="DIRECT BY DESIGN"
           title={<span id="architecture-title">Provision centrally. <em>Play directly.</em></span>}
-          description="Noland coordinates marketplace and machine setup, then the client interacts with the rented PC. Gameplay and session data does not need to be stored on centralized Noland servers."
+          description="Noland sets up the rented PC, then your client connects to it directly. Your gameplay does not need to pass through Noland servers."
         />
 
         <div className="topology-board">
@@ -93,7 +93,7 @@ export function ArchitectureAndPhilosophy() {
           <article className="philosophy-statement">
             <p className="panel-kicker">WHY P2P INFRASTRUCTURE</p>
             <h3>Gaming hardware access need not live only in giant datacenters.</h3>
-            <p>Independent providers already operate capable GPUs. Marketplace plurality can connect that distributed supply with players who need temporary access—without concentrating every machine under one streaming platform.</p>
+            <p>Independent providers already have capable GPUs. A shared marketplace connects those machines with players who need them.</p>
           </article>
           <div className="provider-array" aria-label="Independent provider marketplace">
             <div className="provider-player"><i /><span>PLAYER</span></div>
@@ -133,7 +133,7 @@ export function ControlSection() {
           <SectionHeading
             eyebrow="YOU’RE THE OPERATOR"
             title={<span id="control-title">Control the machine. <em>Own the tradeoffs.</em></span>}
-            description="Noland removes repetitive provisioning work without hiding the choices that shape price, compatibility, route quality, and billing."
+            description="Noland handles setup while you control the price, hardware, location, and play time."
           />
           <ol className="control-list">
             {controls.map(([name, body], index) => <li key={name}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{name}</strong><p>{body}</p></div></li>)}
@@ -163,7 +163,7 @@ export function FinalCta() {
         <div>
           <p className="eyebrow"><span aria-hidden="true">//</span> READY TO PROVISION?</p>
           <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
-          <p>Bring your Vast account. Pick current marketplace hardware. Let Noland build the direct path to your remote gaming PC.</p>
+          <p>Bring your Vast account, choose a machine, and let Noland set up your remote gaming PC.</p>
           <div className="final-cta__actions">
             <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_cta_clicked", { source: "final_cta" })}>Get Noland <span aria-hidden="true">↓</span></a>
             <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>

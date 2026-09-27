@@ -40,6 +40,7 @@ export function App({ pathname = "/" }: AppProps) {
       <Navigation />
       <main id="main-content">
         <Hero />
+        <DownloadSection />
         <MetricStrip />
         <HowItWorks />
         <section className="section home-pillars" aria-labelledby="home-pillars-title">
@@ -59,7 +60,6 @@ export function App({ pathname = "/" }: AppProps) {
         <ProvisioningDemo />
         <ArchitectureAndPhilosophy />
         <ControlSection />
-        <DownloadSection />
         <FaqSection />
         <FinalCta />
       </main>

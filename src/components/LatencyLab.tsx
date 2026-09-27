@@ -26,7 +26,7 @@ export function LatencyLab() {
         <SectionHeading
           eyebrow="PERFORMANCE / ROUTE LAB"
           title={<span id="latency-title">Low-latency direct game streaming. <em>Distance still sets the floor.</em></span>}
-          description="Light travels through modern fiber at roughly 200,000 km/s—about 5 microseconds per kilometer one way. Use the radius below to calculate the straight-line physics floor before real routing and approximately 8 ms of measured Noland overhead."
+          description="Distance sets the minimum latency. Use the calculator below to see the best-case round trip, then add real network conditions and about 8 ms of Noland overhead."
         />
 
         <div className="latency-lab">

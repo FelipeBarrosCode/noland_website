@@ -56,9 +56,9 @@ function capture(event: string, properties: Record<string, string | number | nul
 }
 
 const platformDescriptions: Record<DownloadPlatform, string> = {
-  macOS: "Direct DMG installers for Apple Silicon and Intel Macs.",
-  Linux: "AppImage, Debian, and RPM packages for x64 and ARM64 desktops.",
-  Windows: "Native NSIS installers for Windows x64 and ARM64 desktops.",
+  macOS: "DMG installers for Apple Silicon and Intel Macs.",
+  Linux: "AppImage, Debian, and RPM packages.",
+  Windows: "Installers for Windows x64 and ARM64."
 };
 
 export function DownloadSection() {
@@ -166,7 +166,7 @@ export function DownloadSection() {
         <SectionHeading
           eyebrow="DOWNLOAD"
           title={<span id="downloads-title">Download Noland. <em>Matched to your device.</em></span>}
-          description="Noland detects your operating system and architecture when the browser makes that information available. Every alternative remains available below if the detected choice is not correct."
+          description="Noland detects your device and suggests the right download. You can choose another option below anytime."
         />
 
         <div className="download-scroll-cue" aria-hidden="true">

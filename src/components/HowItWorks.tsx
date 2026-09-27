@@ -6,10 +6,10 @@ function capture(event: string, properties: Record<string, string | number>) {
 }
 
 const steps = [
-  { number: "01", title: "Connect", body: "Add your Vast.ai API key. Your marketplace account stays yours." },
-  { number: "02", title: "Choose", body: "Browse available GPUs and choose hardware and location." },
-  { number: "03", title: "Provision", body: "Noland rents and configures the Linux streaming machine." },
-  { number: "04", title: "Play", body: "Open the direct stream and use your compatible stores and games." },
+  { number: "01", title: "Connect", body: "Add your Vast.ai key. Your account stays yours." },
+  { number: "02", title: "Choose", body: "Pick a GPU and location." },
+  { number: "03", title: "Provision", body: "Noland rents and sets up the gaming PC." },
+  { number: "04", title: "Play", body: "Connect and play your compatible games." },
 ];
 
 const keyPermissions = [
@@ -26,7 +26,7 @@ export function HowItWorks() {
         <SectionHeading
           eyebrow="FROM MARKETPLACE TO GAME"
           title={<span id="process-title">How Noland Cloud Gaming Works. <em>Four steps to your machine.</em></span>}
-          description="Noland handles orchestration between your desktop and a rented marketplace PC—without adding an artificial play-session timer."
+          description="Noland connects your desktop to a rented PC and handles the setup. Play as long as you want."
         />
 
         <ol className="process-rail">

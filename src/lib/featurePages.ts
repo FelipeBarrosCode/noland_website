@@ -129,7 +129,7 @@ export const featurePages: SeoPage[] = [
       },
       {
         eyebrow: "Remote device",
-        heading: "Present one stable microphone to remote applications",
+        heading: "One stable microphone for remote apps",
         paragraphs: [
           "The receiver decodes the audio into a persistent PipeWire topology named Noland Microphone. Keeping the remote source stable lets applications continue targeting the same device while the client-side sender connects, disconnects, or is restarted.",
           "Microphone forwarding still depends on client permissions, local device drivers, network quality, WireGuard connectivity, and remote PipeWire health. It is designed for interactive voice use, but Noland does not promise studio recording quality or zero packet loss on every route.",

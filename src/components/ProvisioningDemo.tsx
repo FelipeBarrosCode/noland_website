@@ -55,7 +55,7 @@ export function ProvisioningDemo() {
         <SectionHeading
           eyebrow="AUTOMATED PROVISIONING"
           title={<span id="provisioning-title">Marketplace in. <em>Stream-ready PC out.</em></span>}
-          description="Noland turns the machine you selected into a configured Linux gaming endpoint. Average setup is approximately 10–15 minutes."
+          description="Noland turns your chosen machine into a ready-to-play gaming PC. Setup usually takes 10–15 minutes."
         />
 
         <div className="provision-console">

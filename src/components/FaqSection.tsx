@@ -43,7 +43,7 @@ export function FaqSection() {
           <SectionHeading
             eyebrow="OPERATOR MANUAL"
             title={<span id="faq-title">Noland cloud gaming <em>questions and answers.</em></span>}
-            description="Straight answers about cost, compatibility, provisioning, data flow, and the rented hardware model."
+            description="Clear answers about price, compatibility, setup, and rented hardware."
           />
           <div className="faq-side-note">
             <span>STILL EXPLORING?</span>
