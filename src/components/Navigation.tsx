@@ -11,6 +11,7 @@ const platformGuides: Record<DesktopOperatingSystem, { href: string; label: stri
 };
 
 const featureDescriptions: Record<string, string> = {
+  "/features/premium-routes/": "Cloudflare TURN relay paths for difficult networks",
   "/features/shared-storage/": "Carry application state between machines",
   "/features/microphone/": "Forward a local mic to the cloud host",
   "/features/display-manager/": "Manage headless resolutions and EDID",

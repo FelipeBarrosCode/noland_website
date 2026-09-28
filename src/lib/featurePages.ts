@@ -2,6 +2,101 @@ import type { SeoPage } from "./seoPages";
 
 export const featurePages: SeoPage[] = [
   {
+    path: "/features/premium-routes/",
+    title: "Premium Routes with Cloudflare TURN | Noland",
+    description:
+      "Learn how Noland Premium Routes use Cloudflare TURN to relay the encrypted WireGuard tunnel when a direct route is unavailable or less reliable.",
+    eyebrow: "Premium Routes",
+    heading: "A stronger route when direct paths get difficult",
+    lede:
+      "Premium Routes add a Cloudflare TURN relay option to Noland's managed connection, keeping the same encrypted WireGuard tunnel while giving difficult networks another way to reach the cloud PC.",
+    quickAnswer:
+      "Premium Routes are not a second gameplay protocol or a generic VPN. They use Cloudflare TURN as an outer UDP transport for the existing encrypted WireGuard tunnel. Noland can validate direct and relay paths independently, compare measured quality, and switch only through a verified connection transaction when the relevant rollout controls are enabled.",
+    highlights: [
+      { value: "Cloudflare TURN", label: "relay transport for difficult routes" },
+      { value: "WireGuard", label: "same encrypted logical tunnel" },
+      { value: "Measured", label: "direct and relay path evaluation" },
+    ],
+    sections: [
+      {
+        eyebrow: "Relay path",
+        heading: "Keep the tunnel; change the outer route",
+        paragraphs: [
+          "Direct connectivity remains the simplest path. When a network makes direct UDP reachability difficult, Noland can prepare a Cloudflare TURN allocation and carry the encrypted WireGuard packets through that relay. The host bridges only the encrypted WireGuard UDP traffic; TURN does not replace the logical tunnel or become a new trust boundary for gameplay data.",
+          "The relay is attached to the selected cloud instance and its allocation is tracked as runtime state. Endpoint, allocation generation, credential expiry, bridge permissions, and tunnel health must agree before Noland considers the path ready.",
+        ],
+        bullets: [
+          "Direct and Cloudflare TURN are outer transports for one WireGuard tunnel",
+          "The host owns the TURN allocation and bridge lifecycle",
+          "Relay activation requires tunnel and Sunshine validation",
+          "Direct connectivity remains sufficient for provisioning",
+        ],
+      },
+      {
+        eyebrow: "Credentials",
+        heading: "Use the relay without putting long-lived secrets on the host",
+        paragraphs: [
+          "The Cloudflare TURN Key ID and API token are stored in the desktop operating system keyring, not in state.json and not on the rented machine. Noland asks Cloudflare for temporary ICE credentials when it needs to create a runtime allocation; the generated username and password remain in process memory and expire after a bounded lifetime.",
+          "Validation also filters the provider response for usable UDP TURN endpoints. A credential test can confirm that Cloudflare accepted the configured key and returned a usable relay configuration without exposing the secret in the UI or logs.",
+        ],
+        bullets: [
+          "Desktop keyring storage for the long-lived provider token",
+          "Memory-only runtime username and credential",
+          "Bounded credentials with a maximum 48-hour request TTL",
+          "Redacted provider errors and key-ID hints instead of secret values",
+        ],
+      },
+      {
+        eyebrow: "Evaluate",
+        heading: "Choose with evidence, not a static promise",
+        paragraphs: [
+          "Noland's connection evaluator probes direct and Cloudflare TURN paths independently. It records samples such as round-trip time, jitter, loss, spikes, reordering, confidence, and stability penalty, then produces a comparison rather than assuming that a relay is always faster or more reliable.",
+          "When automatic selection is enabled, the evaluator requires repeated wins and a dwell period before requesting a transport change. Manual switching is transactional as well: endpoint mutation, revision checks, MTU handling, read-back, and rollback protect the active session from a partial route change.",
+        ],
+        bullets: [
+          "Independent direct and relay probes",
+          "Three consecutive wins and a 90-second dwell for automatic changes",
+          "Versioned transport transitions with explicit failure states",
+          "TURN failures remain warnings unless no usable transport remains",
+        ],
+      },
+      {
+        eyebrow: "Path limits",
+        heading: "A better escape hatch, not a latency guarantee",
+        paragraphs: [
+          "A relay adds another network hop and may be slower than a healthy direct route. Premium Routes exist to improve reachability and route stability for specific network conditions, not to promise a fixed ping, FPS, or compatibility result. The selected path still depends on geography, provider location, ISP routing, congestion, host performance, encoding, decoding, and the client network.",
+          "TURN-aware probes also validate payload limits for the relay path. Noland uses measured or conservative limits rather than assuming that the direct path's packet ceiling applies unchanged through the relay.",
+        ],
+        links: [
+          { href: "/features/moonlight-client-optimizations/", label: "See the remote-safe streaming controls" },
+          { href: "/sunshine-moonlight-cloud-gaming/", label: "Understand the direct streaming path" },
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Is Premium Routes a VPN?",
+        answer:
+          "No. It is a Cloudflare TURN outer transport for Noland's existing encrypted WireGuard tunnel. WireGuard remains the logical tunnel used by the session.",
+      },
+      {
+        question: "Does Noland always use Cloudflare TURN?",
+        answer:
+          "No. Direct connectivity remains the preferred simple path when it is healthy. TURN can be selected manually when enabled and validated, or by the quality evaluator when the relevant automatic-selection rollout control is enabled.",
+      },
+      {
+        question: "Where are the Cloudflare credentials stored?",
+        answer:
+          "The long-lived Key ID and API token are stored in the desktop operating system keyring. Temporary TURN credentials are kept in process memory and are not persisted on the host or in state.json.",
+      },
+      {
+        question: "Will a relay always reduce latency?",
+        answer:
+          "No. A relay can improve reachability or stability for a difficult direct route, but it adds an intermediary. Noland measures both paths rather than claiming that TURN is universally faster.",
+      },
+    ],
+  },
+  {
     path: "/features/shared-storage/",
     title: "Shared Storage — Keep App State Across Cloud PCs | Noland",
     description:

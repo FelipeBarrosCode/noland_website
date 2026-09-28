@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
 import { SectionHeading } from "./SectionHeading";
 
@@ -17,12 +17,34 @@ const stages = [
 ];
 
 export function ProvisioningDemo() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasAutoPlayed = useRef(false);
   const [activeStage, setActiveStage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reducedMotion) setIsPlaying(true);
+    const section = sectionRef.current;
+    if (reducedMotion || !section) return;
+
+    if (!("IntersectionObserver" in window)) {
+      hasAutoPlayed.current = true;
+      setIsPlaying(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || hasAutoPlayed.current) return;
+        hasAutoPlayed.current = true;
+        setIsPlaying(true);
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -22%", threshold: 0.15 },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -50,7 +72,7 @@ export function ProvisioningDemo() {
   };
 
   return (
-    <section className="section provisioning-section" aria-labelledby="provisioning-title">
+    <section ref={sectionRef} className="section provisioning-section" aria-labelledby="provisioning-title">
       <div className="shell">
         <SectionHeading
           eyebrow="AUTOMATED PROVISIONING"

@@ -8,6 +8,7 @@ import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LatencyLab } from "./components/LatencyLab";
 import { MarketplaceBrowser } from "./components/MarketplaceBrowser";
+import { MotionSystem } from "./components/MotionSystem";
 import { Navigation } from "./components/Navigation";
 import { ProvisioningDemo } from "./components/ProvisioningDemo";
 import { SeoLandingPage } from "./components/SeoLandingPage";
@@ -27,6 +28,7 @@ export function App({ pathname = "/" }: AppProps) {
     return (
       <>
         <HashScroll />
+        <MotionSystem />
         <SeoLandingPage page={contentPage} />
         <CookieConsent />
       </>
@@ -36,6 +38,7 @@ export function App({ pathname = "/" }: AppProps) {
   return (
     <>
       <HashScroll />
+      <MotionSystem />
       <a className="skip-link" href="#main-content">Skip to content</a>
       <Navigation />
       <main id="main-content">

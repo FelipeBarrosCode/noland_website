@@ -16,7 +16,7 @@ export function Hero() {
       <div className="hero-grid shell">
         <div className="hero-copy">
           <p className="eyebrow"><span aria-hidden="true">//</span> PAY-AS-YOU-GO CLOUD GAMING</p>
-          <h1 id="hero-title">Rent a cloud gaming PC.<br /><span>Pay by the hour.</span></h1>
+          <h1 id="hero-title">Rent a cloud gaming PC. <span>Pay by the hour.</span></h1>
           <p className="hero-lede">
             Pick a GPU, launch your cloud PC, and pay only while you use it. Noland handles setup and connects you directly—without a monthly subscription.
           </p>
