@@ -21,6 +21,10 @@ pnpm-debug.log*
 # Claude Code wizard output
 .claude/
 
+# Local agent skills
+.agents/
+skills-lock.json
+
 # Editors
 .idea/
 .vscode/
