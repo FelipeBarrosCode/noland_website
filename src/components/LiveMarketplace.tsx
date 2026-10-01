@@ -170,12 +170,15 @@ export function LiveMarketplace() {
     );
   }, [countryCode, storageCompatibleOffers, storageGb]);
 
-  const averageHourlyPrice = useMemo(() => {
+  const hourlyPriceRange = useMemo(() => {
     const pricedOffers = filteredOffers
       .map((offer) => totalHourlyPrice(offer, storageGb))
       .filter((price) => Number.isFinite(price) && price > 0);
     if (pricedOffers.length === 0) return null;
-    return pricedOffers.reduce((total, price) => total + price, 0) / pricedOffers.length;
+    return {
+      minimum: Math.min(...pricedOffers),
+      maximum: Math.max(...pricedOffers),
+    };
   }, [filteredOffers, storageGb]);
 
   const visibleOffers = showAll ? filteredOffers : filteredOffers.slice(0, MAX_VISIBLE_OFFERS);
@@ -252,9 +255,13 @@ export function LiveMarketplace() {
             </label>
 
             <div className="live-marketplace__average" aria-live="polite">
-              <span>AVERAGE COST / HOUR</span>
-              <strong>{averageHourlyPrice === null ? "—" : `$${averageHourlyPrice.toFixed(3)}`}</strong>
-              <small>{filteredOffers.length} offer{filteredOffers.length === 1 ? "" : "s"} · {storageGb.toLocaleString()} GB</small>
+              <span>LIVE COST RANGE / HOUR</span>
+              <strong>
+                {hourlyPriceRange === null
+                  ? "—"
+                  : `$${hourlyPriceRange.minimum.toFixed(3)}–$${hourlyPriceRange.maximum.toFixed(3)}`}
+              </strong>
+              <small>Cheapest to most expensive · {filteredOffers.length} offer{filteredOffers.length === 1 ? "" : "s"}</small>
             </div>
           </div>
 
