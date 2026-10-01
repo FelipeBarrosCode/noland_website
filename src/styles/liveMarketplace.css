@@ -337,6 +337,22 @@
   line-height: 1.6;
 }
 
+.live-marketplace__histogram {
+  display: grid;
+  height: 42px;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  gap: 3px;
+  margin-top: 8px;
+  border-bottom: 1px solid #477337;
+}
+
+.live-marketplace__histogram i {
+  min-height: 3px;
+  background: linear-gradient(180deg, var(--cyan), var(--lime));
+  box-shadow: 0 0 8px rgba(184, 255, 61, .15);
+}
+
 .live-marketplace__average strong {
   margin-top: 7px;
   color: var(--lime);

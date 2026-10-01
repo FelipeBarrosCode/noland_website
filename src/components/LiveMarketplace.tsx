@@ -170,14 +170,35 @@ export function LiveMarketplace() {
     );
   }, [countryCode, storageCompatibleOffers, storageGb]);
 
-  const hourlyPriceRange = useMemo(() => {
-    const pricedOffers = filteredOffers
+  const priceDistribution = useMemo(() => {
+    const prices = filteredOffers
       .map((offer) => totalHourlyPrice(offer, storageGb))
-      .filter((price) => Number.isFinite(price) && price > 0);
-    if (pricedOffers.length === 0) return null;
+      .filter((price) => Number.isFinite(price) && price > 0)
+      .sort((left, right) => left - right);
+    if (prices.length === 0) return null;
+
+    const bucketCount = 7;
+    const minimum = prices[0];
+    const maximum = prices[prices.length - 1];
+    const counts = Array.from({ length: bucketCount }, () => 0);
+
+    for (const price of prices) {
+      const bucketIndex = maximum === minimum
+        ? Math.floor(bucketCount / 2)
+        : Math.min(bucketCount - 1, Math.floor(((price - minimum) / (maximum - minimum)) * bucketCount));
+      counts[bucketIndex] += 1;
+    }
+
+    const middle = Math.floor(prices.length / 2);
+    const median = prices.length % 2 === 0
+      ? (prices[middle - 1] + prices[middle]) / 2
+      : prices[middle];
+
     return {
-      minimum: Math.min(...pricedOffers),
-      maximum: Math.max(...pricedOffers),
+      counts,
+      maximumCount: Math.max(...counts),
+      median,
+      offerCount: prices.length,
     };
   }, [filteredOffers, storageGb]);
 
@@ -254,14 +275,28 @@ export function LiveMarketplace() {
               <small><span>{MIN_STORAGE_GB} GB</span><span>{storageMaximum.toLocaleString()} GB</span></small>
             </label>
 
-            <div className="live-marketplace__average" aria-live="polite">
-              <span>LIVE COST RANGE / HOUR</span>
-              <strong>
-                {hourlyPriceRange === null
-                  ? "—"
-                  : `$${hourlyPriceRange.minimum.toFixed(3)}–$${hourlyPriceRange.maximum.toFixed(3)}`}
-              </strong>
-              <small>Cheapest to most expensive · {filteredOffers.length} offer{filteredOffers.length === 1 ? "" : "s"}</small>
+            <div
+              className="live-marketplace__average"
+              aria-live="polite"
+              aria-label={priceDistribution === null
+                ? "No price distribution available"
+                : `Price distribution across ${priceDistribution.offerCount} offers. Median ${priceDistribution.median.toFixed(3)} dollars per hour.`}
+            >
+              <span>LIVE PRICE DISTRIBUTION</span>
+              <div className="live-marketplace__histogram" aria-hidden="true">
+                {(priceDistribution?.counts ?? Array.from({ length: 7 }, () => 0)).map((count, index) => (
+                  <i
+                    key={index}
+                    style={{
+                      height: priceDistribution && count > 0
+                        ? `${Math.max(12, (count / priceDistribution.maximumCount) * 100)}%`
+                        : "3px",
+                    }}
+                  />
+                ))}
+              </div>
+              <strong>{priceDistribution === null ? "—" : `$${priceDistribution.median.toFixed(3)}/hr`}</strong>
+              <small>Median · {priceDistribution?.offerCount ?? 0} offer{priceDistribution?.offerCount === 1 ? "" : "s"}</small>
             </div>
           </div>
 
