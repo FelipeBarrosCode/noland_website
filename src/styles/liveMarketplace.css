@@ -399,9 +399,9 @@
   top: -4px;
   z-index: 2;
   display: grid;
-  width: 140px;
-  min-width: 140px;
-  max-width: 140px;
+  width: 220px;
+  min-width: 220px;
+  max-width: 220px;
   box-sizing: border-box;
   padding: 7px 9px;
   border: 1px solid var(--cyan);
@@ -414,15 +414,23 @@
   transform: translate(-50%, -100%);
 }
 
-.live-price-wave__tooltip strong {
+.live-marketplace__average .live-price-wave__tooltip strong {
+  margin: 0;
   color: var(--lime);
   font-family: var(--display);
-  font-size: 7px;
+  font-size: 9px;
+  line-height: 1.35;
+  text-shadow: none;
+  white-space: nowrap;
 }
 
-.live-price-wave__tooltip span {
-  margin-top: 3px;
+.live-marketplace__average .live-price-wave__tooltip span {
+  margin-top: 4px;
   color: var(--cyan-soft);
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 

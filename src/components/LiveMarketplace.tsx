@@ -463,7 +463,7 @@ function PriceDistributionGraph({
         <path className="live-price-wave__line" d={linePath} />
       </svg>
       {hoveredPoint ? (
-        <div className="live-price-wave__tooltip" style={{ left: `clamp(70px, ${hoveredPoint.x}%, calc(100% - 70px))` }} role="status">
+        <div className="live-price-wave__tooltip" style={{ left: `clamp(110px, ${hoveredPoint.x}%, calc(100% - 110px))` }} role="status">
           <strong>{hoveredPoint.count} instance{hoveredPoint.count === 1 ? "" : "s"}</strong>
           <span>{formatDistributionPrice(hoveredPoint.minimum)}–{formatDistributionPrice(hoveredPoint.maximum)}/hr</span>
         </div>
