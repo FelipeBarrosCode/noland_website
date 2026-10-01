@@ -110,6 +110,7 @@ export function LiveMarketplace() {
   const [offers, setOffers] = useState<MarketplaceOffer[]>([]);
   const [countryCode, setCountryCode] = useState("GLOBAL");
   const [storageGb, setStorageGb] = useState(DEFAULT_STORAGE_GB);
+  const [selectedPriceBucket, setSelectedPriceBucket] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
@@ -193,7 +194,7 @@ export function LiveMarketplace() {
       .sort((left, right) => left - right);
     if (prices.length === 0) return null;
 
-    const bucketCount = 24;
+    const bucketCount = Math.min(18, Math.max(6, Math.ceil(Math.sqrt(prices.length) * 2)));
     const minimum = prices[0];
     const maximum = prices[prices.length - 1];
     const counts = Array.from({ length: bucketCount }, () => 0);
@@ -234,7 +235,18 @@ export function LiveMarketplace() {
     } satisfies PriceDistribution;
   }, [filteredOffers, storageGb]);
 
-  const visibleOffers = showAll ? filteredOffers : filteredOffers.slice(0, MAX_VISIBLE_OFFERS);
+  const activePriceBucket = selectedPriceBucket === null
+    ? null
+    : priceDistribution?.points[selectedPriceBucket] ?? null;
+  const priceFilteredOffers = useMemo(() => {
+    if (!activePriceBucket) return filteredOffers;
+    return filteredOffers.filter((offer) => {
+      const price = totalHourlyPrice(offer, storageGb);
+      const isLastBucket = activePriceBucket === priceDistribution?.points[priceDistribution.points.length - 1];
+      return price >= activePriceBucket.minimum && (isLastBucket ? price <= activePriceBucket.maximum : price < activePriceBucket.maximum);
+    });
+  }, [activePriceBucket, filteredOffers, priceDistribution, storageGb]);
+  const visibleOffers = showAll ? priceFilteredOffers : priceFilteredOffers.slice(0, MAX_VISIBLE_OFFERS);
 
   return (
     <section className="section live-marketplace-section" aria-labelledby="live-marketplace-title">
@@ -267,6 +279,7 @@ export function LiveMarketplace() {
                 onChange={(event) => {
                   const nextCountry = event.target.value;
                   setCountryCode(nextCountry);
+                  setSelectedPriceBucket(null);
                   setShowAll(false);
                   capture("live_marketplace_filter_changed", {
                     filter: "country",
@@ -296,6 +309,7 @@ export function LiveMarketplace() {
                 disabled={loadState !== "ready"}
                 onChange={(event) => {
                   setStorageGb(Number(event.target.value));
+                  setSelectedPriceBucket(null);
                   setShowAll(false);
                 }}
                 onPointerUp={() => capture("live_marketplace_filter_changed", {
@@ -315,9 +329,33 @@ export function LiveMarketplace() {
                 : `Price distribution across ${priceDistribution.offerCount} offers. Median ${priceDistribution.median.toFixed(3)} dollars per hour.`}
             >
               <span>LIVE PRICE DISTRIBUTION</span>
-              <PriceDistributionGraph distribution={priceDistribution} />
-              <strong>{priceDistribution === null ? "—" : `$${priceDistribution.median.toFixed(3)}/hr`}</strong>
-              <small>Median · {priceDistribution?.offerCount ?? 0} offer{priceDistribution?.offerCount === 1 ? "" : "s"}</small>
+              <PriceDistributionGraph
+                distribution={priceDistribution}
+                selectedIndex={selectedPriceBucket}
+                onSelect={(index) => {
+                  const nextIndex = selectedPriceBucket === index ? null : index;
+                  setSelectedPriceBucket(nextIndex);
+                  setShowAll(false);
+                  const bucket = index === null ? null : priceDistribution?.points[index];
+                  if (bucket && nextIndex !== null) {
+                    capture("live_marketplace_price_bucket_selected", {
+                      minimum_price: bucket.minimum,
+                      maximum_price: bucket.maximum,
+                      offer_count: bucket.count,
+                    });
+                  }
+                }}
+              />
+              <strong>
+                {activePriceBucket
+                  ? `${formatDistributionPrice(activePriceBucket.minimum)}–${formatDistributionPrice(activePriceBucket.maximum)}/hr`
+                  : priceDistribution === null ? "—" : `$${priceDistribution.median.toFixed(3)}/hr`}
+              </strong>
+              <small>
+                {activePriceBucket
+                  ? `Selected range · ${priceFilteredOffers.length} offer${priceFilteredOffers.length === 1 ? "" : "s"} · click again to clear`
+                  : `Median · ${priceDistribution?.offerCount ?? 0} offer${priceDistribution?.offerCount === 1 ? "" : "s"}`}
+              </small>
             </div>
           </div>
 
@@ -330,7 +368,7 @@ export function LiveMarketplace() {
             <div className="live-marketplace__loading" role="status">
               <i aria-hidden="true" /><span>Joining Vast.ai offer categories…</span>
             </div>
-          ) : filteredOffers.length === 0 ? (
+          ) : priceFilteredOffers.length === 0 ? (
             <div className="live-marketplace__notice" role="status">
               <strong>No matching instances found.</strong>
               <span>Reduce the storage amount or choose Global to see more live inventory.</span>
@@ -338,20 +376,20 @@ export function LiveMarketplace() {
           ) : (
             <>
               <div className="live-offer-count" aria-live="polite">
-                Showing {visibleOffers.length} of {filteredOffers.length} matching instances · lowest estimated price first
+                Showing {visibleOffers.length} of {priceFilteredOffers.length} matching instances · lowest estimated price first
               </div>
               <div className="live-offer-grid">
                 {visibleOffers.map((offer) => (
                   <OfferCard offer={offer} storageGb={storageGb} key={offer.id} />
                 ))}
               </div>
-              {filteredOffers.length > MAX_VISIBLE_OFFERS ? (
+              {priceFilteredOffers.length > MAX_VISIBLE_OFFERS ? (
                 <button
                   className="button button--ghost live-marketplace__more"
                   type="button"
                   onClick={() => setShowAll((current) => !current)}
                 >
-                  {showAll ? "Show fewer instances" : `Show all ${filteredOffers.length} instances`}
+                  {showAll ? "Show fewer instances" : `Show all ${priceFilteredOffers.length} instances`}
                   <span aria-hidden="true">{showAll ? "↑" : "↓"}</span>
                 </button>
               ) : null}
@@ -367,17 +405,27 @@ export function LiveMarketplace() {
   );
 }
 
-function PriceDistributionGraph({ distribution }: { distribution: PriceDistribution | null }) {
+function PriceDistributionGraph({
+  distribution,
+  selectedIndex,
+  onSelect,
+}: {
+  distribution: PriceDistribution | null;
+  selectedIndex: number | null;
+  onSelect: (index: number) => void;
+}) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const points = distribution?.points ?? [];
-  const hoveredPoint = hoveredIndex === null ? null : points[hoveredIndex];
+  const activeIndex = hoveredIndex ?? selectedIndex;
+  const hoveredPoint = activeIndex === null ? null : points[activeIndex];
   const linePath = smoothWavePath(points);
+  const bucketWidth = points.length > 0 ? 100 / points.length : 0;
   const areaPath = points.length > 0
     ? `${linePath} L 100 84 L 0 84 Z`
     : "";
 
   return (
-    <div className="live-price-wave" aria-label={distribution ? "Hover the price curve to inspect offer counts by price range." : "No price distribution available."}>
+    <div className="live-price-wave" aria-label={distribution ? "Select a segment of the price curve to filter instances by hourly price." : "No price distribution available."}>
       <svg viewBox="0 0 100 88" preserveAspectRatio="none" role="img" aria-label="Live hourly price distribution">
         <defs>
           <linearGradient id="live-price-wave-fill" x1="0" x2="0" y1="0" y2="1">
@@ -385,21 +433,42 @@ function PriceDistributionGraph({ distribution }: { distribution: PriceDistribut
             <stop offset="1" stopColor="#b8ff3d" stopOpacity=".03" />
           </linearGradient>
         </defs>
-        <path className="live-price-wave__area" d={areaPath} />
-        <path className="live-price-wave__line" d={linePath} />
         {points.map((point, index) => (
-          <circle
-            className="live-price-wave__point"
-            cx={point.x}
-            cy={point.y}
-            key={`${point.minimum}-${index}`}
-            r="3.4"
-            tabIndex={0}
+          <rect
+            className={`live-price-wave__bucket${selectedIndex === index ? " is-selected" : ""}`}
+            x={index * bucketWidth}
+            y="0"
+            width={bucketWidth}
+            height="84"
+            key={`bucket-${point.minimum}-${index}`}
+            role="button"
+            tabIndex={point.count > 0 ? 0 : -1}
+            aria-disabled={point.count === 0}
+            aria-pressed={selectedIndex === index}
+            aria-label={`${point.count} instance${point.count === 1 ? "" : "s"} from ${formatDistributionPrice(point.minimum)} to ${formatDistributionPrice(point.maximum)} per hour`}
             onBlur={() => setHoveredIndex(null)}
             onFocus={() => setHoveredIndex(index)}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
-            aria-label={`${point.count} instance${point.count === 1 ? "" : "s"} from ${formatDistributionPrice(point.minimum)} to ${formatDistributionPrice(point.maximum)} per hour`}
+            onClick={() => { if (point.count > 0) onSelect(index); }}
+            onKeyDown={(event) => {
+              if (point.count > 0 && (event.key === "Enter" || event.key === " ")) {
+                event.preventDefault();
+                onSelect(index);
+              }
+            }}
+          />
+        ))}
+        <path className="live-price-wave__area" d={areaPath} />
+        <path className="live-price-wave__line" d={linePath} />
+        {points.map((point, index) => (
+          <circle
+            className={`live-price-wave__point${selectedIndex === index ? " is-selected" : ""}`}
+            cx={point.x}
+            cy={point.y}
+            key={`${point.minimum}-${index}`}
+            r="3.4"
+            aria-hidden="true"
           />
         ))}
       </svg>
