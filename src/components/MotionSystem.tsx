@@ -29,6 +29,9 @@ const revealSelector = [
   ".seo-answer-panel",
   ".seo-content-section__heading",
   ".seo-content-section__body",
+  ".live-marketplace__toolbar",
+  ".live-marketplace__controls",
+  ".live-offer-card",
 ].join(",");
 
 export function MotionSystem() {
@@ -58,7 +61,7 @@ export function MotionSystem() {
 
     revealTargets.forEach((element) => revealObserver.observe(element));
 
-    const animatedSections = Array.from(document.querySelectorAll<HTMLElement>("main > section, .seo-content-section"));
+    const animatedSections = Array.from(document.querySelectorAll<HTMLElement>("main > section, .seo-content-section, .live-marketplace-section"));
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
