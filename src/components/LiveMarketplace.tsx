@@ -461,19 +461,9 @@ function PriceDistributionGraph({
         ))}
         <path className="live-price-wave__area" d={areaPath} />
         <path className="live-price-wave__line" d={linePath} />
-        {points.map((point, index) => (
-          <circle
-            className={`live-price-wave__point${selectedIndex === index ? " is-selected" : ""}`}
-            cx={point.x}
-            cy={point.y}
-            key={`${point.minimum}-${index}`}
-            r="3.4"
-            aria-hidden="true"
-          />
-        ))}
       </svg>
       {hoveredPoint ? (
-        <div className="live-price-wave__tooltip" style={{ left: `${Math.min(88, Math.max(12, hoveredPoint.x))}%` }} role="status">
+        <div className="live-price-wave__tooltip" style={{ left: `clamp(70px, ${hoveredPoint.x}%, calc(100% - 70px))` }} role="status">
           <strong>{hoveredPoint.count} instance{hoveredPoint.count === 1 ? "" : "s"}</strong>
           <span>{formatDistributionPrice(hoveredPoint.minimum)}–{formatDistributionPrice(hoveredPoint.maximum)}/hr</span>
         </div>

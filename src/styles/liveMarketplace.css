@@ -393,28 +393,16 @@
   pointer-events: none;
 }
 
-.live-price-wave__point {
-  fill: var(--lime);
-  stroke: #0d1917;
-  stroke-width: 1.5;
-  vector-effect: non-scaling-stroke;
-  opacity: .04;
-  pointer-events: none;
-  transition: opacity 140ms ease-out, r 140ms ease-out;
-}
-
-.live-price-wave__point.is-selected {
-  opacity: 1;
-  fill: var(--lime);
-  r: 4.8;
-}
 
 .live-price-wave__tooltip {
   position: absolute;
   top: -4px;
   z-index: 2;
   display: grid;
-  min-width: 112px;
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+  box-sizing: border-box;
   padding: 7px 9px;
   border: 1px solid var(--cyan);
   color: var(--text);
@@ -435,6 +423,7 @@
 .live-price-wave__tooltip span {
   margin-top: 3px;
   color: var(--cyan-soft);
+  white-space: nowrap;
 }
 
 .live-price-wave__scale {
@@ -539,5 +528,4 @@
   .live-marketplace__status > i { animation: none; }
   .live-offer-card { transition: none; }
   .live-offer-card:hover { transform: none; }
-  .live-price-wave__point { transition: none; }
 }
