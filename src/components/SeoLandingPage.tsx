@@ -1,6 +1,7 @@
 import { FinalCta, SiteFooter } from "./ExperienceSections";
 import { FeatureLinks } from "./FeatureLinks";
 import { Navigation } from "./Navigation";
+import { LiveMarketplace } from "./LiveMarketplace";
 import { SeoPillarLinks } from "./SeoPillarLinks";
 import { isFeaturePage } from "../lib/featurePages";
 import type { SeoPage } from "../lib/seoPages";
@@ -84,6 +85,8 @@ export function SeoLandingPage({ page }: SeoLandingPageProps) {
               </div>
             </div>
           </header>
+
+          {page.path === "/pay-as-you-go-cloud-gaming/" ? <LiveMarketplace /> : null}
 
           <div className="seo-highlight-strip" aria-label="Noland product highlights">
             <div className="shell seo-highlight-strip__inner">
