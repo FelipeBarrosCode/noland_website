@@ -12,7 +12,6 @@ type LoadState =
 
 type ClientOS = DownloadPlatform | "Unknown";
 type ClientArchitecture = DownloadOption["architecture"] | null;
-type SharedPlatform = "windows" | "macos" | "linux";
 type ClientPlatform = {
   os: ClientOS;
   architecture: ClientArchitecture;
@@ -73,21 +72,13 @@ export function DownloadSection() {
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [savedLinkMessage, setSavedLinkMessage] = useState<string | null>(null);
   const [platformChooserOpen, setPlatformChooserOpen] = useState(false);
-  const [sharedPlatform, setSharedPlatform] = useState<SharedPlatform | null>(null);
   const downloadSectionViewedRef = useRef(false);
   const downloadIntentRef = useRef(false);
   const downloadCompletedRef = useRef(false);
   const frictionSurveyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const mobile = isMobileBrowser();
-    setIsMobileClient(mobile);
-
-    const platform = new URL(window.location.href).searchParams.get("platform");
-    if (!mobile && isSharedPlatform(platform)) {
-      setSharedPlatform(platform);
-      setOptionsOpen(true);
-    }
+    setIsMobileClient(isMobileBrowser());
   }, []);
 
   useEffect(() => {
@@ -231,20 +222,16 @@ export function DownloadSection() {
     }
   };
 
-  const saveDesktopDownloadLink = async (platform: SharedPlatform) => {
+  const saveDesktopDownloadLink = async (download: DownloadOption) => {
     recordDownloadIntent();
     setPlatformChooserOpen(false);
     setSavedLinkMessage(null);
 
-    const downloadPageUrl = new URL(window.location.href);
-    downloadPageUrl.searchParams.set("platform", platform);
-    downloadPageUrl.hash = DOWNLOADS_SECTION_ID;
-    const url = downloadPageUrl.toString();
-    const platformLabel = sharedPlatformLabel(platform);
     const properties = {
-      intended_platform: platformLabel,
-      detected_platform: clientPlatform.os,
-      architecture: clientPlatform.architecture,
+      intended_platform: download.platform,
+      architecture: download.architecture,
+      download_id: download.id,
+      asset_name: download.assetName,
       source: "mobile_download_section",
     };
     const browserNavigator = navigator as NavigatorWithUserAgentData;
@@ -253,11 +240,11 @@ export function DownloadSection() {
       try {
         await browserNavigator.share({
           title: "Download Noland",
-          text: `Open this link on your ${platformLabel} computer to download Noland.`,
-          url,
+          text: `Open this link on your ${download.platform} computer to download ${download.label}.`,
+          url: download.url,
         });
         capture("desktop_download_link_shared", properties);
-        setSavedLinkMessage(`${platformLabel} download link shared. Open it later on your computer.`);
+        setSavedLinkMessage(`${download.label} shared. Opening the link on your computer starts the download.`);
         return;
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
@@ -267,11 +254,11 @@ export function DownloadSection() {
     }
 
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(download.url);
       capture("desktop_download_link_copied", properties);
-      setSavedLinkMessage(`${platformLabel} download link copied. Open it later on your computer.`);
+      setSavedLinkMessage(`${download.label} link copied. Opening it on your computer starts the download.`);
     } catch {
-      setSavedLinkMessage("Unable to open sharing. Copy this page's address to save it for your computer.");
+      setSavedLinkMessage("Unable to share or copy the installer link on this device.");
     }
   };
 
@@ -301,7 +288,7 @@ export function DownloadSection() {
           }
           description={
             isMobileClient
-              ? "Noland is a desktop app for Windows, macOS, and Linux. Save the download page and open it later on your computer."
+              ? "Noland is a desktop app for Windows, macOS, and Linux. Choose your computer type and share its direct installer link."
               : "Noland detects your device and suggests the right download. You can choose another option below anytime."
           }
         />
@@ -337,7 +324,7 @@ export function DownloadSection() {
             </h3>
             <p>
               {isMobileClient
-                ? "Use your phone's share menu to save this download page in Messages, email, Notes, or another synced app."
+                ? "Choose the exact desktop installer, then send its direct download link through Messages, email, Notes, or another synced app."
                 : getRecommendationDescription(clientPlatform, recommendedDownload)}
             </p>
             {!isMobileClient && recommendedDownload ? (
@@ -348,8 +335,8 @@ export function DownloadSection() {
           <div className="download-recommendation__action">
             {isMobileClient ? (
               <>
-                <button className="button button--primary button--large" type="button" onClick={() => setPlatformChooserOpen(true)}>
-                  <span>Save the desktop download link</span>
+                <button className="button button--primary button--large" type="button" disabled={state.status !== "ready" || state.payload.options.length === 0} onClick={() => setPlatformChooserOpen(true)}>
+                  <span>{state.status === "loading" ? "Resolving desktop installers…" : "Save the desktop download link"}</span>
                   <span aria-hidden="true">↗</span>
                 </button>
                 <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
@@ -406,7 +393,6 @@ export function DownloadSection() {
                 buttons={windowsOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                highlighted={sharedPlatform === "windows"}
                 onDownload={requestDownload}
               />
 
@@ -416,7 +402,6 @@ export function DownloadSection() {
                 buttons={macOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                highlighted={sharedPlatform === "macos"}
                 onDownload={requestDownload}
               />
 
@@ -426,7 +411,6 @@ export function DownloadSection() {
                 buttons={linuxOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                highlighted={sharedPlatform === "linux"}
                 onDownload={requestDownload}
               />
             </div>
@@ -435,6 +419,7 @@ export function DownloadSection() {
       </div>
       {platformChooserOpen ? (
         <PlatformShareModal
+          options={getShareableDownloadOptions(state)}
           onSelect={saveDesktopDownloadLink}
           onClose={() => setPlatformChooserOpen(false)}
         />
@@ -492,13 +477,12 @@ type PlatformCardProps = {
   buttons: PlatformButton[];
   fallbackUrl: string;
   fallbackLabel: string;
-  highlighted: boolean;
   onDownload: (download: PendingDownload) => void;
 };
 
-function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel, highlighted, onDownload }: PlatformCardProps) {
+function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel, onDownload }: PlatformCardProps) {
   return (
-    <article className={`download-card${highlighted ? " is-deeplink-target" : ""}`}>
+    <article className="download-card">
       <div className="download-card__header">
         <p className="download-card__eyebrow">{title.toUpperCase()}</p>
         <h3>{title}</h3>
@@ -533,7 +517,7 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel,
   );
 }
 
-function PlatformShareModal({ onSelect, onClose }: { onSelect: (platform: SharedPlatform) => Promise<void>; onClose: () => void }) {
+function PlatformShareModal({ options, onSelect, onClose }: { options: DownloadOption[]; onSelect: (download: DownloadOption) => Promise<void>; onClose: () => void }) {
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -548,11 +532,13 @@ function PlatformShareModal({ onSelect, onClose }: { onSelect: (platform: Shared
         <button className="download-modal__close" type="button" aria-label="Close platform selection" onClick={onClose}>×</button>
         <p className="download-modal__eyebrow">SAVE FOR YOUR COMPUTER</p>
         <h2 id="platform-share-title">Which computer will you use?</h2>
-        <p id="platform-share-copy">Choose its operating system. The saved link will open the matching Noland installers when you continue on that computer.</p>
+        <p id="platform-share-copy">Choose the operating system and processor type used by your computer. The shared link points directly to that installer and starts downloading when opened.</p>
         <div className="platform-share-modal__options">
-          <button className="button button--ghost" type="button" onClick={() => void onSelect("windows")}><span>Windows</span><span aria-hidden="true">→</span></button>
-          <button className="button button--ghost" type="button" onClick={() => void onSelect("macos")}><span>macOS</span><span aria-hidden="true">→</span></button>
-          <button className="button button--ghost" type="button" onClick={() => void onSelect("linux")}><span>Linux</span><span aria-hidden="true">→</span></button>
+          {options.map((option) => (
+            <button className="button button--ghost" type="button" key={option.id} onClick={() => void onSelect(option)}>
+              <span>{option.label}</span><span aria-hidden="true">→</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -604,6 +590,20 @@ function getOptionsForPlatform(state: LoadState, platform: DownloadPlatform): Do
   }
 
   return state.payload.options.filter((option) => option.platform === platform);
+}
+
+function getShareableDownloadOptions(state: LoadState): DownloadOption[] {
+  if (state.status !== "ready") {
+    return [];
+  }
+
+  return state.payload.options.filter((option) => {
+    if (option.platform === "Linux") {
+      return option.format.toLowerCase() === "appimage";
+    }
+
+    return true;
+  });
 }
 
 function getRecommendedDownload(client: ClientPlatform, state: LoadState): PlatformButton | null {
@@ -666,15 +666,6 @@ function formatArchitecture(os: ClientOS, architecture: Exclude<ClientArchitectu
   return architecture === "arm64" ? "ARM64" : "x64";
 }
 
-function isSharedPlatform(value: string | null): value is SharedPlatform {
-  return value === "windows" || value === "macos" || value === "linux";
-}
-
-function sharedPlatformLabel(platform: SharedPlatform): DownloadPlatform {
-  if (platform === "macos") return "macOS";
-  if (platform === "linux") return "Linux";
-  return "Windows";
-}
 
 function isMobileBrowser(): boolean {
   if (typeof navigator === "undefined" || typeof window === "undefined") {

@@ -1716,22 +1716,6 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   box-shadow: inset 0 0 0 3px #0c1430;
 }
 
-.download-card.is-deeplink-target {
-  border-color: var(--lime);
-  box-shadow: inset 0 0 0 3px #182914, 0 0 22px rgba(184, 255, 61, .14);
-}
-
-.download-card.is-deeplink-target::before {
-  display: block;
-  margin: -24px -24px 20px;
-  padding: 8px 12px;
-  color: var(--canvas);
-  background: var(--lime);
-  content: "SAVED PLATFORM";
-  font-family: var(--display);
-  font-size: 7px;
-  text-align: center;
-}
 
 .download-card__header {
   margin-bottom: 24px;
