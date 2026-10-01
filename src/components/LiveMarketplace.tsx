@@ -86,6 +86,22 @@ type CountryOption = {
   offerCount: number;
 };
 
+type DistributionPoint = {
+  x: number;
+  y: number;
+  count: number;
+  minimum: number;
+  maximum: number;
+};
+
+type PriceDistribution = {
+  points: DistributionPoint[];
+  median: number;
+  minimum: number;
+  maximum: number;
+  offerCount: number;
+};
+
 function capture(event: string, properties: Record<string, string | number>) {
   captureAnalyticsEvent(event, properties);
 }
@@ -177,17 +193,26 @@ export function LiveMarketplace() {
       .sort((left, right) => left - right);
     if (prices.length === 0) return null;
 
-    const bucketCount = 7;
+    const bucketCount = 24;
     const minimum = prices[0];
     const maximum = prices[prices.length - 1];
     const counts = Array.from({ length: bucketCount }, () => 0);
+    const range = maximum - minimum;
+    const bucketWidth = range === 0 ? 0 : range / bucketCount;
 
     for (const price of prices) {
       const bucketIndex = maximum === minimum
         ? Math.floor(bucketCount / 2)
-        : Math.min(bucketCount - 1, Math.floor(((price - minimum) / (maximum - minimum)) * bucketCount));
+        : Math.min(bucketCount - 1, Math.floor((price - minimum) / bucketWidth));
       counts[bucketIndex] += 1;
     }
+
+    const kernel = [0.12, 0.32, 0.5, 0.32, 0.12];
+    const density = counts.map((_, index) => kernel.reduce(
+      (sum, weight, kernelIndex) => sum + (counts[index + kernelIndex - 2] ?? 0) * weight,
+      0,
+    ));
+    const maximumDensity = Math.max(...density, 1);
 
     const middle = Math.floor(prices.length / 2);
     const median = prices.length % 2 === 0
@@ -195,11 +220,18 @@ export function LiveMarketplace() {
       : prices[middle];
 
     return {
-      counts,
-      maximumCount: Math.max(...counts),
+      points: counts.map((count, index) => ({
+        x: (index / (bucketCount - 1)) * 100,
+        y: 82 - (density[index] / maximumDensity) * 57,
+        count,
+        minimum: range === 0 ? minimum : minimum + index * bucketWidth,
+        maximum: range === 0 ? maximum : minimum + (index + 1) * bucketWidth,
+      })),
       median,
+      minimum,
+      maximum,
       offerCount: prices.length,
-    };
+    } satisfies PriceDistribution;
   }, [filteredOffers, storageGb]);
 
   const visibleOffers = showAll ? filteredOffers : filteredOffers.slice(0, MAX_VISIBLE_OFFERS);
@@ -283,18 +315,7 @@ export function LiveMarketplace() {
                 : `Price distribution across ${priceDistribution.offerCount} offers. Median ${priceDistribution.median.toFixed(3)} dollars per hour.`}
             >
               <span>LIVE PRICE DISTRIBUTION</span>
-              <div className="live-marketplace__histogram" aria-hidden="true">
-                {(priceDistribution?.counts ?? Array.from({ length: 7 }, () => 0)).map((count, index) => (
-                  <i
-                    key={index}
-                    style={{
-                      height: priceDistribution && count > 0
-                        ? `${Math.max(12, (count / priceDistribution.maximumCount) * 100)}%`
-                        : "3px",
-                    }}
-                  />
-                ))}
-              </div>
+              <PriceDistributionGraph distribution={priceDistribution} />
               <strong>{priceDistribution === null ? "—" : `$${priceDistribution.median.toFixed(3)}/hr`}</strong>
               <small>Median · {priceDistribution?.offerCount ?? 0} offer{priceDistribution?.offerCount === 1 ? "" : "s"}</small>
             </div>
@@ -344,6 +365,72 @@ export function LiveMarketplace() {
       </div>
     </section>
   );
+}
+
+function PriceDistributionGraph({ distribution }: { distribution: PriceDistribution | null }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const points = distribution?.points ?? [];
+  const hoveredPoint = hoveredIndex === null ? null : points[hoveredIndex];
+  const linePath = smoothWavePath(points);
+  const areaPath = points.length > 0
+    ? `${linePath} L 100 84 L 0 84 Z`
+    : "";
+
+  return (
+    <div className="live-price-wave" aria-label={distribution ? "Hover the price curve to inspect offer counts by price range." : "No price distribution available."}>
+      <svg viewBox="0 0 100 88" preserveAspectRatio="none" role="img" aria-label="Live hourly price distribution">
+        <defs>
+          <linearGradient id="live-price-wave-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="#23e7ff" stopOpacity=".36" />
+            <stop offset="1" stopColor="#b8ff3d" stopOpacity=".03" />
+          </linearGradient>
+        </defs>
+        <path className="live-price-wave__area" d={areaPath} />
+        <path className="live-price-wave__line" d={linePath} />
+        {points.map((point, index) => (
+          <circle
+            className="live-price-wave__point"
+            cx={point.x}
+            cy={point.y}
+            key={`${point.minimum}-${index}`}
+            r="3.4"
+            tabIndex={0}
+            onBlur={() => setHoveredIndex(null)}
+            onFocus={() => setHoveredIndex(index)}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            aria-label={`${point.count} instance${point.count === 1 ? "" : "s"} from ${formatDistributionPrice(point.minimum)} to ${formatDistributionPrice(point.maximum)} per hour`}
+          />
+        ))}
+      </svg>
+      {hoveredPoint ? (
+        <div className="live-price-wave__tooltip" style={{ left: `${Math.min(88, Math.max(12, hoveredPoint.x))}%` }} role="status">
+          <strong>{hoveredPoint.count} instance{hoveredPoint.count === 1 ? "" : "s"}</strong>
+          <span>{formatDistributionPrice(hoveredPoint.minimum)}–{formatDistributionPrice(hoveredPoint.maximum)}/hr</span>
+        </div>
+      ) : null}
+      <div className="live-price-wave__scale" aria-hidden="true">
+        <span>{distribution ? formatDistributionPrice(distribution.minimum) : "—"}</span>
+        <span>{distribution ? formatDistributionPrice(distribution.maximum) : "—"}</span>
+      </div>
+    </div>
+  );
+}
+
+function smoothWavePath(points: DistributionPoint[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1];
+    const current = points[index];
+    const midpoint = (previous.x + current.x) / 2;
+    path += ` Q ${previous.x} ${previous.y} ${midpoint} ${(previous.y + current.y) / 2}`;
+  }
+  const last = points[points.length - 1];
+  path += ` Q ${last.x} ${last.y} ${last.x} ${last.y}`;
+  return path;
 }
 
 function OfferCard({ offer, storageGb }: { offer: MarketplaceOffer; storageGb: number }) {
@@ -453,6 +540,10 @@ function countryLabel(code: string): string {
 
 function formatHourlyPrice(price: number): string {
   return price > 0 && Number.isFinite(price) ? `$${price.toFixed(4)}/hr` : "n/a";
+}
+
+function formatDistributionPrice(price: number): string {
+  return `$${price.toFixed(3)}`;
 }
 
 function formatSpeed(speed: number): string {
