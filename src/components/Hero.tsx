@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { captureAnalyticsEvent } from "../lib/analytics";
 import { DOWNLOADS_SECTION_ID } from "../lib/siteLinks";
 
 const architectureNodes = [
@@ -21,7 +22,11 @@ export function Hero() {
             Pick a GPU, launch your cloud PC, and pay only while you use it. Noland handles setup and connects you directly—without a monthly subscription.
           </p>
           <div className="hero-actions">
-            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`}>
+            <a
+              className="button button--primary button--large"
+              href={`/#${DOWNLOADS_SECTION_ID}`}
+              onClick={() => captureAnalyticsEvent("download_cta_clicked", { source: "hero" })}
+            >
               Get Noland <span aria-hidden="true">↓</span>
             </a>
             <a className="text-link" href="/#how-it-works">See how it works <span aria-hidden="true">→</span></a>

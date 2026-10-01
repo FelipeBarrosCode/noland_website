@@ -67,8 +67,17 @@ export function DownloadSection() {
   const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null });
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
+  const [isMobileClient, setIsMobileClient] = useState(false);
   const [pendingDownload, setPendingDownload] = useState<PendingDownload | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const downloadSectionViewedRef = useRef(false);
+  const downloadIntentRef = useRef(false);
+  const downloadCompletedRef = useRef(false);
+  const frictionSurveyTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setIsMobileClient(isMobileBrowser());
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -119,6 +128,59 @@ export function DownloadSection() {
   }, [shouldLoadDownloads]);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const recordSectionView = () => {
+      if (downloadSectionViewedRef.current) return;
+      downloadSectionViewedRef.current = true;
+
+      const detectedPlatform = detectClientPlatform();
+      const isMobile = isMobileBrowser();
+      capture("download_section_viewed", {
+        detected_platform: detectedPlatform.os,
+        architecture: detectedPlatform.architecture,
+        is_mobile: isMobile ? 1 : 0,
+      });
+
+      if (isMobile) {
+        frictionSurveyTimerRef.current = window.setTimeout(() => {
+          if (!downloadIntentRef.current) {
+            capture("mobile_download_friction_survey_eligible", {
+              detected_platform: detectedPlatform.os,
+              architecture: detectedPlatform.architecture,
+              wait_seconds: 20,
+            });
+          }
+        }, 20_000);
+      }
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      recordSectionView();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          recordSectionView();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    observer.observe(section);
+    return () => {
+      observer.disconnect();
+      if (frictionSurveyTimerRef.current !== null) {
+        window.clearTimeout(frictionSurveyTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     let active = true;
 
     refineClientPlatform().then((platform) => {
@@ -151,10 +213,18 @@ export function DownloadSection() {
   };
 
   const requestDownload = (download: PendingDownload, source: "recommended" | "option" = "option") => {
+    downloadIntentRef.current = true;
+    downloadCompletedRef.current = false;
+    if (frictionSurveyTimerRef.current !== null) {
+      window.clearTimeout(frictionSurveyTimerRef.current);
+      frictionSurveyTimerRef.current = null;
+    }
+
     capture(source === "recommended" ? "download_recommended_clicked" : "download_option_clicked", {
       platform: download.platform,
       download_id: download.downloadId,
       asset_name: download.assetName ?? null,
+      source,
     });
     setShareMessage(null);
     setPendingDownload(download);
@@ -165,8 +235,16 @@ export function DownloadSection() {
       <div className="shell">
         <SectionHeading
           eyebrow="DOWNLOAD"
-          title={<span id="downloads-title">Download Noland. <em>Matched to your device.</em></span>}
-          description="Noland detects your device and suggests the right download. You can choose another option below anytime."
+          title={
+            <span id="downloads-title">
+              Download Noland. <em>{isMobileClient ? "Continue on your computer." : "Matched to your device."}</em>
+            </span>
+          }
+          description={
+            isMobileClient
+              ? "Noland is a desktop app for Windows, macOS, and Linux. Choose the computer you plan to use."
+              : "Noland detects your device and suggests the right download. You can choose another option below anytime."
+          }
         />
 
         <div className="download-scroll-cue" aria-hidden="true">
@@ -192,9 +270,17 @@ export function DownloadSection() {
 
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
           <div className="download-recommendation__copy">
-            <p className="download-recommendation__eyebrow">RECOMMENDED FOR THIS DEVICE</p>
-            <h3 id="recommended-download-title">{formatDetectedPlatform(clientPlatform)}</h3>
-            <p>{getRecommendationDescription(clientPlatform, recommendedDownload)}</p>
+            <p className="download-recommendation__eyebrow">
+              {isMobileClient ? "CHOOSE YOUR COMPUTER" : "RECOMMENDED FOR THIS DEVICE"}
+            </p>
+            <h3 id="recommended-download-title">
+              {isMobileClient ? "Which desktop will you use?" : formatDetectedPlatform(clientPlatform)}
+            </h3>
+            <p>
+              {isMobileClient
+                ? "You are viewing this page on a phone or tablet. Pick a desktop platform below to get its installer."
+                : getRecommendationDescription(clientPlatform, recommendedDownload)}
+            </p>
             {recommendedDownload ? (
               <span className="download-recommendation__asset">{recommendedDownload.assetName}</span>
             ) : null}
@@ -212,7 +298,7 @@ export function DownloadSection() {
               </button>
             ) : (
               <button className="button button--primary button--large" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
-                Choose an installer <span aria-hidden="true">↓</span>
+                {isMobileClient ? "Choose your desktop installer" : "Choose an installer"} <span aria-hidden="true">↓</span>
               </button>
             )}
             <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_other_platforms")}>
@@ -290,7 +376,29 @@ export function DownloadSection() {
               setShareMessage("Sharing was cancelled. You can still support the project by starring the repo.");
             }
           }}
-          onClose={() => setPendingDownload(null)}
+          onComplete={() => {
+            downloadCompletedRef.current = true;
+            capture("download_support_completed", {
+              platform: pendingDownload.platform,
+              download_id: pendingDownload.downloadId,
+              asset_name: pendingDownload.assetName ?? null,
+            });
+            capture("app_download_clicked", {
+              platform: pendingDownload.platform,
+              download_id: pendingDownload.downloadId,
+              asset_name: pendingDownload.assetName ?? null,
+            });
+          }}
+          onClose={() => {
+            if (!downloadCompletedRef.current) {
+              capture("download_support_abandoned", {
+                platform: pendingDownload.platform,
+                download_id: pendingDownload.downloadId,
+                asset_name: pendingDownload.assetName ?? null,
+              });
+            }
+            setPendingDownload(null);
+          }}
         />
       ) : null}
     </section>
@@ -347,10 +455,11 @@ type DownloadSupportModalProps = {
   download: PendingDownload;
   shareMessage: string | null;
   onShare: () => Promise<void>;
+  onComplete: () => void;
   onClose: () => void;
 };
 
-function DownloadSupportModal({ download, shareMessage, onShare, onClose }: DownloadSupportModalProps) {
+function DownloadSupportModal({ download, shareMessage, onShare, onComplete, onClose }: DownloadSupportModalProps) {
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -358,10 +467,6 @@ function DownloadSupportModal({ download, shareMessage, onShare, onClose }: Down
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [onClose]);
-
-  const recordAndContinue = () => {
-    capture("download_support_completed", { platform: download.platform, download_id: download.downloadId, asset_name: download.assetName ?? null });
-  };
 
   return (
     <div className="download-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
@@ -377,7 +482,7 @@ function DownloadSupportModal({ download, shareMessage, onShare, onClose }: Down
           <a className="button button--ghost" href={DISCORD_URL} target="_blank" rel="noreferrer" aria-label="Join the Noland Discord server">Join Discord <span aria-hidden="true">↗</span></a>
         </div>
         {shareMessage ? <p className="download-modal__message" role="status">{shareMessage}</p> : null}
-        <a className="button button--primary button--large download-modal__continue" href={download.url} target="_blank" rel="noreferrer" onClick={recordAndContinue}>
+        <a className="button button--primary button--large download-modal__continue" href={download.url} target="_blank" rel="noreferrer" onClick={onComplete}>
           Continue to download <span aria-hidden="true">↓</span>
         </a>
       </div>
@@ -451,6 +556,16 @@ function formatArchitecture(os: ClientOS, architecture: Exclude<ClientArchitectu
   }
 
   return architecture === "arm64" ? "ARM64" : "x64";
+}
+
+function isMobileBrowser(): boolean {
+  if (typeof navigator === "undefined" || typeof window === "undefined") {
+    return false;
+  }
+
+  const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/iu.test(navigator.userAgent);
+  const touchViewport = navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches;
+  return mobileUserAgent || touchViewport;
 }
 
 function detectClientPlatform(): ClientPlatform {
