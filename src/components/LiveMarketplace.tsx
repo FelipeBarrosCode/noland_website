@@ -250,6 +250,12 @@ export function LiveMarketplace() {
               />
               <small><span>{MIN_STORAGE_GB} GB</span><span>{storageMaximum.toLocaleString()} GB</span></small>
             </label>
+
+            <div className="live-marketplace__average" aria-live="polite">
+              <span>AVERAGE COST / HOUR</span>
+              <strong>{averageHourlyPrice === null ? "—" : `$${averageHourlyPrice.toFixed(3)}`}</strong>
+              <small>{filteredOffers.length} offer{filteredOffers.length === 1 ? "" : "s"} · {storageGb.toLocaleString()} GB</small>
+            </div>
           </div>
 
           {loadState === "error" ? (
@@ -289,15 +295,9 @@ export function LiveMarketplace() {
             </>
           )}
 
-          <div className="live-marketplace__average" aria-live="polite">
-            <div>
-              <span>AVERAGE ESTIMATED COST / HOUR</span>
-              <strong>{averageHourlyPrice === null ? "—" : `$${averageHourlyPrice.toFixed(3)}`}</strong>
-            </div>
-            <p>
-              Based on {filteredOffers.length} live {countryCode === "GLOBAL" ? "global" : countryLabel(countryCode)} offer{filteredOffers.length === 1 ? "" : "s"} that can provide {storageGb.toLocaleString()} GB. Compute and estimated storage are included; the final Vast.ai price can change before rental.
-            </p>
-          </div>
+          <p className="live-marketplace__estimate-note">
+            Estimates include compute and selected storage across the matching live {countryCode === "GLOBAL" ? "global" : countryLabel(countryCode)} inventory. The final Vast.ai price can change before rental.
+          </p>
         </div>
       </div>
     </section>

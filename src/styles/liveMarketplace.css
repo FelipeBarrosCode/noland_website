@@ -54,7 +54,7 @@
 
 .live-marketplace__controls {
   display: grid;
-  grid-template-columns: minmax(220px, .55fr) minmax(300px, 1.45fr);
+  grid-template-columns: minmax(210px, .55fr) minmax(300px, 1.2fr) minmax(210px, .55fr);
   gap: 28px;
   align-items: end;
   padding: 25px;
@@ -239,17 +239,19 @@
 }
 
 .live-marketplace__average {
-  display: grid;
-  grid-template-columns: minmax(230px, .55fr) minmax(0, 1.45fr);
-  gap: 30px;
-  align-items: center;
-  padding: 27px 30px;
-  border-top: 1px solid #477337;
+  align-self: stretch;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 16px;
+  border: 1px solid #477337;
   background: #0d1917;
 }
 
 .live-marketplace__average span,
-.live-marketplace__average strong {
+.live-marketplace__average strong,
+.live-marketplace__average small {
   display: block;
 }
 
@@ -261,18 +263,28 @@
 }
 
 .live-marketplace__average strong {
-  margin-top: 10px;
+  margin-top: 7px;
   color: var(--lime);
   font-family: var(--display);
-  font-size: clamp(28px, 4vw, 48px);
-  text-shadow: 4px 4px 0 #244711;
+  font-size: clamp(24px, 3vw, 36px);
+  text-shadow: 3px 3px 0 #244711;
 }
 
-.live-marketplace__average p {
+.live-marketplace__average small {
+  margin-top: 4px;
+  color: #9eb39a;
+  font-size: 14px;
+}
+
+.live-marketplace__estimate-note {
   margin: 0;
-  color: #c5d2c0;
-  font-size: 18px;
-  line-height: 1.4;
+  padding: 14px 20px;
+  border-top: 1px solid #33452e;
+  color: #9eb39a;
+  background: #0a1211;
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .live-marketplace__loading,
@@ -314,8 +326,7 @@
 @media (max-width: 760px) {
   .live-marketplace { box-shadow: 6px 6px 0 #03040a, inset 0 0 0 2px #0c1430; }
   .live-marketplace__toolbar { align-items: flex-start; flex-direction: column; gap: 8px; }
-  .live-marketplace__controls,
-  .live-marketplace__average { grid-template-columns: 1fr; }
+  .live-marketplace__controls { grid-template-columns: 1fr; }
   .live-offer-grid { grid-template-columns: 1fr; padding: 13px; }
   .live-offer-card__heading { align-items: stretch; flex-direction: column; }
   .live-offer-card__heading > strong { align-self: flex-start; text-align: left; }
