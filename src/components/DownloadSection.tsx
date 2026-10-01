@@ -70,6 +70,7 @@ export function DownloadSection() {
   const [isMobileClient, setIsMobileClient] = useState(false);
   const [pendingDownload, setPendingDownload] = useState<PendingDownload | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [savedLinkMessage, setSavedLinkMessage] = useState<string | null>(null);
   const downloadSectionViewedRef = useRef(false);
   const downloadIntentRef = useRef(false);
   const downloadCompletedRef = useRef(false);
@@ -212,13 +213,57 @@ export function DownloadSection() {
     setOptionsOpen(true);
   };
 
-  const requestDownload = (download: PendingDownload, source: "recommended" | "option" = "option") => {
+  const recordDownloadIntent = () => {
     downloadIntentRef.current = true;
-    downloadCompletedRef.current = false;
     if (frictionSurveyTimerRef.current !== null) {
       window.clearTimeout(frictionSurveyTimerRef.current);
       frictionSurveyTimerRef.current = null;
     }
+  };
+
+  const saveDesktopDownloadLink = async () => {
+    recordDownloadIntent();
+    setSavedLinkMessage(null);
+
+    const downloadPageUrl = new URL(window.location.href);
+    downloadPageUrl.hash = DOWNLOADS_SECTION_ID;
+    const url = downloadPageUrl.toString();
+    const properties = {
+      detected_platform: clientPlatform.os,
+      architecture: clientPlatform.architecture,
+      source: "mobile_download_section",
+    };
+    const browserNavigator = navigator as NavigatorWithUserAgentData;
+
+    if (browserNavigator.share) {
+      try {
+        await browserNavigator.share({
+          title: "Download Noland",
+          text: "Open this link on your computer to download Noland for Windows, macOS, or Linux.",
+          url,
+        });
+        capture("desktop_download_link_shared", properties);
+        setSavedLinkMessage("Download link shared. Open it later on your computer.");
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      capture("desktop_download_link_copied", properties);
+      setSavedLinkMessage("Download link copied. Open it later on your computer.");
+    } catch {
+      setSavedLinkMessage("Unable to open sharing. Copy this page's address to save it for your computer.");
+    }
+  };
+
+  const requestDownload = (download: PendingDownload, source: "recommended" | "option" = "option") => {
+    recordDownloadIntent();
+    downloadCompletedRef.current = false;
 
     capture(source === "recommended" ? "download_recommended_clicked" : "download_option_clicked", {
       platform: download.platform,
@@ -242,7 +287,7 @@ export function DownloadSection() {
           }
           description={
             isMobileClient
-              ? "Noland is a desktop app for Windows, macOS, and Linux. Choose the computer you plan to use."
+              ? "Noland is a desktop app for Windows, macOS, and Linux. Save the download page and open it later on your computer."
               : "Noland detects your device and suggests the right download. You can choose another option below anytime."
           }
         />
@@ -271,23 +316,34 @@ export function DownloadSection() {
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
           <div className="download-recommendation__copy">
             <p className="download-recommendation__eyebrow">
-              {isMobileClient ? "CHOOSE YOUR COMPUTER" : "RECOMMENDED FOR THIS DEVICE"}
+              {isMobileClient ? "SAVE FOR LATER" : "RECOMMENDED FOR THIS DEVICE"}
             </p>
             <h3 id="recommended-download-title">
-              {isMobileClient ? "Which desktop will you use?" : formatDetectedPlatform(clientPlatform)}
+              {isMobileClient ? "Save it for your desktop" : formatDetectedPlatform(clientPlatform)}
             </h3>
             <p>
               {isMobileClient
-                ? "You are viewing this page on a phone or tablet. Pick a desktop platform below to get its installer."
+                ? "Use your phone's share menu to save this download page in Messages, email, Notes, or another synced app."
                 : getRecommendationDescription(clientPlatform, recommendedDownload)}
             </p>
-            {recommendedDownload ? (
+            {!isMobileClient && recommendedDownload ? (
               <span className="download-recommendation__asset">{recommendedDownload.assetName}</span>
             ) : null}
           </div>
 
           <div className="download-recommendation__action">
-            {recommendedDownload ? (
+            {isMobileClient ? (
+              <>
+                <button className="button button--primary button--large" type="button" onClick={saveDesktopDownloadLink}>
+                  <span>Save the desktop download link</span>
+                  <span aria-hidden="true">↗</span>
+                </button>
+                <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
+                  Choose an installer now
+                </button>
+                {savedLinkMessage ? <p className="download-recommendation__message" role="status">{savedLinkMessage}</p> : null}
+              </>
+            ) : recommendedDownload ? (
               <button className="button button--primary button--large" type="button" onClick={() => requestDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
                 <span>{recommendedDownload.label}</span>
                 <span aria-hidden="true">↓</span>
@@ -298,12 +354,14 @@ export function DownloadSection() {
               </button>
             ) : (
               <button className="button button--primary button--large" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
-                {isMobileClient ? "Choose your desktop installer" : "Choose an installer"} <span aria-hidden="true">↓</span>
+                Choose an installer <span aria-hidden="true">↓</span>
               </button>
             )}
-            <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_other_platforms")}>
-              Other platforms and architectures
-            </button>
+            {!isMobileClient ? (
+              <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_other_platforms")}>
+                Other platforms and architectures
+              </button>
+            ) : null}
           </div>
         </article>
 

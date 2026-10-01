@@ -1612,6 +1612,14 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
   color: var(--lime);
 }
 
+.download-recommendation__message {
+  margin: 0;
+  color: var(--lime);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .download-options {
   border: 1px solid var(--line-bright);
   background: #070b18;
