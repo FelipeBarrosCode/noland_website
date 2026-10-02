@@ -130,7 +130,7 @@ export function Hero() {
           <div className="hero-video-frame">
             <iframe
               className="hero-video"
-              src="https://www.youtube-nocookie.com/embed/ng3B5il2am8?autoplay=1&mute=0&loop=1&playlist=ng3B5il2am8&controls=1&rel=0&playsinline=1"
+              src="https://www.youtube-nocookie.com/embed/ng3B5il2am8?autoplay=1&mute=0&loop=1&playlist=ng3B5il2am8&controls=1&vq=hd2160&rel=0&playsinline=1"
               title="Noland cloud gaming demo"
               allow="autoplay; encrypted-media; picture-in-picture"
               allowFullScreen
