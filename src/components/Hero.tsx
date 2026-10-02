@@ -105,9 +105,9 @@ export function Hero() {
       <div className="hero-grid shell">
         <div className="hero-copy">
           <p className="eyebrow"><span aria-hidden="true">//</span> PAY-AS-YOU-GO CLOUD GAMING</p>
-          <h1 id="hero-title">Your games. A powerful cloud PC. <span>No monthly Noland subscription.</span></h1>
+          <h1 id="hero-title">Rent a cloud gaming PC. <span>Pay about the price of a hot dog.</span></h1>
           <p className="hero-lede">
-            Download the free desktop app, choose a GPU, and launch a ready-to-play cloud PC. You pay the hardware provider only while the machine is running.
+            Pick a GPU, launch your cloud PC, and pay only while you use it—for the hardware you choose. Noland handles the setup.
           </p>
           <div className="hero-actions">
             <a
@@ -119,7 +119,6 @@ export function Hero() {
             </a>
             <a className="text-link" href="/#how-it-works">See how it works <span aria-hidden="true">→</span></a>
           </div>
-          <p className="hero-download-note">Windows, macOS, and Linux · Open source · No Noland subscription</p>
           <ul className="hero-facts" aria-label="Product highlights">
             <li><strong>{recommendedOffer ? formatHeroPrice(recommendedOffer.price) : "LIVE"}</strong><span>{recommendedOffer ? "best nearby offer" : "checking nearby offers"}</span></li>
             <li><strong>~8 ms</strong><span>latency overhead</span></li>

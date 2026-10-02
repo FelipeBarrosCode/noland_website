@@ -317,20 +317,15 @@ export function DownloadSection() {
               {isMobileClient ? "SAVE FOR LATER" : "RECOMMENDED FOR THIS DEVICE"}
             </p>
             <h3 id="recommended-download-title">
-              {isMobileClient ? "Send it to your computer" : `Download Noland for ${formatDetectedPlatform(clientPlatform)}`}
+              {isMobileClient ? "Save it for your desktop" : formatDetectedPlatform(clientPlatform)}
             </h3>
             <p>
               {isMobileClient
-                ? "Choose your computer, then send its direct installer link through Messages, email, Notes, or another synced app."
+                ? "Choose the exact desktop installer, then send its direct download link through Messages, email, Notes, or another synced app."
                 : getRecommendationDescription(clientPlatform, recommendedDownload)}
             </p>
-            <ul className="download-recommendation__trust" aria-label="Noland download benefits">
-              <li>Free and open source</li>
-              <li>No Noland subscription</li>
-              <li>Windows, macOS, and Linux</li>
-            </ul>
             {!isMobileClient && recommendedDownload ? (
-              <span className="download-recommendation__asset">Installer: {recommendedDownload.assetName}</span>
+              <span className="download-recommendation__asset">{recommendedDownload.assetName}</span>
             ) : null}
           </div>
 
