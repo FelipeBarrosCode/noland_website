@@ -1,15 +1,6 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
 import { DOWNLOADS_SECTION_ID } from "../lib/siteLinks";
-
-const architectureNodes = [
-  { label: "YOU", detail: "Noland client", tone: "cyan" },
-  { label: "NOLAND", detail: "orchestration", tone: "pink" },
-  { label: "P2P / DIRECT", detail: "stream route", tone: "lime" },
-  { label: "RENTED RTX PC", detail: "Vast provider", tone: "yellow" },
-];
-
-const bootSteps = ["Select", "Provision", "Connect", "Play"];
 
 type HeroOffer = {
   countryCode: string;
@@ -135,58 +126,15 @@ export function Hero() {
           </ul>
         </div>
 
-        <div className="hero-deck" aria-label="Noland connection architecture">
-          <div className="deck-frame">
-            <div className="deck-topbar">
-              <div>
-                <span className="deck-label">NOLAND // CONTROL DECK</span>
-                <span className="deck-id">LINK_01</span>
-              </div>
-              <div className="signal" role="status" aria-label="System ready"><i /><i /><i /><i /></div>
-            </div>
-
-            <div className="deck-screen">
-              <div className="deck-screen__grid" aria-hidden="true" />
-              <div className="architecture-flow">
-                {architectureNodes.map((node, index) => (
-                  <div className="architecture-segment" key={node.label}>
-                    <div className={`architecture-node architecture-node--${node.tone}`}>
-                      <span className="architecture-node__index">0{index + 1}</span>
-                      <span className="architecture-node__label">{node.label}</span>
-                      <small>{node.detail}</small>
-                    </div>
-                    {index < architectureNodes.length - 1 ? (
-                      <span className="architecture-link" aria-hidden="true"><i /><i /><i /></span>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              <div className="route-readout">
-                <span>ROUTE</span>
-                <strong>CLIENT ↔ PROVIDER</strong>
-                <em>SESSION DATA: DIRECT PATH</em>
-              </div>
-            </div>
-
-            <div className="boot-sequence" aria-label="Connection sequence">
-              {bootSteps.map((step, index) => (
-                <div className="boot-step" key={step} style={{ "--step-delay": `${index * 0.72}s` } as CSSProperties}>
-                  <span>{index + 1}</span>
-                  <strong>{step}</strong>
-                  <i aria-hidden="true" />
-                </div>
-              ))}
-            </div>
-
-            <div className="deck-controls" aria-hidden="true">
-              <div className="dial"><span /></div>
-              <div className="control-copy"><span>NETWORK</span><strong>P2P READY</strong></div>
-              <div className="led-row"><i /><i /><i /></div>
-              <div className="deck-key">START</div>
-            </div>
-          </div>
-          <div className="hero-art-stamp">
-            <img src="/brand/noland-icon.webp" alt="" width="74" height="74" decoding="async" />
+        <div className="hero-deck" aria-label="Noland cloud gaming video">
+          <div className="hero-video-frame">
+            <iframe
+              className="hero-video"
+              src="https://www.youtube-nocookie.com/embed/ng3B5il2am8?autoplay=1&mute=1&loop=1&playlist=ng3B5il2am8&controls=0&rel=0&playsinline=1"
+              title="Noland cloud gaming demo"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </div>
       </div>

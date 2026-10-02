@@ -685,6 +685,36 @@ h3 {
   filter: drop-shadow(16px 18px 0 rgba(0, 0, 0, 0.3));
 }
 
+.hero-video-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 2px solid var(--line-bright);
+  background: #070b19;
+  box-shadow: inset 0 0 0 3px #111a36, inset 0 0 0 5px #05050c, var(--shadow-cyan);
+}
+
+.hero-video-frame::before,
+.hero-video-frame::after {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 34px;
+  content: "";
+  pointer-events: none;
+  background: var(--pink);
+}
+
+.hero-video-frame::before { top: 25px; left: -8px; }
+.hero-video-frame::after { right: -8px; bottom: 27px; }
+
+.hero-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .deck-frame {
   position: relative;
   padding: 12px;
