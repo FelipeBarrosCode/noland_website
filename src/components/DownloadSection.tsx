@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
 import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
-import { DISCORD_URL, DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
+import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 type LoadState =
@@ -43,7 +43,7 @@ type NavigatorWithUserAgentData = Navigator & {
   share?: (data: ShareData) => Promise<void>;
 };
 
-type PendingDownload = {
+type DownloadTarget = {
   url: string;
   label: string;
   platform: string;
@@ -68,13 +68,10 @@ export function DownloadSection() {
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
   const [isMobileClient, setIsMobileClient] = useState(false);
-  const [pendingDownload, setPendingDownload] = useState<PendingDownload | null>(null);
-  const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [savedLinkMessage, setSavedLinkMessage] = useState<string | null>(null);
   const [platformChooserOpen, setPlatformChooserOpen] = useState(false);
   const downloadSectionViewedRef = useRef(false);
   const downloadIntentRef = useRef(false);
-  const downloadCompletedRef = useRef(false);
   const frictionSurveyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -262,18 +259,18 @@ export function DownloadSection() {
     }
   };
 
-  const requestDownload = (download: PendingDownload, source: "recommended" | "option" = "option") => {
+  const recordDownload = (download: DownloadTarget, source: "recommended" | "option" = "option") => {
     recordDownloadIntent();
-    downloadCompletedRef.current = false;
 
-    capture(source === "recommended" ? "download_recommended_clicked" : "download_option_clicked", {
+    const properties = {
       platform: download.platform,
       download_id: download.downloadId,
       asset_name: download.assetName ?? null,
       source,
-    });
-    setShareMessage(null);
-    setPendingDownload(download);
+    };
+    capture(source === "recommended" ? "download_recommended_clicked" : "download_option_clicked", properties);
+    capture("download_support_completed", properties);
+    capture("app_download_clicked", properties);
   };
 
   return (
@@ -320,15 +317,20 @@ export function DownloadSection() {
               {isMobileClient ? "SAVE FOR LATER" : "RECOMMENDED FOR THIS DEVICE"}
             </p>
             <h3 id="recommended-download-title">
-              {isMobileClient ? "Save it for your desktop" : formatDetectedPlatform(clientPlatform)}
+              {isMobileClient ? "Send it to your computer" : `Download Noland for ${formatDetectedPlatform(clientPlatform)}`}
             </h3>
             <p>
               {isMobileClient
-                ? "Choose the exact desktop installer, then send its direct download link through Messages, email, Notes, or another synced app."
+                ? "Choose your computer, then send its direct installer link through Messages, email, Notes, or another synced app."
                 : getRecommendationDescription(clientPlatform, recommendedDownload)}
             </p>
+            <ul className="download-recommendation__trust" aria-label="Noland download benefits">
+              <li>Free and open source</li>
+              <li>No Noland subscription</li>
+              <li>Windows, macOS, and Linux</li>
+            </ul>
             {!isMobileClient && recommendedDownload ? (
-              <span className="download-recommendation__asset">{recommendedDownload.assetName}</span>
+              <span className="download-recommendation__asset">Installer: {recommendedDownload.assetName}</span>
             ) : null}
           </div>
 
@@ -336,19 +338,19 @@ export function DownloadSection() {
             {isMobileClient ? (
               <>
                 <button className="button button--primary button--large" type="button" disabled={state.status !== "ready" || state.payload.options.length === 0} onClick={() => setPlatformChooserOpen(true)}>
-                  <span>{state.status === "loading" ? "Resolving desktop installers…" : "Save the desktop download link"}</span>
+                  <span>{state.status === "loading" ? "Resolving desktop installers…" : "Send download link to my computer"}</span>
                   <span aria-hidden="true">↗</span>
                 </button>
                 <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
-                  Choose an installer now
+                  View all desktop installers
                 </button>
                 {savedLinkMessage ? <p className="download-recommendation__message" role="status">{savedLinkMessage}</p> : null}
               </>
             ) : recommendedDownload ? (
-              <button className="button button--primary button--large" type="button" onClick={() => requestDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
-                <span>{recommendedDownload.label}</span>
+              <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => recordDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
+                <span>Download for {clientPlatform.os}</span>
                 <span aria-hidden="true">↓</span>
-              </button>
+              </a>
             ) : directDownloadPending ? (
               <button className="button button--primary button--large" type="button" disabled>
                 Resolving compatible build…
@@ -393,7 +395,7 @@ export function DownloadSection() {
                 buttons={windowsOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                onDownload={requestDownload}
+                onDownload={recordDownload}
               />
 
               <PlatformCard
@@ -402,7 +404,7 @@ export function DownloadSection() {
                 buttons={macOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                onDownload={requestDownload}
+                onDownload={recordDownload}
               />
 
               <PlatformCard
@@ -411,7 +413,7 @@ export function DownloadSection() {
                 buttons={linuxOptions}
                 fallbackUrl={resolvedReleaseUrl}
                 fallbackLabel="Open latest GitHub release"
-                onDownload={requestDownload}
+                onDownload={recordDownload}
               />
             </div>
           </div>
@@ -424,49 +426,7 @@ export function DownloadSection() {
           onClose={() => setPlatformChooserOpen(false)}
         />
       ) : null}
-      {pendingDownload ? (
-        <DownloadSupportModal
-          download={pendingDownload}
-          shareMessage={shareMessage}
-          onShare={async () => {
-            const browserNavigator = navigator as NavigatorWithUserAgentData;
-            try {
-              if (browserNavigator.share) {
-                await browserNavigator.share({ title: "No Land", text: "Check out No Land, an open cloud gaming client.", url: window.location.href });
-                setShareMessage("Thanks for sharing No Land.");
-              } else {
-                await navigator.clipboard.writeText(window.location.href);
-                setShareMessage("Link copied. Share No Land with your friends.");
-              }
-            } catch {
-              setShareMessage("Sharing was cancelled. You can still support the project by starring the repo.");
-            }
-          }}
-          onComplete={() => {
-            downloadCompletedRef.current = true;
-            capture("download_support_completed", {
-              platform: pendingDownload.platform,
-              download_id: pendingDownload.downloadId,
-              asset_name: pendingDownload.assetName ?? null,
-            });
-            capture("app_download_clicked", {
-              platform: pendingDownload.platform,
-              download_id: pendingDownload.downloadId,
-              asset_name: pendingDownload.assetName ?? null,
-            });
-          }}
-          onClose={() => {
-            if (!downloadCompletedRef.current) {
-              capture("download_support_abandoned", {
-                platform: pendingDownload.platform,
-                download_id: pendingDownload.downloadId,
-                asset_name: pendingDownload.assetName ?? null,
-              });
-            }
-            setPendingDownload(null);
-          }}
-        />
-      ) : null}
+
     </section>
   );
 }
@@ -477,7 +437,7 @@ type PlatformCardProps = {
   buttons: PlatformButton[];
   fallbackUrl: string;
   fallbackLabel: string;
-  onDownload: (download: PendingDownload) => void;
+  onDownload: (download: DownloadTarget) => void;
 };
 
 function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel, onDownload }: PlatformCardProps) {
@@ -490,16 +450,16 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel,
       </div>
 
       <div className="download-card__buttons">
-          {buttons.length > 0 ? buttons.map((button) => (
-           <button key={button.id} className="button button--ghost" type="button" onClick={() => onDownload({ url: button.url, label: button.label, platform: title, downloadId: button.id, assetName: button.assetName })}>
-             <span>{button.label}</span>
-             <span aria-hidden="true">↓</span>
-           </button>
-          )) : (
-           <button className="button button--ghost" type="button" onClick={() => onDownload({ url: fallbackUrl, label: fallbackLabel, platform: title, downloadId: "release_fallback" })}>
-             <span>{fallbackLabel}</span>
-             <span aria-hidden="true">↗</span>
-           </button>
+        {buttons.length > 0 ? buttons.map((button) => (
+          <a key={button.id} className="button button--ghost" href={button.url} target="_blank" rel="noreferrer" onClick={() => onDownload({ url: button.url, label: button.label, platform: title, downloadId: button.id, assetName: button.assetName })}>
+            <span>Download {button.label}</span>
+            <span aria-hidden="true">↓</span>
+          </a>
+        )) : (
+          <a className="button button--ghost" href={fallbackUrl} target="_blank" rel="noreferrer" onClick={() => onDownload({ url: fallbackUrl, label: fallbackLabel, platform: title, downloadId: "release_fallback" })}>
+            <span>{fallbackLabel}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
         )}
       </div>
 
@@ -545,44 +505,6 @@ function PlatformShareModal({ options, onSelect, onClose }: { options: DownloadO
   );
 }
 
-type DownloadSupportModalProps = {
-  download: PendingDownload;
-  shareMessage: string | null;
-  onShare: () => Promise<void>;
-  onComplete: () => void;
-  onClose: () => void;
-};
-
-function DownloadSupportModal({ download, shareMessage, onShare, onComplete, onClose }: DownloadSupportModalProps) {
-  useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [onClose]);
-
-  return (
-    <div className="download-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div className="download-modal__panel" role="dialog" aria-modal="true" aria-labelledby="download-modal-title" aria-describedby="download-modal-copy">
-        <button className="download-modal__close" type="button" aria-label="Close download support dialog" onClick={onClose}>×</button>
-        <p className="download-modal__eyebrow">ONE LAST THING</p>
-        <h2 id="download-modal-title">Help No Land grow.</h2>
-        <p id="download-modal-copy">No Land is free and independent. Before you download, share the project with someone who would love it and star the repository to support its future.</p>
-        <div className="download-modal__actions">
-          <button className="button button--ghost" type="button" onClick={onShare}>Share No Land <span aria-hidden="true">↗</span></button>
-          <a className="button button--ghost" href={REPOSITORY_URL} target="_blank" rel="noreferrer" onClick={() => capture("github_star_clicked", { platform: download.platform, download_id: download.downloadId })}>Star the GitHub repo <span aria-hidden="true">↗</span></a>
-          <a className="button button--ghost" href={X_URL} target="_blank" rel="noreferrer" aria-label="Open Felipe's profile on X">Follow on X <span aria-hidden="true">↗</span></a>
-          <a className="button button--ghost" href={DISCORD_URL} target="_blank" rel="noreferrer" aria-label="Join the Noland Discord server">Join Discord <span aria-hidden="true">↗</span></a>
-        </div>
-        {shareMessage ? <p className="download-modal__message" role="status">{shareMessage}</p> : null}
-        <a className="button button--primary button--large download-modal__continue" href={download.url} target="_blank" rel="noreferrer" onClick={onComplete}>
-          Continue to download <span aria-hidden="true">↓</span>
-        </a>
-      </div>
-    </div>
-  );
-}
 
 function getOptionsForPlatform(state: LoadState, platform: DownloadPlatform): DownloadOption[] {
   if (state.status !== "ready") {

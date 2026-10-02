@@ -163,9 +163,9 @@ export function FinalCta() {
         <div>
           <p className="eyebrow"><span aria-hidden="true">//</span> READY TO PROVISION?</p>
           <h2 id="final-cta-title">Your library is waiting.<br /><em>Rent the machine.</em></h2>
-          <p>Bring your Vast account, choose a machine, and let Noland set up your remote gaming PC.</p>
+          <p>Download the free, open-source desktop app for Windows, macOS, or Linux. Bring your Vast account, choose a machine, and pay the hardware provider only while it runs.</p>
           <div className="final-cta__actions">
-            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_cta_clicked", { source: "final_cta" })}>Get Noland <span aria-hidden="true">↓</span></a>
+            <a className="button button--primary button--large" href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_cta_clicked", { source: "final_cta" })}>Download Noland — free <span aria-hidden="true">↓</span></a>
             <a className="button button--ghost button--large" href="https://cloud.vast.ai/" target="_blank" rel="noreferrer">Open Vast.ai <span aria-hidden="true">↗</span></a>
           </div>
         </div>
