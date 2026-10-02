@@ -130,7 +130,7 @@ export function Hero() {
           </div>
           <ul className="hero-facts" aria-label="Product highlights">
             <li><strong>{recommendedOffer ? formatHeroPrice(recommendedOffer.price) : "LIVE"}</strong><span>{recommendedOffer ? "best nearby offer" : "checking nearby offers"}</span></li>
-            <li><strong>10–15 min</strong><span>average provisioning</span></li>
+            <li><strong>~8 ms</strong><span>latency overhead</span></li>
             <li><strong>300K+</strong><span>games supported</span></li>
           </ul>
         </div>
