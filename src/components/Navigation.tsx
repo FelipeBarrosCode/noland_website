@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { detectNavigatorOperatingSystem, type DesktopOperatingSystem } from "../lib/clientPlatform";
 import { featurePages } from "../lib/featurePages";
 import { DISCORD_URL, DOWNLOADS_SECTION_ID, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
@@ -24,6 +24,8 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [platformGuide, setPlatformGuide] = useState(platformGuides.Unknown);
   const featuresMenuRef = useRef<HTMLDetailsElement>(null);
+  const featuresSummaryRef = useRef<HTMLElement>(null);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setPlatformGuide(platformGuides[detectNavigatorOperatingSystem()]);
@@ -32,6 +34,23 @@ export function Navigation() {
   const closeMenu = () => {
     setIsOpen(false);
     featuresMenuRef.current?.removeAttribute("open");
+  };
+
+  const handleMenuKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Escape" || !isOpen) return;
+
+    event.preventDefault();
+    closeMenu();
+    menuToggleRef.current?.focus();
+  };
+
+  const handleFeaturesKeyDown = (event: KeyboardEvent<HTMLDetailsElement>) => {
+    if (event.key !== "Escape" || !featuresMenuRef.current?.open) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    featuresMenuRef.current.removeAttribute("open");
+    featuresSummaryRef.current?.focus();
   };
 
   return (
@@ -44,23 +63,24 @@ export function Navigation() {
         </a>
 
         <button
+          ref={menuToggleRef}
           className="menu-toggle"
           type="button"
           aria-expanded={isOpen}
           aria-controls="primary-menu"
+          aria-label={isOpen ? "Close navigation" : "Open navigation"}
           onClick={() => setIsOpen((current) => !current)}
         >
           <span className="menu-toggle__icon" aria-hidden="true"><i /><i /><i /></span>
-          <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
         </button>
 
-        <div className={`nav-menu${isOpen ? " is-open" : ""}`} id="primary-menu">
+        <div className={`nav-menu${isOpen ? " is-open" : ""}`} id="primary-menu" onKeyDown={handleMenuKeyDown}>
           <div className="nav-links">
             <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud PC</a>
             <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Price</a>
             <a href={platformGuide.href} onClick={closeMenu}>{platformGuide.label}</a>
-            <details className="nav-dropdown" ref={featuresMenuRef}>
-              <summary>Features <span aria-hidden="true">⌄</span></summary>
+            <details className="nav-dropdown" ref={featuresMenuRef} onKeyDown={handleFeaturesKeyDown}>
+              <summary ref={featuresSummaryRef}>Features <span aria-hidden="true">⌄</span></summary>
               <div className="nav-dropdown__menu">
                 {featurePages.map((page) => (
                   <a href={page.path} onClick={closeMenu} key={page.path}>

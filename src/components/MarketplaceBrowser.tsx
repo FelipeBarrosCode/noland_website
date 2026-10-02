@@ -66,7 +66,7 @@ export function MarketplaceBrowser() {
               </div>
             </div>
 
-            <div className="offer-table" aria-live="polite">
+            <div className="offer-table">
               <div className="offer-table__head"><span>SELECTED CLASS</span><span>EXAMPLE LISTING FIELDS</span></div>
               <div className="offer-main">
                 <div className="gpu-board" aria-hidden="true">
@@ -87,6 +87,9 @@ export function MarketplaceBrowser() {
                 <div><dt>ROUTE</dt><dd>{selected.route}</dd></div>
                 <div><dt>AVAILABILITY</dt><dd>{selected.availability}</dd></div>
               </dl>
+              <p className="sr-only" role="status" aria-live="polite">
+                {selected.generation} selected: {selected.model}, {selected.supply.toLowerCase()} supply.
+              </p>
               <div className="market-disclaimer">
                 <span aria-hidden="true">⚠</span>
                 <p><strong>Supply is live, not guaranteed.</strong> These fields illustrate how choices differ; check the marketplace for current machines and exact pricing.</p>
