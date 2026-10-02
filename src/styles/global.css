@@ -603,7 +603,7 @@ h3 {
 .hero-grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(410px, .75fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(500px, .9fr);
   gap: 48px;
   align-items: center;
 }
