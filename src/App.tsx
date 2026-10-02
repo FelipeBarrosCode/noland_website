@@ -7,7 +7,7 @@ import { HashScroll } from "./components/HashScroll";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LatencyLab } from "./components/LatencyLab";
-import { MarketplaceBrowser } from "./components/MarketplaceBrowser";
+import { LiveMarketplace } from "./components/LiveMarketplace";
 import { MotionSystem } from "./components/MotionSystem";
 import { Navigation } from "./components/Navigation";
 import { ProvisioningDemo } from "./components/ProvisioningDemo";
@@ -44,8 +44,17 @@ export function App({ pathname = "/" }: AppProps) {
       <main id="main-content">
         <Hero />
         <DownloadSection />
+        <LiveMarketplace />
         <MetricStrip />
         <HowItWorks />
+        <EconomicsCalculator />
+        <GameFreedom />
+        <LatencyLab />
+        <ProvisioningDemo />
+        <ArchitectureAndPhilosophy />
+        <ControlSection />
+        <FaqSection />
+        <FinalCta />
         <section className="section home-pillars" aria-labelledby="home-pillars-title">
           <div className="shell">
             <div className="section-heading">
@@ -56,15 +65,6 @@ export function App({ pathname = "/" }: AppProps) {
             <SeoPillarLinks />
           </div>
         </section>
-        <MarketplaceBrowser />
-        <EconomicsCalculator />
-        <GameFreedom />
-        <LatencyLab />
-        <ProvisioningDemo />
-        <ArchitectureAndPhilosophy />
-        <ControlSection />
-        <FaqSection />
-        <FinalCta />
       </main>
       <SiteFooter />
       <CookieConsent />
