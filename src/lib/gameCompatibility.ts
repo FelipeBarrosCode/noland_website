@@ -101,9 +101,12 @@ function getMatchRank(normalizedTitle: string, normalizedQuery: string): number 
   if (normalizedTitle.startsWith(normalizedQuery)) return 1;
 
   const queryWords = normalizedQuery.split(" ");
-  if (queryWords.every((word) => normalizedTitle.includes(word))) return 2;
+  const titleWords = normalizedTitle.split(" ");
+  const hasAllWords = queryWords.every((word) => titleWords.includes(word));
+  if (hasAllWords && normalizedTitle.includes(normalizedQuery)) return 2;
+  if (hasAllWords) return 2.5;
   if (normalizedTitle.includes(normalizedQuery)) return 3;
-  if (fuzzyWordsMatch(queryWords, normalizedTitle.split(" "))) return 3;
+  if (fuzzyWordsMatch(queryWords, titleWords)) return 3;
   return null;
 }
 

@@ -14,27 +14,37 @@ const requestBudget = readNonNegativeInteger("PROTONDB_REQUEST_BUDGET", 25);
 const requestDelayMs = readNonNegativeInteger("PROTONDB_DELAY_MS", 2_000);
 const successTtlMs = readNonNegativeInteger("PROTONDB_SUCCESS_TTL_HOURS", 168) * 60 * 60 * 1_000;
 const missingTtlMs = readNonNegativeInteger("PROTONDB_MISSING_TTL_HOURS", 24) * 60 * 60 * 1_000;
-
-if (!steamApiKey) {
-  throw new Error("STEAM_WEB_API_KEY is required. Keep it in the update environment, never in a VITE_ variable.");
-}
+const priorityAppIds = readPriorityAppIds();
 
 await mkdir(cacheDirectory, { recursive: true });
 await mkdir(outputDirectory, { recursive: true });
 
 const previousSteamState = await readJson(steamCachePath, { updatedAt: null, games: [] });
-const refreshStartedAt = new Date();
-const steamUpdates = await fetchSteamGames(previousSteamState.updatedAt);
-const steamGames = mergeSteamGames(previousSteamState.games, steamUpdates);
+let steamGames;
+
+if (steamApiKey) {
+  const refreshStartedAt = new Date();
+  const steamUpdates = await fetchSteamGames(previousSteamState.updatedAt);
+  steamGames = mergeSteamGames(previousSteamState.games, steamUpdates);
+
+  if (steamGames.length === 0) {
+    throw new Error("Steam returned no games; the previous published catalog was left unchanged.");
+  }
+
+  await writeJsonAtomically(steamCachePath, {
+    updatedAt: refreshStartedAt.toISOString(),
+    games: steamGames,
+  });
+} else if (Array.isArray(previousSteamState.games) && previousSteamState.games.length > 0) {
+  steamGames = previousSteamState.games;
+  console.warn("STEAM_WEB_API_KEY is not set; reusing the cached Steam catalog without refreshing titles.");
+} else {
+  throw new Error("STEAM_WEB_API_KEY is required for the first Steam catalog import. Put it in the project-root .env file.");
+}
 
 if (steamGames.length === 0) {
   throw new Error("Steam returned no games; the previous published catalog was left unchanged.");
 }
-
-await writeJsonAtomically(steamCachePath, {
-  updatedAt: refreshStartedAt.toISOString(),
-  games: steamGames,
-});
 
 const protonCache = await readJson(protonCachePath, {});
 await refreshProtonSummaries(steamGames, protonCache);
@@ -112,12 +122,29 @@ function mergeSteamGames(previousGames, updates) {
 
 async function refreshProtonSummaries(games, cache) {
   const now = Date.now();
-  const eligible = games.filter((game) => {
-    const record = cache[String(game.steamAppId)];
-    if (!record || typeof record.fetchedAt !== "string") return true;
-    const age = now - new Date(record.fetchedAt).getTime();
-    return !Number.isFinite(age) || age >= (record.status === "missing" ? missingTtlMs : successTtlMs);
-  }).slice(0, requestBudget);
+  const priorityOrder = new Map(priorityAppIds.map((appId, index) => [appId, index]));
+  const eligible = games
+    .filter((game) => {
+      const record = cache[String(game.steamAppId)];
+      if (!record || typeof record.fetchedAt !== "string") return true;
+      const age = now - new Date(record.fetchedAt).getTime();
+      return !Number.isFinite(age) || age >= (record.status === "missing" ? missingTtlMs : successTtlMs);
+    })
+    .sort((left, right) => {
+      const leftPriority = priorityOrder.get(left.steamAppId);
+      const rightPriority = priorityOrder.get(right.steamAppId);
+      if (leftPriority !== undefined || rightPriority !== undefined) {
+        if (leftPriority === undefined) return 1;
+        if (rightPriority === undefined) return -1;
+        return leftPriority - rightPriority;
+      }
+
+      const leftRecord = cache[String(left.steamAppId)];
+      const rightRecord = cache[String(right.steamAppId)];
+      const cacheRank = (record) => !record ? 0 : record.status === "ok" ? 1 : 2;
+      return cacheRank(leftRecord) - cacheRank(rightRecord);
+    })
+    .slice(0, requestBudget);
 
   if (eligible.length === 0) {
     console.log("No ProtonDB summaries are eligible within this run's budget and TTLs.");
@@ -132,6 +159,18 @@ async function refreshProtonSummaries(games, cache) {
     if (result.record) cache[String(game.steamAppId)] = result.record;
     if (index < eligible.length - 1) await sleep(requestDelayMs);
   }
+}
+
+function readPriorityAppIds() {
+  const fromEnvironment = (process.env.PROTONDB_APP_IDS ?? "").split(",");
+  const fromArguments = process.argv.slice(2).flatMap((argument) => {
+    if (argument.startsWith("--app-ids=")) return argument.slice("--app-ids=".length).split(",");
+    return /^\d+$/u.test(argument) ? [argument] : [];
+  });
+
+  return [...new Set([...fromEnvironment, ...fromArguments]
+    .map((value) => Number(value.trim()))
+    .filter((value) => Number.isSafeInteger(value) && value > 0))];
 }
 
 async function fetchProtonSummary(steamAppId) {

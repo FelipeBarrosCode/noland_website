@@ -2,6 +2,8 @@ const VAST_BUNDLES_URL = "https://console.vast.ai/api/v0/bundles";
 const CACHE_TTL_SECONDS = 300;
 const OFFER_LIMIT = 100;
 const OFFER_TYPES = ["ondemand", "bid", "reserved"];
+const PROTONDB_SUCCESS_TTL_SECONDS = 7 * 24 * 60 * 60;
+const PROTONDB_MISSING_TTL_SECONDS = 24 * 60 * 60;
 
 function vastQuery(type) {
   return {
@@ -58,12 +60,93 @@ function jsonResponse(body, status = 200) {
   });
 }
 
+function cachedJsonResponse(body, status, ttl) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": `public, max-age=${ttl}, s-maxage=${ttl}`,
+    },
+  });
+}
+
+async function fetchProtonDbSummary(request, ctx) {
+  const requestUrl = new URL(request.url);
+  const appId = requestUrl.searchParams.get("appId") ?? "";
+  if (!/^\d{1,10}$/u.test(appId) || Number(appId) <= 0) {
+    return cachedJsonResponse({ error: "A valid Steam App ID is required." }, 400, 0);
+  }
+
+  const normalizedUrl = new URL("/api/protondb/summary", requestUrl.origin);
+  normalizedUrl.searchParams.set("appId", appId);
+  const cacheKey = new Request(normalizedUrl, { method: "GET" });
+  const cache = globalThis.caches?.default;
+  const cached = cache ? await cache.match(cacheKey) : null;
+  if (cached) return cached;
+
+  let upstream;
+  try {
+    upstream = await fetch(`https://www.protondb.com/api/v1/reports/summaries/${appId}.json`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "NolandGamesCompatibility/1.0 (https://no-land.net/games/)",
+      },
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: "ProtonDB is temporarily unavailable." }), {
+      status: 502,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    });
+  }
+
+  const checkedAt = new Date().toISOString();
+  let response;
+  if (upstream.status === 404) {
+    response = cachedJsonResponse({ tier: null, checkedAt }, 200, PROTONDB_MISSING_TTL_SECONDS);
+  } else if (upstream.ok) {
+    try {
+      const summary = await upstream.json();
+      if (typeof summary?.tier !== "string" || !summary.tier.trim()) throw new Error("Invalid tier");
+      response = cachedJsonResponse(
+        { tier: summary.tier.trim().toLowerCase(), checkedAt },
+        200,
+        PROTONDB_SUCCESS_TTL_SECONDS,
+      );
+    } catch {
+      return new Response(JSON.stringify({ error: "ProtonDB returned an invalid summary." }), {
+        status: 502,
+        headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+      });
+    }
+  } else {
+    const retryAfter = upstream.headers.get("Retry-After");
+    response = new Response(JSON.stringify({ error: "ProtonDB lookup failed." }), {
+      status: upstream.status === 429 ? 503 : 502,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store",
+        ...(retryAfter ? { "Retry-After": retryAfter } : {}),
+      },
+    });
+  }
+
+  if (cache && response.ok) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const isOffersRequest =
       url.pathname === "/api/vast/offers" &&
       (request.method === "GET" || request.method === "POST");
+
+    if (url.pathname === "/api/protondb/summary") {
+      if (request.method !== "GET") {
+        return new Response(null, { status: 405, headers: { Allow: "GET" } });
+      }
+      return fetchProtonDbSummary(request, ctx);
+    }
 
     if (!isOffersRequest) {
       return env.ASSETS.fetch(request);

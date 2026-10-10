@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
-    "games:update": "node scripts/update-games-catalog.mjs",
+    "games:update": "node --env-file-if-exists=.env scripts/update-games-catalog.mjs",
     "audit": "npm run build && node scripts/lighthouse.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.app.json --pretty false && tsc --noEmit -p tsconfig.node.json --pretty false"
   },

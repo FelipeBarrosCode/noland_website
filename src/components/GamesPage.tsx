@@ -12,6 +12,7 @@ import {
   type GamesCatalogManifest,
 } from "../lib/gameCompatibility";
 import { loadGamesCatalog, resetGamesCatalog } from "../lib/gamesCatalog";
+import { checkLiveCompatibility } from "../lib/liveCompatibility";
 
 type LoadState = "loading" | "ready" | "error";
 
@@ -22,7 +23,7 @@ function formatRetrievedDate(value: string | null): string | null {
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(date);
 }
 
-function GameResult({ game }: { game: GameCatalogEntry }) {
+function GameResult({ game, isChecking }: { game: GameCatalogEntry; isChecking: boolean }) {
   const compatibility = classifyCompatibility(game.protonTier);
   const tier = displayProtonTier(game.protonTier);
   const retrievedDate = formatRetrievedDate(game.protonFetchedAt);
@@ -40,8 +41,8 @@ function GameResult({ game }: { game: GameCatalogEntry }) {
         </div>
         {compatibility === "unknown" ? (
           <div className="game-result__unknown">
-            <h3>Compatibility hasn’t been confirmed.</h3>
-            <p>We found the game, but don’t have a ProtonDB rating for it yet. Check its ProtonDB page for recent reports.</p>
+            <h3>{isChecking ? "Checking the latest ProtonDB rating…" : "Compatibility hasn’t been confirmed."}</h3>
+            <p>{isChecking ? "This first lookup may take a moment. Future visitors will use the cached result." : "We found the game, but don’t have a ProtonDB rating for it yet. Check its ProtonDB page for recent reports."}</p>
           </div>
         ) : <p className="game-result__qualification">{compatibilityQualification(game.protonTier)}</p>}
       </div>
@@ -50,7 +51,7 @@ function GameResult({ game }: { game: GameCatalogEntry }) {
           <a href={`https://www.protondb.com/app/${game.steamAppId}`} target="_blank" rel="noreferrer">View on ProtonDB <span aria-hidden="true">↗</span></a>
           <a href={`https://store.steampowered.com/app/${game.steamAppId}/`} target="_blank" rel="noreferrer">View on Steam <span aria-hidden="true">↗</span></a>
         </div>
-        <p>{retrievedDate ? <>Rating retrieved <time dateTime={game.protonFetchedAt ?? undefined}>{retrievedDate}</time></> : "Rating not yet retrieved"}</p>
+        <p>{retrievedDate ? <>{compatibility === "unknown" ? "ProtonDB checked" : "Rating retrieved"} <time dateTime={game.protonFetchedAt ?? undefined}>{retrievedDate}</time></> : "Rating not yet retrieved"}</p>
       </div>
     </article>
   );
@@ -63,6 +64,9 @@ export function GamesPage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [query, setQuery] = useState("");
   const [settledQuery, setSettledQuery] = useState("");
+  const [liveRatings, setLiveRatings] = useState<Map<number, { tier: string | null; checkedAt: string }>>(new Map());
+  const [checkingIds, setCheckingIds] = useState<Set<number>>(new Set());
+  const [failedCheckIds, setFailedCheckIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     let active = true;
@@ -87,10 +91,46 @@ export function GamesPage() {
     return () => window.clearTimeout(timeout);
   }, [query]);
 
-  const results = useMemo(() => searchGames(catalog, settledQuery), [catalog, settledQuery]);
+  const catalogResults = useMemo(() => searchGames(catalog, settledQuery), [catalog, settledQuery]);
+  const results = useMemo(() => catalogResults.map((game) => {
+    const liveRating = liveRatings.get(game.steamAppId);
+    return liveRating
+      ? { ...game, protonTier: liveRating.tier, protonFetchedAt: liveRating.checkedAt }
+      : game;
+  }), [catalogResults, liveRatings]);
   const canSearch = loadState === "ready";
   const normalizedQueryLength = normalizeGameTitle(settledQuery).length;
   const hasSearched = canSearch && normalizedQueryLength >= 2;
+
+  useEffect(() => {
+    if (!hasSearched) return;
+
+    const gamesToCheck = catalogResults
+      .slice(0, 3)
+      .filter((game) => game.protonTier === null
+        && !liveRatings.has(game.steamAppId)
+        && !checkingIds.has(game.steamAppId)
+        && !failedCheckIds.has(game.steamAppId));
+    if (gamesToCheck.length === 0) return;
+
+    setCheckingIds((current) => new Set([...current, ...gamesToCheck.map((game) => game.steamAppId)]));
+    for (const game of gamesToCheck) {
+      checkLiveCompatibility(game.steamAppId)
+        .then((result) => {
+          setLiveRatings((current) => new Map(current).set(game.steamAppId, result));
+        })
+        .catch(() => {
+          setFailedCheckIds((current) => new Set(current).add(game.steamAppId));
+        })
+        .finally(() => {
+          setCheckingIds((current) => {
+            const updated = new Set(current);
+            updated.delete(game.steamAppId);
+            return updated;
+          });
+        });
+    }
+  }, [catalogResults, checkingIds, failedCheckIds, hasSearched, liveRatings]);
 
   const retry = () => {
     resetGamesCatalog();
@@ -164,7 +204,7 @@ export function GamesPage() {
                   <div><p className="panel-kicker">SEARCH RESULTS</p><h2>Choose the title you meant</h2></div>
                   <p>Showing up to 10 matches. Ratings never substitute one edition for another.</p>
                 </div>
-                <div className="games-results__list">{results.map((game) => <GameResult game={game} key={game.steamAppId} />)}</div>
+                <div className="games-results__list">{results.map((game) => <GameResult game={game} isChecking={checkingIds.has(game.steamAppId)} key={game.steamAppId} />)}</div>
               </div>
             ) : null}
 
@@ -198,7 +238,7 @@ export function GamesPage() {
 
         <aside className="games-disclaimer">
           <div className="shell">
-            <p>Compatibility is based on community reports, not individual testing by No Land. Results may vary with the game version, configuration, and selected machine.</p>
+            <p>Compatibility is based on community reports, not individual testing by No Land. Missing catalog ratings may be checked through a cached edge lookup. Results may vary with the game version, configuration, and selected machine.</p>
             {manifest ? <p>Catalog published <time dateTime={manifest.publishedAt}>{formatRetrievedDate(manifest.publishedAt)}</time> · {manifest.gameCount.toLocaleString("en-US")} searchable titles</p> : null}
           </div>
         </aside>
