@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
 const rootDirectory = resolve(import.meta.dirname, "..");
@@ -19,7 +19,15 @@ const priorityAppIds = readPriorityAppIds();
 await mkdir(cacheDirectory, { recursive: true });
 await mkdir(outputDirectory, { recursive: true });
 
-const previousSteamState = await readJson(steamCachePath, { updatedAt: null, games: [] });
+const previousManifest = await readJson(manifestPath, null);
+const previousPublishedCatalog = await readPublishedCatalog(previousManifest);
+const cachedSteamState = await readJson(steamCachePath, { updatedAt: null, games: [] });
+const previousSteamState = Array.isArray(cachedSteamState.games) && cachedSteamState.games.length > 0
+  ? cachedSteamState
+  : {
+      updatedAt: typeof previousManifest?.publishedAt === "string" ? previousManifest.publishedAt : null,
+      games: previousPublishedCatalog.map(({ steamAppId, title }) => ({ steamAppId, title })),
+    };
 let steamGames;
 
 if (steamApiKey) {
@@ -38,6 +46,9 @@ if (steamApiKey) {
 } else if (Array.isArray(previousSteamState.games) && previousSteamState.games.length > 0) {
   steamGames = previousSteamState.games;
   console.warn("STEAM_WEB_API_KEY is not set; reusing the cached Steam catalog without refreshing titles.");
+  if (!Array.isArray(cachedSteamState.games) || cachedSteamState.games.length === 0) {
+    await writeJsonAtomically(steamCachePath, previousSteamState);
+  }
 } else {
   throw new Error("STEAM_WEB_API_KEY is required for the first Steam catalog import. Put it in the project-root .env file.");
 }
@@ -47,6 +58,7 @@ if (steamGames.length === 0) {
 }
 
 const protonCache = await readJson(protonCachePath, {});
+seedProtonCache(protonCache, previousPublishedCatalog);
 await refreshProtonSummaries(steamGames, protonCache);
 await writeJsonAtomically(protonCachePath, protonCache);
 
@@ -68,13 +80,49 @@ const catalogFileName = `catalog.${contentHash}.json`;
 const publishedAt = new Date().toISOString();
 
 await writeFile(resolve(outputDirectory, catalogFileName), catalogJson);
-await writeJsonAtomically(manifestPath, {
-  catalog: catalogFileName,
-  publishedAt,
-  gameCount: catalog.length,
-});
+if (previousManifest?.catalog !== catalogFileName) {
+  await writeJsonAtomically(manifestPath, {
+    catalog: catalogFileName,
+    publishedAt,
+    gameCount: catalog.length,
+  });
+}
+await removeStaleCatalogs(catalogFileName, previousManifest?.catalog);
 
-console.log(`Published ${catalog.length.toLocaleString("en-US")} games as ${catalogFileName}.`);
+console.log(previousManifest?.catalog === catalogFileName
+  ? `Catalog content is unchanged (${catalog.length.toLocaleString("en-US")} games).`
+  : `Published ${catalog.length.toLocaleString("en-US")} games as ${catalogFileName}.`);
+
+async function readPublishedCatalog(manifest) {
+  if (!manifest || typeof manifest.catalog !== "string" || !/^catalog\.[a-f0-9]{16}\.json$/u.test(manifest.catalog)) return [];
+  const catalog = await readJson(resolve(outputDirectory, manifest.catalog), []);
+  return Array.isArray(catalog) ? catalog.filter((game) => (
+    Number.isSafeInteger(game?.steamAppId)
+    && typeof game?.title === "string"
+  )) : [];
+}
+
+function seedProtonCache(cache, publishedCatalog) {
+  for (const game of publishedCatalog) {
+    const key = String(game.steamAppId);
+    if (
+      !cache[key]
+      && typeof game.protonTier === "string"
+      && game.protonTier
+      && typeof game.protonFetchedAt === "string"
+    ) {
+      cache[key] = { status: "ok", tier: game.protonTier, fetchedAt: game.protonFetchedAt };
+    }
+  }
+}
+
+async function removeStaleCatalogs(currentCatalog, previousCatalog) {
+  const retained = new Set([currentCatalog, previousCatalog].filter(Boolean));
+  const entries = await readdir(outputDirectory);
+  await Promise.all(entries
+    .filter((entry) => /^catalog\.[a-f0-9]{16}\.json$/u.test(entry) && !retained.has(entry))
+    .map((entry) => unlink(resolve(outputDirectory, entry))));
+}
 
 async function fetchSteamGames(updatedAt) {
   const games = [];

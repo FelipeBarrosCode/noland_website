@@ -1,0 +1,80 @@
+name: Update games catalog
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      app_ids:
+        description: "Comma-separated Steam App IDs to prioritize"
+        required: false
+        type: string
+      request_budget:
+        description: "Maximum ProtonDB requests in this run"
+        required: false
+        default: "100"
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-games-catalog
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+      PROTONDB_APP_IDS: ${{ inputs.app_ids || '' }}
+      PROTONDB_REQUEST_BUDGET: ${{ inputs.request_budget || '100' }}
+      PROTONDB_DELAY_MS: "2000"
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Restore updater state
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/games-data
+          key: games-catalog-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            games-catalog-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update catalog
+        run: npm run games:update
+
+      - name: Save updater state
+        if: ${{ always() && hashFiles('.cache/games-data/*.json') != '' }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/games-data
+          key: games-catalog-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Validate the site
+        run: npm run build
+
+      - name: Commit published catalog changes
+        run: |
+          if git diff --quiet -- public/games-data; then
+            echo "The published catalog is already current."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all public/games-data
+          git commit -m "chore(games): update compatibility catalog"
+          git push

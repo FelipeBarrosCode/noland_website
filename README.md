@@ -85,6 +85,8 @@ npm run games:update
 
 The updater uses Steam's `IStoreService/GetAppList/v1`, stores its persistent source cache under `.cache/games-data/`, refreshes ProtonDB summaries sequentially, and atomically publishes a content-hashed catalog plus `public/games-data/manifest.json`. Relevant controls include `PROTONDB_REQUEST_BUDGET`, `PROTONDB_DELAY_MS`, `PROTONDB_SUCCESS_TTL_HOURS`, `PROTONDB_MISSING_TTL_HOURS`, `GAMES_CACHE_DIR`, and `GAMES_OUTPUT_DIR`.
 
+GitHub Actions runs the updater every six hours in conservative, resumable batches and commits changed published data back to the branch. The workflow cache preserves progress between runs, while the currently published catalog bootstraps successful ratings if that cache is unavailable. You can also run **Update games catalog** manually from the Actions tab and optionally provide comma-separated Steam App IDs to prioritize.
+
 Put `STEAM_WEB_API_KEY` in the project-root `.env` file on the machine that runs this command. Existing shell or CI environment variables also work. To populate particular titles first, pass their Steam App IDs without waiting for the general queue:
 
 ```bash
@@ -92,6 +94,8 @@ npm run games:update -- --app-ids=1260690,2651280,4885500
 ```
 
 Keep `STEAM_WEB_API_KEY` server-side and never expose it through a `VITE_` environment variable. Validate ProtonDB availability and permitted usage before increasing the conservative refresh defaults.
+
+For automatic Steam title additions and corrections, add `STEAM_WEB_API_KEY` as a GitHub Actions repository secret. The workflow can still enrich the existing published catalog without it, but cannot discover new Steam titles.
 
 ## SEO and performance audit
 
