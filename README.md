@@ -97,7 +97,7 @@ Keep `STEAM_WEB_API_KEY` server-side and never expose it through a `VITE_` envir
 
 For automatic Steam title additions and corrections, add `STEAM_WEB_API_KEY` as a GitHub Actions repository secret. The workflow can still enrich the existing published catalog without it, but cannot discover new Steam titles.
 
-Because `main` is protected, publishing also requires a `CATALOG_UPDATE_TOKEN` Actions secret. Use a fine-grained personal access token owned by a repository administrator, limited to this repository, with **Contents: Read and write** permission. The workflow performs a normal fast-forward push and never force-pushes.
+Because `main` is protected, publishing also requires a `CATALOG_UPDATE_TOKEN` secret in the `Environment-PAT` GitHub Actions environment. Use a fine-grained personal access token owned by a repository administrator, limited to this repository, with **Contents: Read and write** permission. The workflow performs a normal fast-forward push and never force-pushes.
 
 ## SEO and performance audit
 
