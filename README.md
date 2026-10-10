@@ -75,6 +75,18 @@ npm run preview
 
 The production output is generated in `dist/`.
 
+## Games compatibility catalog
+
+The `/games/` page searches a static Steam and ProtonDB catalog in the browser. Visitor searches do not call either upstream service. The checked-in catalog is a small UI fixture; generate the production catalog in a separate scheduled update environment:
+
+```bash
+STEAM_WEB_API_KEY=... npm run games:update
+```
+
+The updater uses Steam's `IStoreService/GetAppList/v1`, stores its persistent source cache under `.cache/games-data/`, refreshes ProtonDB summaries sequentially, and atomically publishes a content-hashed catalog plus `public/games-data/manifest.json`. Relevant controls include `PROTONDB_REQUEST_BUDGET`, `PROTONDB_DELAY_MS`, `PROTONDB_SUCCESS_TTL_HOURS`, `PROTONDB_MISSING_TTL_HOURS`, `GAMES_CACHE_DIR`, and `GAMES_OUTPUT_DIR`.
+
+Keep `STEAM_WEB_API_KEY` server-side and never expose it through a `VITE_` environment variable. Validate ProtonDB availability and permitted usage before increasing the conservative refresh defaults.
+
 ## SEO and performance audit
 
 ```bash

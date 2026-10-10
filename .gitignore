@@ -31,3 +31,6 @@ skills-lock.json
 
 # Test coverage
 coverage/
+
+# Persistent local cache for the separately scheduled games catalog update
+.cache/

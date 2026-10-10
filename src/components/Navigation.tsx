@@ -1,14 +1,6 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { detectNavigatorOperatingSystem, type DesktopOperatingSystem } from "../lib/clientPlatform";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { featurePages } from "../lib/featurePages";
 import { DISCORD_URL, DOWNLOADS_SECTION_ID, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
-
-const platformGuides: Record<DesktopOperatingSystem, { href: string; label: string }> = {
-  Windows: { href: "/cloud-gaming-windows/", label: "Windows" },
-  macOS: { href: "/cloud-gaming-mac/", label: "Mac" },
-  Linux: { href: "/cloud-gaming-linux/", label: "Linux" },
-  Unknown: { href: "/cloud-gaming-pc/", label: "Your device" },
-};
 
 const featureDescriptions: Record<string, string> = {
   "/features/premium-routes/": "Cloudflare TURN relay paths for difficult networks",
@@ -22,14 +14,9 @@ const featureNavDescription = (path: string) => featureDescriptions[path] ?? "Ex
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [platformGuide, setPlatformGuide] = useState(platformGuides.Unknown);
   const featuresMenuRef = useRef<HTMLDetailsElement>(null);
   const featuresSummaryRef = useRef<HTMLElement>(null);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    setPlatformGuide(platformGuides[detectNavigatorOperatingSystem()]);
-  }, []);
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -78,7 +65,7 @@ export function Navigation() {
           <div className="nav-links">
             <a href="/cloud-gaming-pc/" onClick={closeMenu}>Cloud PC</a>
             <a href="/pay-as-you-go-cloud-gaming/" onClick={closeMenu}>Price</a>
-            <a href={platformGuide.href} onClick={closeMenu}>{platformGuide.label}</a>
+            <a href="/games/" onClick={closeMenu}>Games</a>
             <details className="nav-dropdown" ref={featuresMenuRef} onKeyDown={handleFeaturesKeyDown}>
               <summary ref={featuresSummaryRef}>Features <span aria-hidden="true">⌄</span></summary>
               <div className="nav-dropdown__menu">

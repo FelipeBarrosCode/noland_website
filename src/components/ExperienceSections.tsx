@@ -183,6 +183,7 @@ export function SiteFooter() {
         <nav aria-label="Footer navigation">
           <a href="/cloud-gaming-pc/">Cloud gaming PC</a>
           <a href="/pay-as-you-go-cloud-gaming/">Pay as you go</a>
+          <a href="/games/">Games</a>
           <a href="/cloud-gaming-windows/">For Windows</a>
           <a href="/cloud-gaming-mac/">For Mac</a>
           <a href="/cloud-gaming-linux/">For Linux</a>

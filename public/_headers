@@ -14,6 +14,12 @@
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+/games-data/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+
+/games-data/catalog.*.json
+  Cache-Control: public, max-age=31536000, immutable
+
 /sitemap.xml
   Cache-Control: public, max-age=3600
 

@@ -3,6 +3,7 @@ import { ArchitectureAndPhilosophy, ControlSection, FinalCta, GameFreedom, Metri
 import { CookieConsent } from "./components/CookieConsent";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
+import { GamesPage } from "./components/GamesPage";
 import { HashScroll } from "./components/HashScroll";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
@@ -23,6 +24,17 @@ interface AppProps {
 
 export function App({ pathname = "/" }: AppProps) {
   const normalizedPath = normalizePathname(pathname);
+  if (normalizedPath === "/games/") {
+    return (
+      <>
+        <HashScroll />
+        <MotionSystem />
+        <GamesPage />
+        <CookieConsent />
+      </>
+    );
+  }
+
   const contentPage = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
   if (contentPage) {
     return (

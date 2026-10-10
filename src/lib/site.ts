@@ -22,8 +22,17 @@ export const HOME_METADATA: PageMetadata = {
   changeFrequency: "weekly",
 };
 
+export const GAMES_METADATA: PageMetadata = {
+  path: "/games/",
+  title: "Game Compatibility Checker — Noland Cloud Gaming",
+  description: "Search Steam games and check their Linux compatibility using cached ProtonDB community ratings before you rent a Noland cloud gaming machine.",
+  priority: 0.9,
+  changeFrequency: "weekly",
+};
+
 export const STATIC_PATHS = [
   HOME_METADATA.path,
+  GAMES_METADATA.path,
   ...seoPages.map((page) => page.path),
   ...featurePages.map((page) => page.path),
 ];
@@ -37,6 +46,7 @@ export function normalizePathname(pathname: string): string {
 export function getPageMetadata(pathname: string): PageMetadata | undefined {
   const normalizedPath = normalizePathname(pathname);
   if (normalizedPath === "/") return HOME_METADATA;
+  if (normalizedPath === GAMES_METADATA.path) return GAMES_METADATA;
 
   const page = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
   if (!page) return undefined;
