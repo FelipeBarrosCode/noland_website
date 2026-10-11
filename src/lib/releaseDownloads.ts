@@ -111,6 +111,15 @@ const downloadDefinitions: DownloadDefinition[] = [
     matches: (assetName) => hasExtension(assetName, ".rpm") && hasArch(assetName, "x64"),
   },
   {
+    id: "linux-x64-arch",
+    platform: "Linux",
+    label: "Arch Linux x64 — pacman package",
+    description: "Native package for Arch Linux, Manjaro, EndeavourOS, Garuda, and compatible distributions.",
+    architecture: "x64",
+    format: "pkg.tar.zst",
+    matches: (assetName) => hasExtension(assetName, ".pkg.tar.zst") && hasArch(assetName, "x64"),
+  },
+  {
     id: "linux-arm64-appimage",
     platform: "Linux",
     label: "Linux ARM64 — AppImage",
@@ -136,6 +145,15 @@ const downloadDefinitions: DownloadDefinition[] = [
     architecture: "arm64",
     format: "rpm",
     matches: (assetName) => hasExtension(assetName, ".rpm") && hasArch(assetName, "arm64"),
+  },
+  {
+    id: "linux-arm64-arch",
+    platform: "Linux",
+    label: "Arch Linux ARM64 — pacman package",
+    description: "Native package for Arch Linux ARM64 and compatible distributions.",
+    architecture: "arm64",
+    format: "pkg.tar.zst",
+    matches: (assetName) => hasExtension(assetName, ".pkg.tar.zst") && hasArch(assetName, "arm64"),
   },
 ];
 

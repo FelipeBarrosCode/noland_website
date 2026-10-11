@@ -12,9 +12,11 @@ type LoadState =
 
 type ClientOS = DownloadPlatform | "Unknown";
 type ClientArchitecture = DownloadOption["architecture"] | null;
+type LinuxDistribution = "Arch Linux" | "Debian/Ubuntu" | "Fedora/RHEL" | null;
 type ClientPlatform = {
   os: ClientOS;
   architecture: ClientArchitecture;
+  linuxDistribution: LinuxDistribution;
 };
 
 type PlatformButton = {
@@ -57,14 +59,14 @@ function capture(event: string, properties: Record<string, string | number | nul
 
 const platformDescriptions: Record<DownloadPlatform, string> = {
   macOS: "DMG installers for Apple Silicon and Intel Macs.",
-  Linux: "AppImage, Debian, and RPM packages.",
+  Linux: "AppImage, Debian, RPM, and native Arch Linux packages.",
   Windows: "Installers for Windows x64 and ARM64."
 };
 
 export function DownloadSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [state, setState] = useState<LoadState>({ status: "loading" });
-  const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null });
+  const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null, linuxDistribution: null });
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
   const [isMobileClient, setIsMobileClient] = useState(false);
@@ -139,6 +141,7 @@ export function DownloadSection() {
       capture("download_section_viewed", {
         detected_platform: detectedPlatform.os,
         architecture: detectedPlatform.architecture,
+        linux_distribution: detectedPlatform.linuxDistribution,
         is_mobile: isMobile ? 1 : 0,
       });
 
@@ -516,7 +519,7 @@ function getShareableDownloadOptions(state: LoadState): DownloadOption[] {
 
   return state.payload.options.filter((option) => {
     if (option.platform === "Linux") {
-      return option.format.toLowerCase() === "appimage";
+      return ["appimage", "pkg.tar.zst"].includes(option.format.toLowerCase());
     }
 
     return true;
@@ -533,6 +536,17 @@ function getRecommendedDownload(client: ClientPlatform, state: LoadState): Platf
   );
 
   if (client.os === "Linux") {
+    const preferredFormat = client.linuxDistribution === "Arch Linux"
+      ? "pkg.tar.zst"
+      : client.linuxDistribution === "Debian/Ubuntu"
+        ? "deb"
+        : client.linuxDistribution === "Fedora/RHEL"
+          ? "rpm"
+          : "appimage";
+    const nativeMatch = candidates.find((option) => option.format.toLowerCase() === preferredFormat);
+    if (nativeMatch) {
+      return nativeMatch;
+    }
     return candidates.find((option) => option.format.toLowerCase() === "appimage") ?? candidates[0] ?? null;
   }
 
@@ -568,7 +582,10 @@ function formatDetectedPlatform(client: ClientPlatform): string {
     return client.os;
   }
 
-  return `${client.os} · ${formatArchitecture(client.os, client.architecture)}`;
+  const distribution = client.os === "Linux" && client.linuxDistribution
+    ? ` · ${client.linuxDistribution}`
+    : "";
+  return `${client.os} · ${formatArchitecture(client.os, client.architecture)}${distribution}`;
 }
 
 function formatArchitecture(os: ClientOS, architecture: Exclude<ClientArchitecture, null>): string {
@@ -596,7 +613,7 @@ function isMobileBrowser(): boolean {
 
 function detectClientPlatform(): ClientPlatform {
   if (typeof navigator === "undefined") {
-    return { os: "Unknown", architecture: null };
+    return { os: "Unknown", architecture: null, linuxDistribution: null };
   }
 
   const browserNavigator = navigator as NavigatorWithUserAgentData;
@@ -606,6 +623,7 @@ function detectClientPlatform(): ClientPlatform {
   return {
     os: detectDesktopOperatingSystem(platform, userAgent),
     architecture: normalizeArchitecture("", "", `${platform} ${userAgent}`),
+    linuxDistribution: detectLinuxDistribution(`${platform} ${userAgent}`),
   };
 }
 
@@ -627,6 +645,8 @@ async function refineClientPlatform(): Promise<ClientPlatform> {
       os: detectDesktopOperatingSystem(details.platform ?? userAgentData.platform ?? browserNavigator.platform ?? "", browserNavigator.userAgent ?? ""),
       architecture: normalizeArchitecture(details.architecture ?? "", details.bitness ?? "", browserNavigator.userAgent ?? "")
         ?? fallback.architecture,
+      linuxDistribution: detectLinuxDistribution(`${details.platform ?? ""} ${browserNavigator.userAgent ?? ""}`)
+        ?? fallback.linuxDistribution,
     };
   } catch {
     return fallback;
@@ -650,6 +670,20 @@ function normalizeArchitecture(architecture: string, bitness: string, fallbackFi
   }
   if (/x86_64|x64|amd64|win64/u.test(fallback)) {
     return "x64";
+  }
+  return null;
+}
+
+function detectLinuxDistribution(fingerprint: string): LinuxDistribution {
+  const normalized = fingerprint.toLowerCase();
+  if (/archlinux|arch linux|manjaro|endeavouros|garuda/u.test(normalized)) {
+    return "Arch Linux";
+  }
+  if (/debian|ubuntu|linux mint|pop!_os|pop os/u.test(normalized)) {
+    return "Debian/Ubuntu";
+  }
+  if (/fedora|rhel|red hat|centos|rocky linux|almalinux/u.test(normalized)) {
+    return "Fedora/RHEL";
   }
   return null;
 }
