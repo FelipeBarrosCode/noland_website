@@ -30,9 +30,18 @@ export const GAMES_METADATA: PageMetadata = {
   changeFrequency: "weekly",
 };
 
+export const CONTACT_METADATA: PageMetadata = {
+  path: "/contact-me/",
+  title: "Contact Noland Cloud Gaming",
+  description: "Contact Noland Cloud Gaming with questions, feedback, or partnership ideas.",
+  priority: 0.5,
+  changeFrequency: "monthly",
+};
+
 export const STATIC_PATHS = [
   HOME_METADATA.path,
   GAMES_METADATA.path,
+  CONTACT_METADATA.path,
   ...seoPages.map((page) => page.path),
   ...featurePages.map((page) => page.path),
 ];
@@ -47,6 +56,7 @@ export function getPageMetadata(pathname: string): PageMetadata | undefined {
   const normalizedPath = normalizePathname(pathname);
   if (normalizedPath === "/") return HOME_METADATA;
   if (normalizedPath === GAMES_METADATA.path) return GAMES_METADATA;
+  if (normalizedPath === CONTACT_METADATA.path) return CONTACT_METADATA;
 
   const page = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
   if (!page) return undefined;

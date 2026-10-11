@@ -1,6 +1,7 @@
 import { DownloadSection } from "./components/DownloadSection";
 import { ArchitectureAndPhilosophy, ControlSection, FinalCta, GameFreedom, MetricStrip, SiteFooter } from "./components/ExperienceSections";
 import { CookieConsent } from "./components/CookieConsent";
+import { ContactPage } from "./components/ContactPage";
 import { EconomicsCalculator } from "./components/EconomicsCalculator";
 import { FaqSection } from "./components/FaqSection";
 import { GamesPage } from "./components/GamesPage";
@@ -33,6 +34,10 @@ export function App({ pathname = "/" }: AppProps) {
         <CookieConsent />
       </>
     );
+  }
+
+  if (normalizedPath === "/contact-me/") {
+    return <ContactPage />;
   }
 
   const contentPage = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
