@@ -170,6 +170,7 @@ function mergeSteamGames(previousGames, updates) {
 
 async function refreshProtonSummaries(games, cache) {
   const now = Date.now();
+  let updatesSinceCheckpoint = 0;
   const priorityOrder = new Map(priorityAppIds.map((appId, index) => [appId, index]));
   const eligible = games
     .filter((game) => {
@@ -203,8 +204,15 @@ async function refreshProtonSummaries(games, cache) {
   for (let index = 0; index < eligible.length; index += 1) {
     const game = eligible[index];
     const result = await fetchProtonSummary(game.steamAppId);
+    if (result.record) {
+      cache[String(game.steamAppId)] = result.record;
+      updatesSinceCheckpoint += 1;
+    }
+    if (result.stop || updatesSinceCheckpoint >= 25) {
+      await writeJsonAtomically(protonCachePath, cache);
+      updatesSinceCheckpoint = 0;
+    }
     if (result.stop) break;
-    if (result.record) cache[String(game.steamAppId)] = result.record;
     if (index < eligible.length - 1) await sleep(requestDelayMs);
   }
 }

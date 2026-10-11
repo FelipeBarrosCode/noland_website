@@ -12,7 +12,7 @@ on:
       request_budget:
         description: "Maximum ProtonDB requests in this run"
         required: false
-        default: "100"
+        default: "9000"
         type: string
 
 permissions:
@@ -26,11 +26,11 @@ jobs:
   update:
     runs-on: ubuntu-latest
     environment: Environment-PAT
-    timeout-minutes: 30
+    timeout-minutes: 350
     env:
       STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
       PROTONDB_APP_IDS: ${{ inputs.app_ids || '' }}
-      PROTONDB_REQUEST_BUDGET: ${{ inputs.request_budget || '100' }}
+      PROTONDB_REQUEST_BUDGET: ${{ inputs.request_budget || '9000' }}
       PROTONDB_DELAY_MS: "2000"
 
     steps:
