@@ -146,15 +146,6 @@ const downloadDefinitions: DownloadDefinition[] = [
     format: "rpm",
     matches: (assetName) => hasExtension(assetName, ".rpm") && hasArch(assetName, "arm64"),
   },
-  {
-    id: "linux-arm64-arch",
-    platform: "Linux",
-    label: "Arch Linux ARM64 — pacman package",
-    description: "Native package for Arch Linux ARM64 and compatible distributions.",
-    architecture: "arm64",
-    format: "pkg.tar.zst",
-    matches: (assetName) => hasExtension(assetName, ".pkg.tar.zst") && hasArch(assetName, "arm64"),
-  },
 ];
 
 export async function fetchLatestReleaseDownloads(): Promise<ReleaseDownloads> {
