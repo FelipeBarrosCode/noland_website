@@ -191,6 +191,7 @@ export function SiteFooter() {
           <a href="/vast-ai-cloud-gaming/">Vast.ai guide</a>
           <a href="/sunshine-moonlight-cloud-gaming/">Sunshine + Moonlight</a>
           <a href="/contact-me">Contact</a>
+          <a href="/privacy-policy/">Privacy policy</a>
           <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_section_nav_clicked", { source: "footer" })}>Downloads ↓</a>
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
           <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer" onClick={() => capture("download_release_page_clicked", { source: "footer" })}>Latest release ↗</a>

@@ -39,6 +39,7 @@ export function CookieConsent() {
         <h2 id="cookie-consent-title">Okay to use cookies?</h2>
         <p id="cookie-consent-copy">
           Noland uses cookies and similar technologies to remember your preferences and understand how the site is used.
+          {" "}<a href="/privacy-policy/">Read our privacy policy.</a>
         </p>
       </div>
       <div className="cookie-consent__actions">

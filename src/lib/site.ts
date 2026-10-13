@@ -38,10 +38,19 @@ export const CONTACT_METADATA: PageMetadata = {
   changeFrequency: "monthly",
 };
 
+export const PRIVACY_METADATA: PageMetadata = {
+  path: "/privacy-policy/",
+  title: "Privacy Policy — No Land",
+  description: "How No Land runs locally on your device, uses your own provider credentials, and handles app data, third-party services, and optional website analytics.",
+  priority: 0.3,
+  changeFrequency: "monthly",
+};
+
 export const STATIC_PATHS = [
   HOME_METADATA.path,
   GAMES_METADATA.path,
   CONTACT_METADATA.path,
+  PRIVACY_METADATA.path,
   ...seoPages.map((page) => page.path),
   ...featurePages.map((page) => page.path),
 ];
@@ -57,6 +66,7 @@ export function getPageMetadata(pathname: string): PageMetadata | undefined {
   if (normalizedPath === "/") return HOME_METADATA;
   if (normalizedPath === GAMES_METADATA.path) return GAMES_METADATA;
   if (normalizedPath === CONTACT_METADATA.path) return CONTACT_METADATA;
+  if (normalizedPath === PRIVACY_METADATA.path) return PRIVACY_METADATA;
 
   const page = getFeaturePage(normalizedPath) ?? getSeoPage(normalizedPath);
   if (!page) return undefined;

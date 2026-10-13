@@ -13,6 +13,7 @@ import { LiveMarketplace } from "./components/LiveMarketplace";
 import { MotionSystem } from "./components/MotionSystem";
 import { Navigation } from "./components/Navigation";
 import { ProvisioningDemo } from "./components/ProvisioningDemo";
+import { PrivacyPolicyPage } from "./components/PrivacyPolicyPage";
 import { SeoLandingPage } from "./components/SeoLandingPage";
 import { SeoPillarLinks } from "./components/SeoPillarLinks";
 import { getFeaturePage } from "./lib/featurePages";
@@ -25,6 +26,9 @@ interface AppProps {
 
 export function App({ pathname = "/" }: AppProps) {
   const normalizedPath = normalizePathname(pathname);
+  if (normalizedPath === "/privacy-policy/") {
+    return <PrivacyPolicyPage />;
+  }
   if (normalizedPath === "/games/") {
     return (
       <>

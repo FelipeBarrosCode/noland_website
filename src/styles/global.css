@@ -1912,6 +1912,29 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
 .footer-main nav a:hover { color: var(--cyan); }
 .footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 15px; padding-bottom: 18px; border-top: 1px solid var(--line); color: var(--dim); font-family: var(--display); font-size: 7px; line-height: 1.5; }
 
+/* Privacy policy */
+.privacy-page {
+  padding: clamp(48px, 7vw, 90px) 0;
+  background: radial-gradient(circle at 15% 5%, rgba(35, 231, 255, .07), transparent 32rem), var(--canvas);
+}
+.privacy-page__inner { max-width: 940px; }
+.privacy-page__header h1 { margin: 18px 0 24px; font-size: clamp(34px, 6vw, 64px); line-height: 1.12; }
+.privacy-page__header h1 em { color: var(--lime); font-style: normal; }
+.privacy-page__lede { max-width: 720px; color: var(--muted); font-size: 23px; line-height: 1.5; }
+.privacy-page__date { margin: 20px 0 0; color: var(--muted); font-size: 17px; }
+.privacy-page__summary { margin: 38px 0; padding: clamp(22px, 4vw, 34px); border: 1px solid var(--line-bright); background: rgba(35, 231, 255, .04); }
+.privacy-page__summary h2 { margin: 0 0 16px; color: var(--cyan); font-family: var(--display); font-size: 13px; line-height: 1.7; }
+.privacy-page__summary p { margin: 0; color: var(--text); font-size: 22px; line-height: 1.55; }
+.privacy-page__content section { padding: 28px 0; border-top: 1px solid var(--line); scroll-margin-top: 100px; }
+.privacy-page__content h2 { margin: 0 0 20px; font-size: clamp(21px, 3vw, 28px); line-height: 1.4; }
+.privacy-page__content p, .privacy-page__content li { color: var(--muted); font-size: 21px; line-height: 1.6; }
+.privacy-page__content p { margin: 0 0 18px; }
+.privacy-page__content p:last-child { margin-bottom: 0; }
+.privacy-page__content ul { padding-left: 24px; margin: 0 0 20px; }
+.privacy-page__content li + li { margin-top: 16px; }
+.privacy-page__content strong { color: var(--text); }
+.privacy-page a:not(.breadcrumbs a), .cookie-consent__copy a { color: var(--cyan); text-decoration: underline; text-underline-offset: 4px; overflow-wrap: anywhere; }
+
 /* Contact */
 .contact-page {
   display: grid;
