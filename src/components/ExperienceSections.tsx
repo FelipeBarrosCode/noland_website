@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
-import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
+import { ANDROID_RELEASES_PAGE_URL, ANDROID_REPOSITORY_URL, DOWNLOADS_SECTION_ID, IOS_RELEASES_PAGE_URL, IOS_REPOSITORY_URL, RELEASES_PAGE_URL, REPOSITORY_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 function capture(event: string, properties: Record<string, string>) {
@@ -75,7 +75,7 @@ export function ArchitectureAndPhilosophy() {
         <div className="topology-board">
           <div className="topology-grid" aria-hidden="true" />
           <div className="topology-node topology-node--client">
-            <span className="topology-icon" aria-hidden="true">▣</span><strong>YOUR CLIENT</strong><small>Windows / macOS / Linux</small>
+            <span className="topology-icon" aria-hidden="true">▣</span><strong>YOUR CLIENT</strong><small>Desktop / iOS / Android</small>
           </div>
           <div className="topology-route topology-route--control"><span>API / PROVISIONING</span><i /><i /><i /></div>
           <div className="topology-node topology-node--services">
@@ -138,7 +138,7 @@ export function ControlSection() {
           <ol className="control-list">
             {controls.map(([name, body], index) => <li key={name}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{name}</strong><p>{body}</p></div></li>)}
           </ol>
-          <div className="platform-support"><span>DESKTOP CLIENT SUPPORT</span><strong><i aria-hidden="true">⊞</i> WINDOWS</strong><strong><i aria-hidden="true">◆</i> macOS</strong><strong><i aria-hidden="true">●</i> LINUX</strong><small>Desktop only</small></div>
+          <div className="platform-support"><span>DESKTOP CLIENT SUPPORT</span><strong><i aria-hidden="true">⊞</i> WINDOWS</strong><strong><i aria-hidden="true">◆</i> macOS</strong><strong><i aria-hidden="true">●</i> LINUX</strong><small>Also available: iOS &amp; Android previews</small></div>
         </div>
       </div>
     </section>
@@ -193,11 +193,15 @@ export function SiteFooter() {
           <a href="/contact-me">Contact</a>
           <a href="/privacy-policy/">Privacy policy</a>
           <a href={`/#${DOWNLOADS_SECTION_ID}`} onClick={() => capture("download_section_nav_clicked", { source: "footer" })}>Downloads ↓</a>
-          <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Repository ↗</a>
+          <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">Desktop repository ↗</a>
+          <a href={IOS_REPOSITORY_URL} target="_blank" rel="noreferrer">iOS repository ↗</a>
+          <a href={IOS_RELEASES_PAGE_URL} target="_blank" rel="noreferrer">iOS releases ↗</a>
+          <a href={ANDROID_REPOSITORY_URL} target="_blank" rel="noreferrer">Android repository ↗</a>
+          <a href={ANDROID_RELEASES_PAGE_URL} target="_blank" rel="noreferrer">Android releases ↗</a>
           <a href={RELEASES_PAGE_URL} target="_blank" rel="noreferrer" onClick={() => capture("download_release_page_clicked", { source: "footer" })}>Latest release ↗</a>
         </nav>
       </div>
-      <div className="shell footer-bottom"><span>NOLAND CLOUD GAMING</span><span>WINDOWS · macOS · LINUX</span><span>BUILT FOR DIRECT PLAY</span></div>
+      <div className="shell footer-bottom"><span>NOLAND CLOUD GAMING</span><span>WINDOWS · macOS · LINUX · iOS · ANDROID</span><span>BUILT FOR DIRECT PLAY</span></div>
     </footer>
   );
 }

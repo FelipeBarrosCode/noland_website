@@ -1,14 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { captureAnalyticsEvent } from "../lib/analytics";
-import { detectDesktopOperatingSystem } from "../lib/clientPlatform";
+import { detectDesktopOperatingSystem, detectNavigatorMobileOperatingSystem, type MobileOperatingSystem } from "../lib/clientPlatform";
+import { fetchLatestAndroidDownload, type AndroidDownload } from "../lib/mobileDownloads";
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
-import { DOWNLOADS_SECTION_ID, RELEASES_PAGE_URL } from "../lib/siteLinks";
+import { ANDROID_RELEASES_PAGE_URL, ANDROID_REPOSITORY_URL, DOWNLOADS_SECTION_ID, IOS_RELEASES_PAGE_URL, IOS_REPOSITORY_URL, RELEASES_PAGE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ready"; payload: ReleaseDownloads }
   | { status: "error"; message: string };
+
+type AndroidLoadState =
+  | { status: "loading" }
+  | { status: "ready"; payload: AndroidDownload }
+  | { status: "error" };
 
 type ClientOS = DownloadPlatform | "Unknown";
 type ClientArchitecture = DownloadOption["architecture"] | null;
@@ -69,7 +75,9 @@ export function DownloadSection() {
   const [clientPlatform, setClientPlatform] = useState<ClientPlatform>({ os: "Unknown", architecture: null, linuxDistribution: null });
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [shouldLoadDownloads, setShouldLoadDownloads] = useState(false);
-  const [isMobileClient, setIsMobileClient] = useState(false);
+  const [mobilePlatform, setMobilePlatform] = useState<MobileOperatingSystem>(null);
+  const [androidState, setAndroidState] = useState<AndroidLoadState>({ status: "loading" });
+  const isMobileClient = mobilePlatform !== null;
   const [savedLinkMessage, setSavedLinkMessage] = useState<string | null>(null);
   const [platformChooserOpen, setPlatformChooserOpen] = useState(false);
   const downloadSectionViewedRef = useRef(false);
@@ -77,7 +85,7 @@ export function DownloadSection() {
   const frictionSurveyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setIsMobileClient(isMobileBrowser());
+    setMobilePlatform(detectNavigatorMobileOperatingSystem());
   }, []);
 
   useEffect(() => {
@@ -129,6 +137,26 @@ export function DownloadSection() {
   }, [shouldLoadDownloads]);
 
   useEffect(() => {
+    if (!shouldLoadDownloads) return;
+
+    let active = true;
+    fetchLatestAndroidDownload()
+      .then((payload) => {
+        if (active) setAndroidState({ status: "ready", payload });
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        capture("download_lookup_failed", {
+          platform: "Android",
+          error: error instanceof Error ? error.message : "Unable to resolve the Android APK.",
+        });
+        setAndroidState({ status: "error" });
+      });
+
+    return () => { active = false; };
+  }, [shouldLoadDownloads]);
+
+  useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
@@ -137,9 +165,10 @@ export function DownloadSection() {
       downloadSectionViewedRef.current = true;
 
       const detectedPlatform = detectClientPlatform();
-      const isMobile = isMobileBrowser();
+      const detectedMobilePlatform = detectNavigatorMobileOperatingSystem();
+      const isMobile = detectedMobilePlatform !== null;
       capture("download_section_viewed", {
-        detected_platform: detectedPlatform.os,
+        detected_platform: detectedMobilePlatform ?? detectedPlatform.os,
         architecture: detectedPlatform.architecture,
         linux_distribution: detectedPlatform.linuxDistribution,
         is_mobile: isMobile ? 1 : 0,
@@ -149,7 +178,7 @@ export function DownloadSection() {
         frictionSurveyTimerRef.current = window.setTimeout(() => {
           if (!downloadIntentRef.current) {
             capture("mobile_download_friction_survey_eligible", {
-              detected_platform: detectedPlatform.os,
+              detected_platform: detectedMobilePlatform ?? detectedPlatform.os,
               architecture: detectedPlatform.architecture,
               wait_seconds: 20,
             });
@@ -276,6 +305,17 @@ export function DownloadSection() {
     capture("app_download_clicked", properties);
   };
 
+  const recordMobileReleaseVisit = (platform: "iOS" | "Android", source = "recommended") => {
+    recordDownloadIntent();
+    capture("download_release_page_clicked", { platform, source });
+  };
+  const androidDownload = androidState.status === "ready" ? androidState.payload : null;
+  const activeReleaseUrl = mobilePlatform === "iOS"
+    ? IOS_RELEASES_PAGE_URL
+    : mobilePlatform === "Android"
+      ? androidDownload?.releaseUrl ?? ANDROID_RELEASES_PAGE_URL
+      : resolvedReleaseUrl;
+
   return (
     <section ref={sectionRef} className="section downloads-section" id={DOWNLOADS_SECTION_ID} aria-labelledby="downloads-title">
       <div className="shell">
@@ -283,12 +323,12 @@ export function DownloadSection() {
           eyebrow="DOWNLOAD"
           title={
             <span id="downloads-title">
-              Download Noland. <em>{isMobileClient ? "Continue on your computer." : "Matched to your device."}</em>
+              Download Noland. <em>Matched to your device.</em>
             </span>
           }
           description={
             isMobileClient
-              ? "Noland is a desktop app for Windows, macOS, and Linux. Choose your computer type and share its direct installer link."
+              ? "Get the Android APK directly, or open the iOS port’s GitHub releases. Mobile ports are preview builds."
               : "Noland detects your device and suggests the right download. You can choose another option below anytime."
           }
         />
@@ -301,7 +341,17 @@ export function DownloadSection() {
         </div>
 
         <div className="downloads-status" role="status" aria-live="polite">
-          {state.status === "loading" ? (
+          {mobilePlatform === "iOS" ? (
+            <span>iOS preview builds are available on GitHub. Check each release for installation requirements.</span>
+          ) : mobilePlatform === "Android" ? (
+            <span>
+              {androidDownload
+                ? <>Showing <strong>{androidDownload.releaseLabel}</strong>{androidDownload.isPrerelease ? <em>preview release</em> : null}</>
+                : androidState.status === "loading"
+                  ? "Resolving the latest published Android APK…"
+                  : "APK lookup is temporarily unavailable. Open Android releases to download manually."}
+            </span>
+          ) : state.status === "loading" ? (
             <span>Resolving the latest published release assets…</span>
           ) : state.status === "error" ? (
             <span>Direct download lookup is temporarily unavailable. You can still open the latest GitHub release manually.</span>
@@ -311,23 +361,27 @@ export function DownloadSection() {
               {releaseFlavor ? <em>{releaseFlavor}</em> : null}
             </span>
           )}
-          <a className="text-link" href={resolvedReleaseUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_release_notes_clicked", { release_label: resolvedReleaseLabel })}>Open release notes <span aria-hidden="true">↗</span></a>
+          <a className="text-link" href={activeReleaseUrl} target="_blank" rel="noreferrer" onClick={() => capture("download_release_notes_clicked", { platform: mobilePlatform ?? clientPlatform.os })}>Open release notes <span aria-hidden="true">↗</span></a>
         </div>
 
         <article className="download-recommendation" aria-labelledby="recommended-download-title">
           <div className="download-recommendation__copy">
             <p className="download-recommendation__eyebrow">
-              {isMobileClient ? "SAVE FOR LATER" : "RECOMMENDED FOR THIS DEVICE"}
+              RECOMMENDED FOR THIS DEVICE
             </p>
             <h3 id="recommended-download-title">
-              {isMobileClient ? "Save it for your desktop" : formatDetectedPlatform(clientPlatform)}
+              {mobilePlatform ? `${mobilePlatform} · mobile preview` : formatDetectedPlatform(clientPlatform)}
             </h3>
             <p>
-              {isMobileClient
-                ? "Choose the exact desktop installer, then send its direct download link through Messages, email, Notes, or another synced app."
-                : getRecommendationDescription(clientPlatform, recommendedDownload)}
+              {mobilePlatform === "iOS"
+                ? "Open the iOS port’s releases to get the unsigned IPA and installation instructions. The IPA cannot be installed directly from your browser; signing or sideloading is required."
+                : mobilePlatform === "Android"
+                  ? "Download the phone APK, then open it on your Android device. Android may ask you to allow installs from your browser. Install only if you trust the source; these are preview builds."
+                  : getRecommendationDescription(clientPlatform, recommendedDownload)}
             </p>
-            {!isMobileClient && recommendedDownload ? (
+            {mobilePlatform === "Android" && androidDownload ? (
+              <span className="download-recommendation__asset">{androidDownload.assetName}</span>
+            ) : !isMobileClient && recommendedDownload ? (
               <span className="download-recommendation__asset">{recommendedDownload.assetName}</span>
             ) : null}
           </div>
@@ -335,12 +389,26 @@ export function DownloadSection() {
           <div className="download-recommendation__action">
             {isMobileClient ? (
               <>
-                <button className="button button--primary button--large" type="button" disabled={state.status !== "ready" || state.payload.options.length === 0} onClick={() => setPlatformChooserOpen(true)}>
-                  <span>{state.status === "loading" ? "Resolving desktop installers…" : "Send download link to my computer"}</span>
-                  <span aria-hidden="true">↗</span>
-                </button>
+                {mobilePlatform === "iOS" ? (
+                  <a className="button button--primary button--large" href={IOS_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("iOS")}>
+                    <span>Get iOS builds on GitHub</span><span aria-hidden="true">↗</span>
+                  </a>
+                ) : androidDownload ? (
+                  <a className="button button--primary button--large" href={androidDownload.url} onClick={() => recordDownload({ url: androidDownload.url, label: "Android APK", platform: "Android", downloadId: "android-apk", assetName: androidDownload.assetName }, "recommended")}>
+                    <span>Download Android APK</span><span aria-hidden="true">↓</span>
+                  </a>
+                ) : androidState.status === "loading" ? (
+                  <button className="button button--primary button--large" type="button" disabled>Resolving Android APK…</button>
+                ) : (
+                  <a className="button button--primary button--large" href={ANDROID_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("Android")}>
+                    <span>Open Android releases</span><span aria-hidden="true">↗</span>
+                  </a>
+                )}
                 <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
-                  View all desktop installers
+                  All mobile and desktop downloads
+                </button>
+                <button className="download-recommendation__other" type="button" disabled={state.status !== "ready" || state.payload.options.length === 0} onClick={() => setPlatformChooserOpen(true)}>
+                  Send a desktop installer to my computer
                 </button>
                 {savedLinkMessage ? <p className="download-recommendation__message" role="status">{savedLinkMessage}</p> : null}
               </>
@@ -387,6 +455,33 @@ export function DownloadSection() {
 
           <div className="download-options__body">
             <div className="download-grid">
+              <article className="download-card">
+                <div className="download-card__header">
+                  <p className="download-card__eyebrow">iOS PREVIEW</p>
+                  <h3>iOS</h3>
+                  <p>Unsigned IPA builds for iPhone and iPad. Signing or sideloading is required; see the release instructions.</p>
+                </div>
+                <div className="download-card__buttons">
+                  <a className="button button--ghost" href={IOS_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("iOS", "option")}>iOS releases ↗</a>
+                  <a className="text-link" href={IOS_REPOSITORY_URL} target="_blank" rel="noreferrer">iOS repository ↗</a>
+                </div>
+              </article>
+              <article className="download-card">
+                <div className="download-card__header">
+                  <p className="download-card__eyebrow">ANDROID PREVIEW</p>
+                  <h3>Android</h3>
+                  <p>Direct APK download for ARM64 phones, or a universal build when available. Allow installation from your browser only if you trust the source.</p>
+                </div>
+                <div className="download-card__buttons">
+                  {androidDownload ? (
+                    <a className="button button--ghost" href={androidDownload.url} onClick={() => recordDownload({ url: androidDownload.url, label: "Android APK", platform: "Android", downloadId: "android-apk", assetName: androidDownload.assetName })}>Download Android APK ↓</a>
+                  ) : androidState.status === "loading" ? (
+                    <button className="button button--ghost" type="button" disabled>Resolving Android APK…</button>
+                  ) : null}
+                  <a className="text-link" href={ANDROID_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("Android", "option")}>Android releases ↗</a>
+                  <a className="text-link" href={ANDROID_REPOSITORY_URL} target="_blank" rel="noreferrer">Android repository ↗</a>
+                </div>
+              </article>
               <PlatformCard
                 title="Windows"
                 description={platformDescriptions.Windows}
@@ -601,15 +696,6 @@ function formatArchitecture(os: ClientOS, architecture: Exclude<ClientArchitectu
 }
 
 
-function isMobileBrowser(): boolean {
-  if (typeof navigator === "undefined" || typeof window === "undefined") {
-    return false;
-  }
-
-  const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/iu.test(navigator.userAgent);
-  const touchViewport = navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches;
-  return mobileUserAgent || touchViewport;
-}
 
 function detectClientPlatform(): ClientPlatform {
   if (typeof navigator === "undefined") {

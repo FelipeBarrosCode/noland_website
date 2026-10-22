@@ -99,6 +99,27 @@ For automatic Steam title additions and corrections, add `STEAM_WEB_API_KEY` as 
 
 Because `main` is protected, publishing also requires a `CATALOG_UPDATE_TOKEN` secret in the `Environment-PAT` GitHub Actions environment. Use a fine-grained personal access token owned by a repository administrator, limited to this repository, with **Contents: Read and write** permission. The workflow performs a normal fast-forward push and never force-pushes.
 
+## Marketing campaign attribution
+
+The site accepts 10 campaign IDs in the URL hash:
+
+```text
+https://no-land.net/#campaign=campaign-01
+https://no-land.net/#campaign=campaign-02
+...
+https://no-land.net/#campaign=campaign-10
+```
+
+The shorter `#campaign-01` through `#campaign-10` forms are also accepted. After analytics consent is granted, the landing records a `campaign_landing` event and keeps the latest campaign attribution for the browser session. Subsequent PostHog events include `campaign_id` and `campaign_landing_path`, including the download funnel events.
+
+Create a PostHog funnel with these ordered steps:
+
+1. `campaign_landing`
+2. `download_cta_clicked`
+3. `app_download_clicked`
+
+Break the funnel down by the **Step 1 event property** `campaign_id`, aggregate by unique users, and choose an explicit conversion window appropriate for the campaign (for example, 7 days). Use ordered steps rather than strict steps so normal browsing between the landing and download still converts.
+
 ## SEO and performance audit
 
 ```bash
