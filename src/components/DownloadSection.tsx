@@ -5,6 +5,7 @@ import { fetchLatestAndroidDownload, type AndroidDownload } from "../lib/mobileD
 import { fetchLatestReleaseDownloads, type DownloadOption, type DownloadPlatform, type ReleaseDownloads } from "../lib/releaseDownloads";
 import { ANDROID_RELEASES_PAGE_URL, ANDROID_REPOSITORY_URL, DOWNLOADS_SECTION_ID, IOS_RELEASES_PAGE_URL, IOS_REPOSITORY_URL, RELEASES_PAGE_URL } from "../lib/siteLinks";
 import { SectionHeading } from "./SectionHeading";
+import { PlatformIcon } from "./PixelIcon";
 
 type LoadState =
   | { status: "loading" }
@@ -370,6 +371,7 @@ export function DownloadSection() {
               RECOMMENDED FOR THIS DEVICE
             </p>
             <h3 id="recommended-download-title">
+              <PlatformIcon platform={mobilePlatform ?? clientPlatform.os} />
               {mobilePlatform ? `${mobilePlatform} · mobile preview` : formatDetectedPlatform(clientPlatform)}
             </h3>
             <p>
@@ -391,17 +393,17 @@ export function DownloadSection() {
               <>
                 {mobilePlatform === "iOS" ? (
                   <a className="button button--primary button--large" href={IOS_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("iOS")}>
-                    <span>Get iOS builds on GitHub</span><span aria-hidden="true">↗</span>
+                    <PlatformIcon platform="iOS" /><span>Get iOS builds on GitHub</span><span aria-hidden="true">↗</span>
                   </a>
                 ) : androidDownload ? (
                   <a className="button button--primary button--large" href={androidDownload.url} onClick={() => recordDownload({ url: androidDownload.url, label: "Android APK", platform: "Android", downloadId: "android-apk", assetName: androidDownload.assetName }, "recommended")}>
-                    <span>Download Android APK</span><span aria-hidden="true">↓</span>
+                    <PlatformIcon platform="Android" /><span>Download Android APK</span><span aria-hidden="true">↓</span>
                   </a>
                 ) : androidState.status === "loading" ? (
                   <button className="button button--primary button--large" type="button" disabled>Resolving Android APK…</button>
                 ) : (
                   <a className="button button--primary button--large" href={ANDROID_RELEASES_PAGE_URL} onClick={() => recordMobileReleaseVisit("Android")}>
-                    <span>Open Android releases</span><span aria-hidden="true">↗</span>
+                    <PlatformIcon platform="Android" /><span>Open Android releases</span><span aria-hidden="true">↗</span>
                   </a>
                 )}
                 <button className="download-recommendation__other" type="button" onClick={() => openDownloadOptions("download_recommendation")}>
@@ -414,7 +416,8 @@ export function DownloadSection() {
               </>
             ) : recommendedDownload ? (
               <a className="button button--primary button--large" href={recommendedDownload.url} target="_blank" rel="noreferrer" onClick={() => recordDownload({ url: recommendedDownload.url, label: recommendedDownload.label, platform: clientPlatform.os, downloadId: recommendedDownload.id, assetName: recommendedDownload.assetName }, "recommended")}>
-                <span>Download for {clientPlatform.os}</span>
+                <PlatformIcon platform={clientPlatform.os} />
+                                <span>Download for {clientPlatform.os}</span>
                 <span aria-hidden="true">↓</span>
               </a>
             ) : directDownloadPending ? (
@@ -458,7 +461,7 @@ export function DownloadSection() {
               <article className="download-card">
                 <div className="download-card__header">
                   <p className="download-card__eyebrow">iOS PREVIEW</p>
-                  <h3>iOS</h3>
+                  <h3><PlatformIcon platform="iOS" />iOS</h3>
                   <p>Unsigned IPA builds for iPhone and iPad. Signing or sideloading is required; see the release instructions.</p>
                 </div>
                 <div className="download-card__buttons">
@@ -469,7 +472,7 @@ export function DownloadSection() {
               <article className="download-card">
                 <div className="download-card__header">
                   <p className="download-card__eyebrow">ANDROID PREVIEW</p>
-                  <h3>Android</h3>
+                  <h3><PlatformIcon platform="Android" />Android</h3>
                   <p>Direct APK download for ARM64 phones, or a universal build when available. Allow installation from your browser only if you trust the source.</p>
                 </div>
                 <div className="download-card__buttons">
@@ -538,7 +541,7 @@ function PlatformCard({ title, description, buttons, fallbackUrl, fallbackLabel,
     <article className="download-card">
       <div className="download-card__header">
         <p className="download-card__eyebrow">{title.toUpperCase()}</p>
-        <h3>{title}</h3>
+        <h3><PlatformIcon platform={title} />{title}</h3>
         <p>{description}</p>
       </div>
 

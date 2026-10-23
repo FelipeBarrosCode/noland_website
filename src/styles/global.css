@@ -250,6 +250,41 @@ h3 {
   transition: color 150ms ease, background 150ms ease, border-color 150ms ease, transform 160ms var(--ease-out), box-shadow 160ms ease;
 }
 
+.pixel-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: #fff;
+  vertical-align: middle;
+}
+
+.button--primary .pixel-icon {
+  color: inherit;
+}
+
+.nav-actions .button {
+  gap: 8px;
+}
+
+.nav-button-logo {
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}
+
+.download-card h3,
+.download-recommendation h3 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.download-card h3 .pixel-icon,
+.download-recommendation h3 .pixel-icon {
+  width: 32px;
+  height: 32px;
+}
+
 .button:hover {
   transform: translate(-2px, -2px);
 }
@@ -2710,11 +2745,10 @@ summary:active,
   .final-cta__inner > img { width: 310px; height: 260px; }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   html { scroll-padding-top: 72px; }
   .site-header { position: fixed; top: 0; right: 0; left: 0; width: 100%; }
   .site-header + main { padding-top: 64px; }
-  .section { padding: 90px 0 106px; }
   .site-nav { min-height: 64px; }
   .menu-toggle { display: block; }
   .nav-menu { position: absolute; top: 64px; right: 0; left: 0; display: none; padding: 18px; border-bottom: 1px solid var(--line-bright); background: #060814; box-shadow: 0 18px 25px rgba(0, 0, 0, .4); }
@@ -2727,6 +2761,10 @@ summary:active,
   .nav-dropdown__menu { position: static; width: auto; padding: 0 0 8px 14px; border: 0; border-top: 1px solid var(--line); box-shadow: none; transform: none; animation: disclosure-enter 180ms var(--ease-out); }
   .nav-dropdown__menu a { padding: 12px; }
   .nav-actions { margin-top: 17px; }
+}
+
+@media (max-width: 1000px) {
+  .section { padding: 90px 0 106px; }
   .hero { padding-top: 70px; }
   .downloads-status { align-items: flex-start; flex-direction: column; }
   .download-recommendation { grid-template-columns: 1fr; gap: 28px; }
