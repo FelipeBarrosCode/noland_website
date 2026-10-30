@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from "react";
 import { featurePages } from "../lib/featurePages";
+import { PixelIcon } from "./PixelIcon";
 import { DISCORD_URL, DOWNLOADS_SECTION_ID, REPOSITORY_URL, X_URL } from "../lib/siteLinks";
 
 const featureDescriptions: Record<string, string> = {
@@ -82,16 +83,17 @@ export function Navigation() {
           </div>
           <div className="nav-actions">
             <a className="button button--ghost button--small" href={X_URL} target="_blank" rel="noreferrer" aria-label="Open Felipe's profile on X">
-              X <span aria-hidden="true">↗</span>
+              <PixelIcon name="x" /> X <span aria-hidden="true">↗</span>
             </a>
             <a className="button button--ghost button--small" href={DISCORD_URL} target="_blank" rel="noreferrer" aria-label="Join the Noland Discord server">
-              Discord <span aria-hidden="true">↗</span>
+              <PixelIcon name="discord" /> Discord <span aria-hidden="true">↗</span>
             </a>
             <a className="button button--ghost button--small" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
-              GitHub <span aria-hidden="true">↗</span>
+              <PixelIcon name="github" /> GitHub <span aria-hidden="true">↗</span>
             </a>
             <a className="button button--primary button--small" href={`/#${DOWNLOADS_SECTION_ID}`} onClick={closeMenu}>
-              Get Noland <span aria-hidden="true">↓</span>
+              <img className="nav-button-logo" src="/brand/noland-icon.webp" alt="" width="16" height="16" />
+                            Get Noland <span aria-hidden="true">↓</span>
             </a>
           </div>
         </div>
