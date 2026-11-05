@@ -2443,6 +2443,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 20px; border: 2px s
 .game-search .game-search__status { min-height: 20px; margin-top: 8px; color: var(--cyan); font-family: var(--display); font-size: 7px; }
 
 .games-results-section {
+  scroll-margin-top: 100px;
   min-height: 440px;
   padding: 76px 0 90px;
 }

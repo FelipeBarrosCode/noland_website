@@ -4,6 +4,39 @@
   background: #060812;
 }
 
+.live-marketplace__billing-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--orange);
+  border-left-width: 3px;
+  background: #17120e;
+  color: #d6cab6;
+}
+
+.live-marketplace__billing-warning > span {
+  flex: 0 0 auto;
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.live-marketplace__billing-warning p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.live-marketplace__billing-warning strong {
+  color: var(--yellow);
+}
+
+.live-marketplace__billing-warning a {
+  color: var(--yellow);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .live-marketplace {
   position: relative;
   isolation: isolate;

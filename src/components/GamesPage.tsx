@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteFooter } from "./ExperienceSections";
 import { Navigation } from "./Navigation";
 import {
@@ -64,6 +64,8 @@ export function GamesPage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [query, setQuery] = useState("");
   const [settledQuery, setSettledQuery] = useState("");
+  const [searchSubmission, setSearchSubmission] = useState(0);
+  const resultsRef = useRef<HTMLElement>(null);
   const [liveRatings, setLiveRatings] = useState<Map<number, { tier: string | null; checkedAt: string }>>(new Map());
   const [checkingIds, setCheckingIds] = useState<Set<number>>(new Set());
   const [failedCheckIds, setFailedCheckIds] = useState<Set<number>>(new Set());
@@ -101,6 +103,14 @@ export function GamesPage() {
   const canSearch = loadState === "ready";
   const normalizedQueryLength = normalizeGameTitle(settledQuery).length;
   const hasSearched = canSearch && normalizedQueryLength >= 2;
+
+  useEffect(() => {
+    if (searchSubmission === 0) return;
+    resultsRef.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      block: "start",
+    });
+  }, [searchSubmission]);
 
   useEffect(() => {
     if (!hasSearched) return;
@@ -152,13 +162,19 @@ export function GamesPage() {
             <h1 id="games-title">Can you play it on <span>No Land?</span></h1>
             <p className="games-hero__lede">Search for a game to check its Linux compatibility using Steam and ProtonDB data.</p>
 
-            <div className="game-search">
+            <form className="game-search" onSubmit={(event) => {
+              event.preventDefault();
+              if (!canSearch || normalizeGameTitle(query).length < 2) return;
+              setSettledQuery(query);
+              setSearchSubmission((submission) => submission + 1);
+            }}>
               <label htmlFor="game-search-input">Search the Steam catalog</label>
               <div className="game-search__field">
                 <span aria-hidden="true">⌕</span>
                 <input
                   id="game-search-input"
                   type="search"
+                  enterKeyHint="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search games by title…"
@@ -175,11 +191,11 @@ export function GamesPage() {
                 {loadState === "ready" && normalizedQueryLength < 2 ? "Enter at least two characters to search." : null}
                 {hasSearched ? `${results.length} ${results.length === 1 ? "result" : "results"} shown.` : null}
               </p>
-            </div>
+            </form>
           </div>
         </section>
 
-        <section className="games-results-section" aria-label="Game compatibility results">
+        <section ref={resultsRef} className="games-results-section" aria-label="Game compatibility results">
           <div className="shell">
             {loadState === "error" ? (
               <div className="games-message games-message--error" role="alert">

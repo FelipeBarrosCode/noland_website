@@ -150,7 +150,7 @@ export const seoPages: SeoPage[] = [
     lede:
       "Choose live GPU marketplace hardware through your Vast.ai account, run it when you want to play, and pay the compute rate associated with that instance while it is running.",
     quickAnswer:
-      "Noland has no monthly subscription. Instead, you pay Vast.ai marketplace compute while your selected Linux gaming instance runs; typical overall compute is about $0.10–$0.40 per hour, but current supply and configuration determine the actual rate.",
+      "Noland has no monthly subscription. Instead, you pay Vast.ai marketplace compute while your selected Linux gaming instance runs; typical overall compute is about $0.10–$0.40 per hour, but current supply and configuration determine the actual rate. You are charged while the instance runs, even when you are not playing. Back up your games and saves with Shared Storage before destroying the instance to end its compute and instance storage charges.",
     highlights: [
       { value: "$0/mo", label: "Noland subscription" },
       { value: "Per hour", label: "marketplace compute model" },
@@ -171,6 +171,17 @@ export const seoPages: SeoPage[] = [
         ],
         links: [
           { href: "/vast-ai-cloud-gaming/", label: "Learn about the Vast.ai marketplace model" },
+        ],
+      },
+      {
+        eyebrow: "Avoid idle charges",
+        heading: "Back up your games, then destroy the instance",
+        paragraphs: [
+          "You are charged while your instance is running, even if you are not playing or have closed the stream. Destroy the instance when you are finished to end its compute and instance storage charges; simply disconnecting does not end billing.",
+          "Destroying an instance deletes its local data. Use Shared Storage to back up your games and saves, and confirm the backup has completed before destroying the instance so you can restore them on another machine.",
+        ],
+        links: [
+          { href: "/features/shared-storage/", label: "Learn how to keep your games and saves with Shared Storage" },
         ],
       },
       {

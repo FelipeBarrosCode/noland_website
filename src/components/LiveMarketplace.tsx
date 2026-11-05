@@ -265,6 +265,15 @@ export function LiveMarketplace() {
           description="Live rentable single-GPU VM offers from Vast.ai, combined across on-demand, interruptible, and reserved inventory. Choose a country and storage amount to update availability and estimated pricing."
         />
 
+        <aside className="live-marketplace__billing-warning" aria-label="Machine billing warning">
+          <span aria-hidden="true">!</span>
+          <p>
+            <strong>You’re charged while your machine is on—even when you’re not playing.</strong>{" "}
+            Turn it off when you’re finished to avoid paying for idle time. To keep your games and saves between machines, use{" "}
+            <a href="/features/shared-storage/">Shared Storage</a>.
+          </p>
+        </aside>
+
         <div className="live-marketplace">
           <div className="live-marketplace__toolbar">
             <div className={`live-marketplace__status is-${loadState}`} role="status" aria-live="polite">
