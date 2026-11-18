@@ -75,6 +75,42 @@ npm run preview
 
 The production output is generated in `dist/`.
 
+## Cached release download links
+
+The download section reads `/downloads/releases.json` from this site, not the
+GitHub API. Desktop and Android requests share a single in-flight lookup, and
+Cloudflare/browser headers cache this small JSON for five minutes. Installer
+links still go directly to the original GitHub release assets; no binaries
+are mirrored, downloaded, or stored by the updater.
+
+**Update release download cache** runs every 30 minutes, on relevant main-branch
+changes, on manual dispatch, or on a `noland-release-published` repository dispatch.
+It uses the job's `GITHUB_TOKEN` for authenticated metadata reads, validates the
+stable desktop installers for all six OS/architecture targets, and paginates
+Android metadata before choosing the newest published phone APK by publication
+time. Android preview releases remain supported.
+
+The action atomically commits only changed metadata using the existing
+`Environment-PAT` / `CATALOG_UPDATE_TOKEN` website publishing configuration,
+triggering the normal website deployment. It does not install dependencies or
+rebuild the site just to check for a new release. The initial snapshot is committed
+with the code so download links work on the first deployment. Refresh latency is
+the schedule delay (GitHub schedules can be late), plus deployment and CDN refresh.
+Run the action manually when a new release needs to be picked up sooner.
+
+API errors, rate limits, incomplete desktop releases, unsafe URLs, or excessive
+pagination fail the refresh without overwriting the last known good snapshot.
+Unchanged responses do not create commits or trigger deployments. No API token is
+sent to visitors, and a failed browser cache fetch does not fall back to GitHub's
+API and recreate the rate-limit problem; the existing release-page fallback remains.
+
+Pull requests run updater/client regression tests and a full site build on GitHub.
+To refresh metadata in an authorized update environment:
+
+```bash
+GITHUB_TOKEN=... node scripts/update-release-cache.mjs
+```
+
 ## Games compatibility catalog
 
 The `/games/` page searches a static Steam and ProtonDB catalog in the browser. Steam is never called at runtime. For the first three displayed results that have no cached rating, the browser calls the same-origin Cloudflare Worker, which retrieves the ProtonDB summary and edge-caches successful ratings for seven days or missing summaries for 24 hours. Generate the production catalog in a separate scheduled update environment:

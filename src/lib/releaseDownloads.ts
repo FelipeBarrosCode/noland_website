@@ -1,4 +1,5 @@
-import { RELEASES_API_URL, RELEASES_PAGE_URL } from "./siteLinks";
+import { RELEASES_PAGE_URL } from "./siteLinks";
+import { fetchReleaseCache } from "./releaseCache";
 
 export type DownloadPlatform = "macOS" | "Linux" | "Windows";
 
@@ -23,17 +24,6 @@ export type ReleaseDownloads = {
 type GithubReleaseAsset = {
   name: string;
   browser_download_url: string;
-};
-
-type GithubRelease = {
-  name: string | null;
-  tag_name: string;
-  html_url: string;
-  draft: boolean;
-  prerelease: boolean;
-  updated_at: string;
-  published_at: string | null;
-  assets: GithubReleaseAsset[];
 };
 
 type DownloadDefinition = Omit<DownloadOption, "url" | "assetName"> & {
@@ -149,17 +139,7 @@ const downloadDefinitions: DownloadDefinition[] = [
 ];
 
 export async function fetchLatestReleaseDownloads(): Promise<ReleaseDownloads> {
-  const response = await fetch(RELEASES_API_URL, {
-    headers: {
-      Accept: "application/vnd.github+json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub release lookup failed with status ${response.status}`);
-  }
-
-  const latest = (await response.json()) as GithubRelease;
+  const latest = (await fetchReleaseCache()).desktop;
 
   if (latest.draft) {
     throw new Error("The rolling GitHub release is not currently published.");

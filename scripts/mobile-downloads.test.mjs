@@ -18,8 +18,9 @@ function moduleUrl(fileName, dependencies = {}) {
 const linksUrl = moduleUrl("siteLinks");
 const links = await import(linksUrl);
 const platform = await import(moduleUrl("clientPlatform"));
+const cacheUrl = moduleUrl("releaseCache");
 const { resolveLatestAndroidDownload, fetchLatestAndroidDownload } = await import(
-  moduleUrl("mobileDownloads", { "./siteLinks": linksUrl }),
+  moduleUrl("mobileDownloads", { "./siteLinks": linksUrl, "./releaseCache": cacheUrl }),
 );
 const { ANDROID_REPOSITORY_URL, ANDROID_RELEASES_PAGE_URL, ANDROID_RELEASES_API_URL } = links;
 
@@ -265,33 +266,24 @@ test("throws for empty or malformed release lists, ignoring malformed individual
   assert.equal(resolveLatestAndroidDownload([null, {}, release()]).assetName, asset().name);
 });
 
-test("fetches the releases list (not latest) with GitHub headers and an abort signal", async (t) => {
-  const fetchMock = mockFetch(t, [release({ prerelease: true })]);
+test("fetches the same-origin release cache with JSON headers and an abort signal", async (t) => {
+  const fetchMock = mockFetch(t, { schemaVersion: 1, desktop: {}, android: [release({ prerelease: true })] });
   const clearTimer = t.mock.method(globalThis, "clearTimeout");
   const result = await fetchLatestAndroidDownload();
   assert.equal(result.isPrerelease, true);
   assert.equal(fetchMock.mock.callCount(), 1);
   const [url, options] = fetchMock.mock.calls[0].arguments;
-  const requested = new URL(url);
-  assert.equal(`${requested.origin}${requested.pathname}`, ANDROID_RELEASES_API_URL);
-  assert.equal(requested.searchParams.get("per_page"), "100");
-  assert.equal(requested.searchParams.get("page"), "1");
-  assert.equal(options.headers.Accept, "application/vnd.github+json");
+  assert.equal(url, "/downloads/releases.json");
+  assert.equal(options.headers.Accept, "application/json");
   assert.ok(options.signal instanceof AbortSignal);
   assert.equal(clearTimer.mock.callCount(), 1);
 });
 
-test("paginates before selecting by publication time and shares one timeout signal", async (t) => {
-  const firstPage = Array.from({ length: 100 }, () => release());
-  const secondPage = [release({ name: "Published later", published_at: "2026-10-22T00:00:00Z", prerelease: true })];
-  const fetchMock = t.mock.method(globalThis, "fetch", async (url) => ({
-    ok: true,
-    json: async () => new URL(url).searchParams.get("page") === "1" ? firstPage : secondPage,
-  }));
-  assert.equal((await fetchLatestAndroidDownload()).releaseLabel, "Published later");
-  assert.equal(fetchMock.mock.callCount(), 2);
-  assert.equal(new URL(fetchMock.mock.calls[1].arguments[0]).searchParams.get("page"), "2");
-  assert.equal(fetchMock.mock.calls[0].arguments[1].signal, fetchMock.mock.calls[1].arguments[1].signal);
+test("simultaneous callers share a single same-origin lookup without browser pagination", async (t) => {
+  const fetchMock = mockFetch(t, { schemaVersion: 1, desktop: {}, android: [release()] });
+  const results = await Promise.all([fetchLatestAndroidDownload(), fetchLatestAndroidDownload()]);
+  assert.equal(results[0].assetName, results[1].assetName);
+  assert.equal(fetchMock.mock.callCount(), 1);
 });
 
 test("throws on HTTP failures rather than returning a fallback or cached result", async (t) => {
@@ -317,7 +309,8 @@ test("throws on invalid JSON, invalid payloads, and no matching downloads", asyn
   }));
   await assert.rejects(fetchLatestAndroidDownload(), (error) => error === failure);
   invalidJson.mock.restore();
-  for (const [body, message] of [[{}, /expected a list/], [[], /No published Android release/]]) {
+  for (const [body, message] of [[{}, /Invalid download cache/],
+    [{ schemaVersion: 1, desktop: {}, android: [] }, /No published Android release/]]) {
     const fetchMock = mockFetch(t, body);
     await assert.rejects(fetchLatestAndroidDownload(), message);
     fetchMock.mock.restore();

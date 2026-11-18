@@ -1,0 +1,93 @@
+name: Update release download cache
+
+on:
+  schedule:
+    - cron: "13,43 * * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [noland-release-published]
+  pull_request:
+    paths:
+      - ".github/workflows/update-release-cache.yml"
+      - "scripts/*release*.mjs"
+      - "scripts/mobile-downloads.test.mjs"
+      - "src/lib/release*.ts"
+      - "src/lib/mobileDownloads.ts"
+      - "public/downloads/**"
+      - "public/_headers"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-release-cache.yml"
+      - "scripts/*release*.mjs"
+      - "scripts/mobile-downloads.test.mjs"
+      - "src/lib/release*.ts"
+      - "src/lib/mobileDownloads.ts"
+      - "public/_headers"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-download-cache-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'publisher' }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: node --test scripts/release-cache.test.mjs scripts/release-downloads.test.mjs scripts/mobile-downloads.test.mjs
+      - run: npm run build
+
+  refresh:
+    needs: validate
+    if: >-
+      always() && github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      (needs.validate.result == 'success' || needs.validate.result == 'skipped')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: Environment-PAT
+    permissions:
+      contents: write
+    steps:
+      - name: Require the existing website publishing token
+        env:
+          PUBLISH_TOKEN: ${{ secrets.CATALOG_UPDATE_TOKEN }}
+        run: |
+          if [ -z "$PUBLISH_TOKEN" ]; then
+            echo "::error::The existing Environment-PAT CATALOG_UPDATE_TOKEN is required to publish cached metadata and trigger the website deployment."
+            exit 1
+          fi
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: main
+          token: ${{ secrets.CATALOG_UPDATE_TOKEN }}
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "22"
+      - name: Test metadata updater without installing dependencies
+        run: node --test scripts/release-cache.test.mjs
+      - name: Refresh authenticated release metadata only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/update-release-cache.mjs
+      - name: Commit changed cache and trigger normal website deployment
+        run: |
+          if git diff --quiet -- public/downloads/releases.json && [ -z "$(git ls-files --others --exclude-standard public/downloads/releases.json)" ]; then
+            echo "Release download cache is unchanged; no deployment needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- public/downloads/releases.json
+          git commit -m "chore(downloads): refresh cached release links"
+          git pull --rebase origin main
+          git push origin HEAD:main
