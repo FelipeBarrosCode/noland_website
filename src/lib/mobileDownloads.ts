@@ -1,4 +1,5 @@
-import { ANDROID_RELEASES_API_URL, ANDROID_RELEASES_PAGE_URL, ANDROID_REPOSITORY_URL } from "./siteLinks";
+import { ANDROID_RELEASES_PAGE_URL, ANDROID_REPOSITORY_URL } from "./siteLinks";
+import { fetchReleaseCache } from "./releaseCache";
 
 export type AndroidDownload = {
   url: string;
@@ -8,8 +9,6 @@ export type AndroidDownload = {
   isPrerelease: boolean;
 };
 
-const FETCH_TIMEOUT_MS = 10_000;
-const RELEASES_PER_PAGE = 100;
 const repository = new URL(ANDROID_REPOSITORY_URL);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -92,28 +91,5 @@ export function resolveLatestAndroidDownload(releases: unknown): AndroidDownload
 }
 
 export async function fetchLatestAndroidDownload(): Promise<AndroidDownload> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  try {
-    const releases: unknown[] = [];
-    // GitHub lists by creation time; collect every page before sorting by publication time.
-    for (let page = 1; ; page += 1) {
-      const url = new URL(ANDROID_RELEASES_API_URL);
-      url.searchParams.set("per_page", String(RELEASES_PER_PAGE));
-      url.searchParams.set("page", String(page));
-      const response = await fetch(url.href, {
-        headers: { Accept: "application/vnd.github+json" },
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error(`GitHub Android release lookup failed with status ${response.status}`);
-      const batch: unknown = await response.json();
-      if (!Array.isArray(batch)) throw new Error("Invalid GitHub releases response: expected a list.");
-      releases.push(...batch);
-      if (batch.length < RELEASES_PER_PAGE) break;
-    }
-    return resolveLatestAndroidDownload(releases);
-  } finally {
-    clearTimeout(timeout);
-  }
+  return resolveLatestAndroidDownload((await fetchReleaseCache()).android);
 }

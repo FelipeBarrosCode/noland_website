@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "desktop": {
+    "name": "v0.1.30",
+    "tag_name": "v0.1.30",
+    "html_url": "https://github.com/FelipeBarrosCode/no_land/releases/tag/v0.1.30",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2026-11-18T05:42:02Z",
+    "assets": [
+      {
+        "name": "noland-connect-0.1.30-1-x86_64.pkg.tar.zst",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/noland-connect-0.1.30-1-x86_64.pkg.tar.zst",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_aarch64.AppImage",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_aarch64.AppImage",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_aarch64.dmg",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_aarch64.dmg",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_amd64.AppImage",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_amd64.AppImage",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_amd64.deb",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_amd64.deb",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_arm64-setup.exe",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_arm64-setup.exe",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_arm64.deb",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_arm64.deb",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_x64-setup.exe",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_x64-setup.exe",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect_0.1.30_x64.dmg",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect_0.1.30_x64.dmg",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect-0.1.30-1.aarch64.rpm",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect-0.1.30-1.aarch64.rpm",
+        "state": "uploaded"
+      },
+      {
+        "name": "Noland.Connect-0.1.30-1.x86_64.rpm",
+        "browser_download_url": "https://github.com/FelipeBarrosCode/no_land/releases/download/v0.1.30/Noland.Connect-0.1.30-1.x86_64.rpm",
+        "state": "uploaded"
+      }
+    ]
+  },
+  "android": [
+    {
+      "name": "No Land Android 0.1.17 (5201)",
+      "tag_name": "android-v0.1.17-build.5201",
+      "html_url": "https://github.com/FelipeBarrosCode/no_land_android/releases/tag/android-v0.1.17-build.5201",
+      "draft": false,
+      "prerelease": true,
+      "published_at": "2026-11-10T22:49:08Z",
+      "assets": [
+        {
+          "name": "no-land-android-0.1.17-5201-arm64-debug.apk",
+          "browser_download_url": "https://github.com/FelipeBarrosCode/no_land_android/releases/download/android-v0.1.17-build.5201/no-land-android-0.1.17-5201-arm64-debug.apk",
+          "state": "uploaded"
+        }
+      ]
+    }
+  ]
+}
